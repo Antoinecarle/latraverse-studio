@@ -1,7 +1,11 @@
 node_modules/
 .env
 .playwright-mcp/
+*.png
+!public/images/*.png
+*.log
+landing-immersive.png
+studio-page.png
 current-state.png
 full-page-final.png
 full-page-revealed.png
-*.log

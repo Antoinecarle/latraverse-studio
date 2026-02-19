@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Traverse — Studio digital</title>
+<meta name="description" content="La Traverse. Studio digital a Marseille. On accompagne artisans, commercants et independants dans leur traversee numerique.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='28' font-size='28'%3E%E2%9B%B5%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/landing.css">
+</head>
+<body>
+  <!-- Cursor glow -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- Full-screen immersive landing -->
+  <div class="scene" id="scene">
+
+    <!-- Floating particles -->
+    <canvas id="particles"></canvas>
+
+    <!-- Centered content -->
+    <div class="center">
+      <div class="logo-mark">
+        <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 5L55 50H5L30 5Z" stroke="rgba(196,98,42,0.4)" stroke-width="1" fill="none"/>
+          <path d="M30 15L45 45H15L30 15Z" stroke="rgba(196,98,42,0.6)" stroke-width="1" fill="none"/>
+          <circle cx="30" cy="32" r="3" fill="#c4622a" opacity="0.8"/>
+        </svg>
+      </div>
+
+      <h1 class="title">
+        <span class="title-la">La</span>
+        <span class="title-traverse">Traverse</span>
+      </h1>
+
+      <p class="subtitle">Studio digital &middot; Marseille</p>
+
+      <div class="tagline">
+        <span class="tagline-line" data-delay="0">Du metier au numerique,</span>
+        <span class="tagline-line" data-delay="1">sans jamais vous perdre.</span>
+      </div>
+
+      <a href="/studio" class="enter-btn" id="enterBtn">
+        <span class="enter-btn-text">Entrer</span>
+        <span class="enter-btn-arrow">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </span>
+        <span class="enter-btn-glow"></span>
+      </a>
+    </div>
+
+    <!-- Bottom ambient info -->
+    <div class="bottom-bar">
+      <span class="bottom-item">Adrien & Antoine</span>
+      <span class="bottom-sep">/</span>
+      <span class="bottom-item">hello@latraverse.studio</span>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-hint" id="scrollHint">
+      <div class="scroll-hint-line"></div>
+    </div>
+  </div>
+
+  <script src="/js/landing.js"></script>
+</body>
+</html>
