@@ -2,3 +2,6 @@ node_modules/
 .env
 .playwright-mcp/
 current-state.png
+full-page-final.png
+full-page-revealed.png
+*.log
