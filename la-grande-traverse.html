@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Traverse — Studio digital · Marseille</title>
+<meta name="description" content="La Traverse, studio digital a Marseille. Adrien & Antoine accompagnent artisans, commercants et independants dans leur traversee numerique. Site vitrine, application, SaaS, e-commerce.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='28' font-size='28'%3E%E2%9B%B5%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --copper: #c4622a;
+    --copper-light: #d4722e;
+    --copper-glow: rgba(196,98,42,0.25);
+    --night: #0c0f13;
+    --night-light: #141820;
+    --night-card: #111520;
+    --fog: rgba(255,255,255,0.45);
+    --mist: rgba(255,255,255,0.2);
+    --ghost: rgba(255,255,255,0.08);
+    --text-bright: rgba(255,255,255,0.9);
+    --text-dim: rgba(255,255,255,0.35);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Instrument Sans', sans-serif;
+    background: var(--night);
+    color: #fff;
+    overflow-x: hidden;
+  }
+
+  /* ==========================================
+     GLOBAL UTILITIES
+     ========================================== */
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--copper);
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--text-bright);
+    margin-bottom: 20px;
+  }
+  .section-title em {
+    font-style: italic;
+    color: var(--copper);
+  }
+  .section-desc {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--text-dim);
+    max-width: 560px;
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.8s cubic-bezier(0.4,0,0.2,1), transform 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ==========================================
+     ATMOSPHERIC BACKGROUND
+     ========================================== */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(196,98,42,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 60%, rgba(30,50,80,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 100%, rgba(196,98,42,0.05) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== NAV ===== */
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, var(--night), transparent);
+    transition: all 0.4s;
+  }
+  .nav.scrolled {
+    background: rgba(12,15,19,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 14px 48px;
+    border-bottom: 1px solid var(--ghost);
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-logo-accent {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--copper);
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--fog);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--copper);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover { color: #fff; }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-cta-small {
+    padding: 10px 22px;
+    border: 1px solid var(--mist);
+    color: #fff !important;
+    border-radius: 4px;
+    font-size: 13px !important;
+    transition: all 0.3s !important;
+  }
+  .nav-cta-small::after { display: none !important; }
+  .nav-cta-small:hover {
+    background: var(--copper) !important;
+    border-color: var(--copper) !important;
+  }
+
+  /* Mobile menu */
+  .nav-hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+    background: none;
+    border: none;
+  }
+  .nav-hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: #fff;
+    transition: all 0.3s;
+  }
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 280px;
+    height: 100vh;
+    background: var(--night-light);
+    z-index: 200;
+    padding: 80px 32px 32px;
+    transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
+    border-left: 1px solid var(--ghost);
+  }
+  .mobile-menu.open { right: 0; }
+  .mobile-menu a {
+    display: block;
+    color: var(--fog);
+    text-decoration: none;
+    font-size: 18px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--ghost);
+    transition: color 0.3s;
+  }
+  .mobile-menu a:hover { color: var(--copper); }
+  .mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 199;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .mobile-overlay.open { opacity: 1; }
+
+  /* ===== HERO ===== */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 160px 40px 80px;
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+  }
+  .hero-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.15;
+    filter: blur(1px);
+  }
+  .hero-content {
+    max-width: 860px;
+    width: 100%;
+  }
+  .hero-badge {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--fog);
+    margin-bottom: 28px;
+    letter-spacing: 1px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.2s;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(52px, 8vw, 110px);
+    font-weight: 700;
+    line-height: 0.92;
+    margin-bottom: 12px;
+    letter-spacing: -2px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.4s;
+  }
+  .hero-title-accent {
+    display: block;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--copper);
+  }
+  .hero-desc {
+    font-family: 'Libre Baskerville', serif;
+    font-size: clamp(16px, 1.8vw, 18px);
+    line-height: 1.85;
+    color: var(--fog);
+    max-width: 540px;
+    margin: 32px auto 0;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.6s;
+  }
+
+  /* ===== REASSURANCE STRIP ===== */
+  .reassurance {
+    position: relative;
+    z-index: 1;
+    padding: 0 40px 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.8s;
+  }
+  .reassurance-inner {
+    max-width: 700px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+  .reassurance-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+  }
+  .reassurance-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--ghost);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .reassurance-sep {
+    width: 1px;
+    height: 24px;
+    background: var(--ghost);
+  }
+
+  /* ===== JOURNEY PATH ===== */
+  .journey {
+    position: relative;
+    z-index: 1;
+    padding: 0 40px 56px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 1s;
+  }
+  .journey-inner { max-width: 800px; margin: 0 auto; }
+  .journey-path {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+  .journey-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.4s;
+  }
+  .journey-node:hover .jn-circle {
+    border-color: var(--copper);
+    background: rgba(196,98,42,0.1);
+    transform: scale(1.12);
+  }
+  .jn-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    border: 2px solid var(--ghost);
+    background: rgba(255,255,255,0.02);
+    transition: all 0.4s;
+  }
+  .jn-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    font-weight: 600;
+  }
+  .journey-line {
+    width: 64px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--ghost), var(--copper), var(--ghost));
+    margin: 0 -4px;
+    margin-bottom: 28px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .journey-line::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--copper);
+    animation: travel 3s ease-in-out infinite;
+  }
+  .journey-line:nth-child(2)::after { animation-delay: 0s; }
+  .journey-line:nth-child(4)::after { animation-delay: 0.4s; }
+  .journey-line:nth-child(6)::after { animation-delay: 0.8s; }
+  .journey-line:nth-child(8)::after { animation-delay: 1.2s; }
+
+  @keyframes travel {
+    0% { left: 0; opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+  }
+
+  /* ===== CTA BUTTON ===== */
+  .cta-section {
+    position: relative;
+    z-index: 1;
+    padding: 0 40px 40px;
+    text-align: center;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 1.2s;
+  }
+  .cta-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 44px;
+    border: 1px solid var(--mist);
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 16px;
+    transition: all 0.4s;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--copper);
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .cta-main:hover::before { transform: translateY(0); }
+  .cta-main span, .cta-main svg { position: relative; z-index: 1; }
+  .cta-main:hover {
+    border-color: var(--copper);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px var(--copper-glow);
+  }
+  .cta-main svg { transition: transform 0.3s; }
+  .cta-main:hover svg { transform: translateX(4px); }
+
+  /* ===== PARCOURS / SERVICES ===== */
+  .parcours {
+    position: relative;
+    z-index: 1;
+    padding: 100px 40px 120px;
+  }
+  .parcours-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .parcours-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .parcours-header .section-desc {
+    margin: 0 auto;
+  }
+  .parcours-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .parcours-card {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--ghost);
+    background: var(--night-card);
+    transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
+    cursor: pointer;
+    position: relative;
+  }
+  .parcours-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(196,98,42,0.3);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(196,98,42,0.15);
+  }
+  .parcours-card-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s;
+  }
+  .parcours-card:hover .parcours-card-img {
+    transform: scale(1.05);
+  }
+  .parcours-card-img-wrap {
+    overflow: hidden;
+    position: relative;
+  }
+  .parcours-card-img-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(to top, var(--night-card), transparent);
+  }
+  .parcours-card-body {
+    padding: 28px 28px 32px;
+  }
+  .parcours-card-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--copper);
+    margin-bottom: 12px;
+  }
+  .parcours-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-bright);
+    margin-bottom: 12px;
+  }
+  .parcours-card-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .parcours-card-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .parcours-feature {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    background: var(--ghost);
+    color: var(--fog);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .parcours-card-arrow {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--ghost);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    z-index: 2;
+  }
+  .parcours-card:hover .parcours-card-arrow {
+    background: var(--copper);
+  }
+  .parcours-card-arrow svg {
+    width: 16px;
+    height: 16px;
+    stroke: #fff;
+    transition: transform 0.3s;
+  }
+  .parcours-card:hover .parcours-card-arrow svg {
+    transform: translateX(2px);
+  }
+
+  /* ===== ANTI-FOMO / PROMISE ===== */
+  .anti-fomo {
+    position: relative;
+    z-index: 1;
+    padding: 80px 40px 100px;
+  }
+  .anti-fomo-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .anti-fomo-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--copper);
+    margin: 0 auto 40px;
+    opacity: 0.5;
+  }
+  .anti-fomo-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 3.5vw, 40px);
+    font-weight: 400;
+    line-height: 1.3;
+    margin-bottom: 32px;
+    color: rgba(255,255,255,0.85);
+  }
+  .anti-fomo-title em {
+    font-style: italic;
+    color: var(--copper);
+  }
+  .anti-fomo-text {
+    font-size: 16px;
+    line-height: 1.9;
+    color: rgba(255,255,255,0.4);
+    max-width: 600px;
+    margin: 0 auto 48px;
+  }
+  .promise-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--ghost);
+    border: 1px solid var(--ghost);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .promise-card {
+    background: var(--night-light);
+    padding: 36px 28px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .promise-card:hover { background: rgba(255,255,255,0.04); }
+  .promise-icon { font-size: 28px; margin-bottom: 16px; }
+  .promise-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    margin-bottom: 8px;
+    color: rgba(255,255,255,0.85);
+  }
+  .promise-desc {
+    font-size: 13px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.35);
+  }
+
+  /* ===== ABOUT / TEAM ===== */
+  .about {
+    position: relative;
+    z-index: 1;
+    padding: 100px 40px 120px;
+    overflow: hidden;
+  }
+  .about-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .about-text .section-label { text-align: left; }
+  .about-text .section-title {
+    text-align: left;
+    margin-bottom: 24px;
+  }
+  .about-text .section-desc {
+    margin-bottom: 32px;
+  }
+  .about-values {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .about-value {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .about-value-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(196,98,42,0.1);
+    border: 1px solid rgba(196,98,42,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .about-value-text h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+  }
+  .about-value-text p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .about-visual {
+    position: relative;
+  }
+  .about-img-main {
+    width: 100%;
+    border-radius: 16px;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    border: 1px solid var(--ghost);
+  }
+  .about-team {
+    display: flex;
+    gap: 20px;
+    margin-top: -60px;
+    padding: 0 20px;
+    position: relative;
+    z-index: 2;
+  }
+  .about-team-card {
+    flex: 1;
+    background: var(--night-card);
+    border: 1px solid var(--ghost);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s;
+  }
+  .about-team-card:hover {
+    border-color: rgba(196,98,42,0.3);
+    transform: translateY(-4px);
+  }
+  .about-team-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--ghost);
+  }
+  .about-team-info h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+  .about-team-info p {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  /* ===== TESTIMONIALS ===== */
+  .testimonials {
+    position: relative;
+    z-index: 1;
+    padding: 100px 40px;
+    background: linear-gradient(180deg, transparent, rgba(196,98,42,0.03), transparent);
+  }
+  .testimonials-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .testimonials-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .testimonials-header .section-desc { margin: 0 auto; }
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .testimonial-card {
+    background: var(--night-card);
+    border: 1px solid var(--ghost);
+    border-radius: 16px;
+    padding: 32px;
+    transition: all 0.4s;
+    position: relative;
+  }
+  .testimonial-card:hover {
+    border-color: rgba(196,98,42,0.2);
+    transform: translateY(-4px);
+  }
+  .testimonial-quote-mark {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    color: var(--copper);
+    line-height: 1;
+    margin-bottom: 8px;
+    opacity: 0.6;
+  }
+  .testimonial-text {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--fog);
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid var(--ghost);
+  }
+  .testimonial-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--copper), var(--copper-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .testimonial-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-bright);
+  }
+  .testimonial-role {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  /* ===== PROCESS DETAIL ===== */
+  .process {
+    position: relative;
+    z-index: 1;
+    padding: 100px 40px 120px;
+  }
+  .process-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .process-header {
+    text-align: center;
+    margin-bottom: 72px;
+  }
+  .process-header .section-desc { margin: 0 auto; }
+  .process-steps {
+    position: relative;
+  }
+  .process-steps::before {
+    content: '';
+    position: absolute;
+    left: 31px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--copper), var(--ghost), var(--copper));
+  }
+  .process-step {
+    display: flex;
+    gap: 32px;
+    margin-bottom: 48px;
+    align-items: flex-start;
+  }
+  .process-step:last-child { margin-bottom: 0; }
+  .process-step-num {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--night-card);
+    border: 2px solid var(--ghost);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--copper);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s;
+  }
+  .process-step:hover .process-step-num {
+    border-color: var(--copper);
+    background: rgba(196,98,42,0.1);
+    box-shadow: 0 0 24px var(--copper-glow);
+  }
+  .process-step-content {
+    flex: 1;
+    padding-top: 12px;
+  }
+  .process-step-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text-bright);
+    margin-bottom: 8px;
+  }
+  .process-step-desc {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text-dim);
+  }
+  .process-step-duration {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--copper);
+    letter-spacing: 1px;
+    margin-top: 12px;
+    opacity: 0.8;
+  }
+
+  /* ===== CONTACT CTA ===== */
+  .contact {
+    position: relative;
+    z-index: 1;
+    padding: 100px 40px 120px;
+  }
+  .contact-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .contact-card {
+    background: var(--night-card);
+    border: 1px solid var(--ghost);
+    border-radius: 20px;
+    padding: 64px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at center, rgba(196,98,42,0.06), transparent 60%);
+    pointer-events: none;
+  }
+  .contact-card .section-label { position: relative; }
+  .contact-card .section-title {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  .contact-card .section-desc {
+    margin: 0 auto 40px;
+    position: relative;
+  }
+  .contact-methods {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+  .contact-method {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--fog);
+    text-decoration: none;
+    font-size: 15px;
+    transition: color 0.3s;
+  }
+  .contact-method:hover { color: var(--copper); }
+  .contact-method-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--ghost);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.3s;
+  }
+  .contact-method:hover .contact-method-icon {
+    background: rgba(196,98,42,0.15);
+  }
+  .contact-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 40px;
+    background: var(--copper);
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.4s;
+    position: relative;
+  }
+  .contact-cta-btn:hover {
+    background: var(--copper-light);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px var(--copper-glow);
+  }
+  .contact-cta-btn svg {
+    transition: transform 0.3s;
+  }
+  .contact-cta-btn:hover svg {
+    transform: translateX(4px);
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--ghost);
+  }
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 40px 32px;
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 48px;
+  }
+  .footer-brand .nav-logo {
+    margin-bottom: 16px;
+  }
+  .footer-brand-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .footer-social {
+    display: flex;
+    gap: 12px;
+  }
+  .footer-social a {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--ghost);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fog);
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 16px;
+  }
+  .footer-social a:hover {
+    background: rgba(196,98,42,0.15);
+    color: var(--copper);
+  }
+  .footer-col h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-bright);
+    margin-bottom: 16px;
+  }
+  .footer-col a {
+    display: block;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 14px;
+    padding: 6px 0;
+    transition: color 0.3s;
+  }
+  .footer-col a:hover { color: var(--copper); }
+  .footer-bottom {
+    border-top: 1px solid var(--ghost);
+    padding-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: rgba(255,255,255,0.2);
+  }
+  .footer-bottom a {
+    color: rgba(255,255,255,0.3);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-bottom a:hover { color: var(--copper); }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ==========================================
+     ONBOARDING OVERLAY
+     ========================================== */
+  .onboarding-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: #fff;
+    color: #111;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .onboarding-overlay.active { opacity: 1; visibility: visible; }
+  .ob-nav {
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
+  }
+  .ob-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #111;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .ob-logo-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: #bbb;
+    font-weight: 400;
+  }
+  .ob-nav-right { display: flex; align-items: center; gap: 24px; }
+  .ob-step-indicator {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: #bbb;
+    letter-spacing: 2px;
+  }
+  .ob-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #eee;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    color: #999;
+    font-size: 18px;
+  }
+  .ob-close:hover { border-color: #111; color: #111; }
+  .ob-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 48px;
+  }
+  .ob-container { max-width: 1000px; width: 100%; }
+  .ob-welcome { text-align: center; margin-bottom: 56px; }
+  .ob-welcome-overline {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--copper);
+    margin-bottom: 20px;
+  }
+  .ob-welcome-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 4vw, 52px);
+    line-height: 1.1;
+    margin-bottom: 16px;
+    color: #111;
+    font-weight: 400;
+  }
+  .ob-welcome-desc {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #888;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .ob-journey { margin-bottom: 48px; }
+  .ob-journey-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 8px;
+  }
+  .ob-j-step { display: flex; align-items: center; gap: 0; }
+  .ob-j-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #e8e8e8;
+    border: 2px solid #e8e8e8;
+    transition: all 0.3s;
+  }
+  .ob-j-dot.active {
+    background: var(--copper);
+    border-color: var(--copper);
+    box-shadow: 0 0 0 4px rgba(196,98,42,0.15);
+  }
+  .ob-j-dot.done { background: var(--copper); border-color: var(--copper); }
+  .ob-j-line {
+    width: 80px;
+    height: 2px;
+    background: #eee;
+    overflow: hidden;
+  }
+  .ob-j-line.done { background: var(--copper); }
+  .ob-j-labels {
+    display: flex;
+    justify-content: space-between;
+    max-width: 500px;
+    margin: 12px auto 0;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #ccc;
+  }
+  .ob-j-labels span.active { color: var(--copper); font-weight: 700; }
+  .ob-showcase {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .ob-case {
+    aspect-ratio: 1;
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.4s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .ob-case::after {
+    content: 'Decouvrir \2192';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px 24px;
+    background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transform: translateY(100%);
+    transition: transform 0.4s;
+  }
+  .ob-case:hover::after { transform: translateY(0); }
+  .ob-case:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 48px rgba(0,0,0,0.08);
+  }
+  .ob-case-1 { background: #f7f3ee; }
+  .ob-case-2 { background: #1a1714; color: #f0e8dc; }
+  .ob-case-3 { background: var(--copper); color: #fff; }
+  .ob-case-4 { background: #f0f4f8; }
+  .ob-case-icon { font-size: 32px; }
+  .ob-case-metier {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 4px;
+  }
+  .ob-case-title { font-family: 'DM Serif Display', serif; font-size: 18px; }
+  .ob-case-desc { font-size: 12px; opacity: 0.6; line-height: 1.5; margin-top: 4px; }
+  .ob-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 32px;
+    border-top: 1px solid #f0f0f0;
+  }
+  .ob-tagline { font-size: 15px; color: #999; max-width: 400px; line-height: 1.6; }
+  .ob-tagline em { color: #111; font-style: normal; font-weight: 600; }
+  .ob-contact { text-align: right; font-size: 13px; color: #bbb; line-height: 2; }
+  .ob-contact a { color: var(--copper); text-decoration: none; font-weight: 600; }
+  .ob-cta-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 40px;
+  }
+  .ob-cta-primary {
+    padding: 16px 36px;
+    background: #111;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .ob-cta-primary:hover {
+    background: var(--copper);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(196,98,42,0.25);
+  }
+  .ob-cta-secondary {
+    padding: 16px 36px;
+    background: transparent;
+    color: #111;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .ob-cta-secondary:hover { border-color: #111; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1024px) {
+    .parcours-grid { grid-template-columns: 1fr 1fr; }
+    .about-inner { grid-template-columns: 1fr; gap: 48px; }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+  }
+  @media (max-width: 768px) {
+    .nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .nav-hamburger { display: flex; }
+    .mobile-menu { display: block; }
+    .mobile-overlay { display: block; }
+    .hero { padding: 120px 24px 60px; }
+    .journey-path { flex-wrap: wrap; gap: 12px; }
+    .journey-line { display: none; }
+    .reassurance-inner { flex-direction: column; gap: 16px; }
+    .reassurance-sep { display: none; }
+    .parcours { padding: 60px 24px 80px; }
+    .parcours-grid { grid-template-columns: 1fr; }
+    .promise-grid { grid-template-columns: 1fr; }
+    .anti-fomo { padding: 60px 24px 80px; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .process-steps::before { left: 23px; }
+    .process-step-num { width: 48px; height: 48px; font-size: 18px; }
+    .process-step { gap: 20px; }
+    .about-team { flex-direction: column; }
+    .contact-methods { flex-direction: column; gap: 16px; }
+    .contact-card { padding: 40px 24px; }
+    .footer-top { grid-template-columns: 1fr; gap: 32px; }
+    .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    .footer-inner { padding: 40px 24px 24px; }
+    .ob-nav { padding: 16px 24px; }
+    .ob-body { padding: 40px 24px; }
+    .ob-showcase { grid-template-columns: 1fr 1fr; }
+    .ob-bottom { flex-direction: column; gap: 24px; text-align: center; }
+    .ob-contact { text-align: center; }
+    .ob-cta-row { flex-direction: column; }
+  }
+  @media (max-width: 480px) {
+    .hero-title { letter-spacing: -1px; }
+    .ob-showcase { grid-template-columns: 1fr; }
+    .parcours-card-body { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==========================================
+     LANDING PAGE
+     ========================================== -->
+
+<!-- Nav -->
+<nav class="nav" id="mainNav">
+  <a href="#" class="nav-logo">
+    La <span class="nav-logo-accent">Traverse</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#parcours-section">Nos parcours</a></li>
+    <li><a href="#process-section">La traversee</a></li>
+    <li><a href="#about-section">Qui sommes-nous</a></li>
+    <li><a href="#contact-section" class="nav-cta-small">Nous contacter</a></li>
+  </ul>
+  <button class="nav-hamburger" id="menuBtn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-overlay" id="mobileOverlay"></div>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#parcours-section" class="mobile-link">Nos parcours</a>
+  <a href="#process-section" class="mobile-link">La traversee</a>
+  <a href="#about-section" class="mobile-link">Qui sommes-nous</a>
+  <a href="#testimonials-section" class="mobile-link">Temoignages</a>
+  <a href="#contact-section" class="mobile-link">Nous contacter</a>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg">
+    <img src="images/hero-abstract.png" alt="" loading="eager">
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">Studio digital · Marseille</div>
+    <h1 class="hero-title">
+      La
+      <span class="hero-title-accent">Traverse</span>
+    </h1>
+    <p class="hero-desc">
+      Pas besoin de tout comprendre pour avancer.<br>
+      On trace la route ensemble — du metier au numerique,<br>
+      a votre rythme, sans jamais vous perdre.
+    </p>
+  </div>
+</section>
+
+<!-- Reassurance -->
+<div class="reassurance">
+  <div class="reassurance-inner">
+    <div class="reassurance-item">
+      <div class="reassurance-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <span>Zero jargon technique</span>
+    </div>
+    <div class="reassurance-sep"></div>
+    <div class="reassurance-item">
+      <div class="reassurance-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49"/><circle cx="12" cy="12" r="2"/></svg>
+      </div>
+      <span>Guide etape par etape</span>
+    </div>
+    <div class="reassurance-sep"></div>
+    <div class="reassurance-item">
+      <div class="reassurance-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <span>A votre rythme, toujours</span>
+    </div>
+  </div>
+</div>
+
+<!-- Journey Path -->
+<div class="journey" id="journey-section">
+  <div class="journey-inner">
+    <div class="journey-path">
+      <div class="journey-node">
+        <div class="jn-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+        </div>
+        <div class="jn-label">On discute</div>
+      </div>
+      <div class="journey-line"></div>
+      <div class="journey-node">
+        <div class="jn-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        </div>
+        <div class="jn-label">On cartographie</div>
+      </div>
+      <div class="journey-line"></div>
+      <div class="journey-node">
+        <div class="jn-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <div class="jn-label">On construit</div>
+      </div>
+      <div class="journey-line"></div>
+      <div class="journey-node">
+        <div class="jn-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </div>
+        <div class="jn-label">On lance</div>
+      </div>
+      <div class="journey-line"></div>
+      <div class="journey-node">
+        <div class="jn-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <div class="jn-label">On grandit</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <a href="#contact-section" class="cta-main">
+    <span>Commencer la traversee</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </a>
+</div>
+
+<!-- ===== NOS PARCOURS ===== -->
+<section class="parcours" id="parcours-section">
+  <div class="parcours-inner">
+    <div class="parcours-header reveal">
+      <div class="section-label">Nos parcours</div>
+      <h2 class="section-title">Chaque metier, <em>son chemin</em></h2>
+      <p class="section-desc">
+        On ne fait pas du "one size fits all". Chaque parcours est taille sur mesure,
+        adapte a votre activite et a vos ambitions.
+      </p>
+    </div>
+
+    <div class="parcours-grid">
+      <!-- Site Vitrine -->
+      <div class="parcours-card reveal reveal-delay-1">
+        <div class="parcours-card-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        </div>
+        <div class="parcours-card-img-wrap">
+          <img src="images/parcours-site.png" alt="Parcours Site Vitrine" class="parcours-card-img" loading="lazy">
+        </div>
+        <div class="parcours-card-body">
+          <div class="parcours-card-tag">Parcours Vitrine</div>
+          <h3 class="parcours-card-title">Site Vitrine</h3>
+          <p class="parcours-card-desc">
+            Votre presence en ligne, claire et professionnelle. Un site qui vous ressemble
+            et qui rassure vos futurs clients des le premier clic.
+          </p>
+          <div class="parcours-card-features">
+            <span class="parcours-feature">Design sur-mesure</span>
+            <span class="parcours-feature">SEO local</span>
+            <span class="parcours-feature">Mobile-first</span>
+            <span class="parcours-feature">Formulaire contact</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Application Mobile -->
+      <div class="parcours-card reveal reveal-delay-2">
+        <div class="parcours-card-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        </div>
+        <div class="parcours-card-img-wrap">
+          <img src="images/parcours-app.png" alt="Parcours Application" class="parcours-card-img" loading="lazy">
+        </div>
+        <div class="parcours-card-body">
+          <div class="parcours-card-tag">Parcours Application</div>
+          <h3 class="parcours-card-title">Application Mobile</h3>
+          <p class="parcours-card-desc">
+            Votre outil metier dans la poche. Reservations, suivi client, notifications —
+            on cree l'app qui simplifie votre quotidien.
+          </p>
+          <div class="parcours-card-features">
+            <span class="parcours-feature">iOS & Android</span>
+            <span class="parcours-feature">Notifications push</span>
+            <span class="parcours-feature">Mode hors-ligne</span>
+            <span class="parcours-feature">Tableau de bord</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SaaS / Outil Metier -->
+      <div class="parcours-card reveal reveal-delay-3">
+        <div class="parcours-card-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        </div>
+        <div class="parcours-card-img-wrap">
+          <img src="images/parcours-saas.png" alt="Parcours SaaS" class="parcours-card-img" loading="lazy">
+        </div>
+        <div class="parcours-card-body">
+          <div class="parcours-card-tag">Parcours Outil</div>
+          <h3 class="parcours-card-title">SaaS & Outil Metier</h3>
+          <p class="parcours-card-desc">
+            Un logiciel taille pour votre activite. Gestion de devis, planning, facturation —
+            fini les tableurs, bonjour l'efficacite.
+          </p>
+          <div class="parcours-card-features">
+            <span class="parcours-feature">Sur-mesure</span>
+            <span class="parcours-feature">Multi-utilisateurs</span>
+            <span class="parcours-feature">Cloud securise</span>
+            <span class="parcours-feature">Automatisations</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- E-commerce -->
+      <div class="parcours-card reveal reveal-delay-4">
+        <div class="parcours-card-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        </div>
+        <div class="parcours-card-img-wrap">
+          <img src="images/parcours-ecommerce.png" alt="Parcours E-commerce" class="parcours-card-img" loading="lazy">
+        </div>
+        <div class="parcours-card-body">
+          <div class="parcours-card-tag">Parcours Boutique</div>
+          <h3 class="parcours-card-title">E-commerce</h3>
+          <p class="parcours-card-desc">
+            Vendez en ligne sans prise de tete. Une boutique belle, rapide et securisee
+            qui transforme vos visiteurs en clients.
+          </p>
+          <div class="parcours-card-features">
+            <span class="parcours-feature">Paiement securise</span>
+            <span class="parcours-feature">Gestion stocks</span>
+            <span class="parcours-feature">Click & Collect</span>
+            <span class="parcours-feature">Analytics</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ANTI-FOMO / PROMISE ===== -->
+<section class="anti-fomo" id="fomo-section">
+  <div class="anti-fomo-inner">
+    <div class="anti-fomo-divider reveal"></div>
+    <h2 class="anti-fomo-title reveal">
+      Vous n'avez pas besoin de <em>tout savoir</em>.<br>
+      Juste de <em>bien vous entourer</em>.
+    </h2>
+    <p class="anti-fomo-text reveal">
+      Le numerique change vite. Trop vite. Mais votre metier, lui, vous le maitrisez.
+      Notre role n'est pas de vous transformer en expert tech — c'est de mettre la technologie
+      au service de ce que vous faites deja mieux que personne.
+    </p>
+
+    <div class="promise-grid reveal">
+      <div class="promise-card">
+        <div class="promise-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="promise-title">On parle metier, pas code</div>
+        <div class="promise-desc">Zero jargon. On traduit vos besoins concrets en solutions qui marchent — sans que vous ayez a comprendre comment.</div>
+      </div>
+      <div class="promise-card">
+        <div class="promise-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="promise-title">Votre rythme, pas celui du marche</div>
+        <div class="promise-desc">Pas de panique, pas de FOMO. Chaque etape est validee ensemble avant d'avancer. Si c'est flou, on s'arrete et on clarifie.</div>
+      </div>
+      <div class="promise-card">
+        <div class="promise-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="promise-title">On reste apres la livraison</div>
+        <div class="promise-desc">Partenaires, pas prestataires. On ne disparait pas avec la facture — on evolue avec votre activite.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROCESS DETAIL ===== -->
+<section class="process" id="process-section">
+  <div class="process-inner">
+    <div class="process-header reveal">
+      <div class="section-label">La traversee en detail</div>
+      <h2 class="section-title">Comment on <em>avance ensemble</em></h2>
+      <p class="section-desc">
+        Pas de surprise, pas de zone d'ombre. Voici exactement comment
+        se deroule chaque traversee, de la premiere discussion au lancement.
+      </p>
+    </div>
+
+    <div class="process-steps">
+      <div class="process-step reveal">
+        <div class="process-step-num">01</div>
+        <div class="process-step-content">
+          <h3 class="process-step-title">Le premier cafe</h3>
+          <p class="process-step-desc">
+            On se rencontre, on vous ecoute. Vous nous racontez votre metier, vos defis,
+            vos envies. Pas de brief complique — juste une conversation sincere.
+          </p>
+          <div class="process-step-duration">~ 1 heure · Gratuit & sans engagement</div>
+        </div>
+      </div>
+
+      <div class="process-step reveal reveal-delay-1">
+        <div class="process-step-num">02</div>
+        <div class="process-step-content">
+          <h3 class="process-step-title">La cartographie</h3>
+          <p class="process-step-desc">
+            On analyse vos besoins et on dessine votre parcours. Vous recevez une feuille de route
+            claire : ce qu'on va faire, comment, et dans quel ordre.
+          </p>
+          <div class="process-step-duration">~ 1 semaine</div>
+        </div>
+      </div>
+
+      <div class="process-step reveal reveal-delay-2">
+        <div class="process-step-num">03</div>
+        <div class="process-step-content">
+          <h3 class="process-step-title">La construction</h3>
+          <p class="process-step-desc">
+            On construit, vous validez. Chaque etape fait l'objet d'une demo :
+            vous voyez le resultat, vous donnez votre avis, on ajuste. Pas de mauvaise surprise.
+          </p>
+          <div class="process-step-duration">4 a 8 semaines selon le projet</div>
+        </div>
+      </div>
+
+      <div class="process-step reveal reveal-delay-3">
+        <div class="process-step-num">04</div>
+        <div class="process-step-content">
+          <h3 class="process-step-title">Le lancement</h3>
+          <p class="process-step-desc">
+            Tout est pret, on met en ligne ensemble. On vous forme sur les outils,
+            on s'assure que tout fonctionne et que vous etes a l'aise.
+          </p>
+          <div class="process-step-duration">Mise en ligne + formation incluse</div>
+        </div>
+      </div>
+
+      <div class="process-step reveal reveal-delay-4">
+        <div class="process-step-num">05</div>
+        <div class="process-step-content">
+          <h3 class="process-step-title">La croissance</h3>
+          <p class="process-step-desc">
+            Le projet est lance mais la traversee continue. Maintenance, evolutions,
+            nouvelles idees — on reste a vos cotes pour faire grandir votre activite.
+          </p>
+          <div class="process-step-duration">Accompagnement continu</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section class="about" id="about-section">
+  <div class="about-inner">
+    <div class="about-text reveal">
+      <div class="section-label">Qui sommes-nous</div>
+      <h2 class="section-title">Deux passionnes,<br>un <em>studio</em></h2>
+      <p class="section-desc">
+        La Traverse, c'est Adrien et Antoine. Deux developpeurs marseillais
+        qui ont decide de mettre leurs competences au service des artisans,
+        commercants et independants qui veulent avancer dans le numerique
+        sans se perdre en chemin.
+      </p>
+
+      <div class="about-values">
+        <div class="about-value">
+          <div class="about-value-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--copper)" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="about-value-text">
+            <h4>Ancres a Marseille</h4>
+            <p>On aime notre ville et les gens qui la font vivre. On travaille avec les acteurs locaux qui partagent cette energie.</p>
+          </div>
+        </div>
+        <div class="about-value">
+          <div class="about-value-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--copper)" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="about-value-text">
+            <h4>Transparence totale</h4>
+            <p>Pas de surprise sur la facture, pas de jargon pour impressionner. On vous dit tout, simplement.</p>
+          </div>
+        </div>
+        <div class="about-value">
+          <div class="about-value-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--copper)" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          </div>
+          <div class="about-value-text">
+            <h4>Du concret, pas du vent</h4>
+            <p>On livre des resultats mesurables. Pas des promesses en l'air mais des outils qui fonctionnent.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-visual reveal reveal-delay-2">
+      <img src="images/marseille-about.png" alt="Marseille, notre ville" class="about-img-main" loading="lazy">
+      <div class="about-team">
+        <div class="about-team-card">
+          <img src="images/portrait-adrien.png" alt="Adrien" class="about-team-avatar" loading="lazy">
+          <div class="about-team-info">
+            <h4>Adrien</h4>
+            <p>Co-fondateur & Dev</p>
+          </div>
+        </div>
+        <div class="about-team-card">
+          <img src="images/portrait-antoine.png" alt="Antoine" class="about-team-avatar" loading="lazy">
+          <div class="about-team-info">
+            <h4>Antoine</h4>
+            <p>Co-fondateur & Dev</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section class="testimonials" id="testimonials-section">
+  <div class="testimonials-inner">
+    <div class="testimonials-header reveal">
+      <div class="section-label">Temoignages</div>
+      <h2 class="section-title">Ceux qui ont fait <em>la traversee</em></h2>
+      <p class="section-desc">
+        Ils nous ont fait confiance pour les accompagner. Voici ce qu'ils en disent.
+      </p>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal reveal-delay-1">
+        <div class="testimonial-quote-mark">"</div>
+        <p class="testimonial-text">
+          J'avais peur de me lancer dans le numerique. Adrien et Antoine m'ont tout explique
+          simplement. Aujourd'hui, mes clients reservent en ligne et je gagne un temps fou.
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">E</div>
+          <div>
+            <div class="testimonial-name">Elodie M.</div>
+            <div class="testimonial-role">Salon de coiffure · Marseille 6e</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card reveal reveal-delay-2">
+        <div class="testimonial-quote-mark">"</div>
+        <p class="testimonial-text">
+          Notre outil de gestion de chantiers a change notre quotidien. Plus de devis perdus,
+          plus de factures en retard. Et le support est toujours la quand on a besoin.
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">P</div>
+          <div>
+            <div class="testimonial-name">Pierre D.</div>
+            <div class="testimonial-role">Artisan plombier · Aubagne</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card reveal reveal-delay-3">
+        <div class="testimonial-quote-mark">"</div>
+        <p class="testimonial-text">
+          Ils ont compris mon metier avant de parler technique. Le site qu'ils m'ont fait
+          est exactement ce que je voulais — mes clients me le disent a chaque fois.
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">S</div>
+          <div>
+            <div class="testimonial-name">Sophie L.</div>
+            <div class="testimonial-role">Architecte d'interieur · Aix-en-Provence</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT CTA ===== -->
+<section class="contact" id="contact-section">
+  <div class="contact-inner">
+    <div class="contact-card reveal">
+      <div class="section-label">Pret a traverser ?</div>
+      <h2 class="section-title">Racontez-nous <em>votre metier</em></h2>
+      <p class="section-desc">
+        Le premier echange est gratuit et sans engagement. On prend un cafe
+        (reel ou virtuel) et on voit ensemble comment avancer.
+      </p>
+
+      <div class="contact-methods">
+        <a href="mailto:hello@latraverse.studio" class="contact-method">
+          <div class="contact-method-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          hello@latraverse.studio
+        </a>
+        <a href="#" class="contact-method">
+          <div class="contact-method-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          Marseille, France
+        </a>
+      </div>
+
+      <a href="mailto:hello@latraverse.studio" class="contact-cta-btn">
+        Prendre rendez-vous
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo">
+          La <span class="nav-logo-accent">Traverse</span>
+        </a>
+        <p class="footer-brand-desc">
+          Studio digital base a Marseille. On accompagne artisans, commercants
+          et independants dans leur traversee numerique.
+        </p>
+        <div class="footer-social">
+          <a href="#" aria-label="LinkedIn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a href="#" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Parcours</h4>
+        <a href="#parcours-section">Site Vitrine</a>
+        <a href="#parcours-section">Application Mobile</a>
+        <a href="#parcours-section">SaaS & Outil</a>
+        <a href="#parcours-section">E-commerce</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Studio</h4>
+        <a href="#about-section">Qui sommes-nous</a>
+        <a href="#process-section">Notre methode</a>
+        <a href="#testimonials-section">Temoignages</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <a href="mailto:hello@latraverse.studio">hello@latraverse.studio</a>
+        <a href="#">Marseille, France</a>
+        <a href="#contact-section">Prendre RDV</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 La Traverse &middot; Studio digital &middot; Marseille</div>
+      <div>
+        <a href="#">Mentions legales</a> &middot; <a href="#">Politique de confidentialite</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ==========================================
+     ONBOARDING OVERLAY
+     ========================================== -->
+<div class="onboarding-overlay" id="onboarding">
+  <nav class="ob-nav">
+    <div class="ob-logo">
+      Traverse <span class="ob-logo-sub">Studio</span>
+    </div>
+    <div class="ob-nav-right">
+      <span class="ob-step-indicator">ETAPE 01 / 05</span>
+      <button class="ob-close" onclick="closeOnboarding()" aria-label="Fermer">&times;</button>
+    </div>
+  </nav>
+
+  <div class="ob-body">
+    <div class="ob-container">
+      <div class="ob-welcome">
+        <div class="ob-welcome-overline">Bienvenue dans la traversee</div>
+        <h1 class="ob-welcome-title">Votre aventure numerique<br>commence ici</h1>
+        <p class="ob-welcome-desc">
+          Pas de panique. On va avancer ensemble, etape par etape.
+          D'abord, on regarde — ensuite, on construit.
+        </p>
+      </div>
+
+      <div class="ob-journey">
+        <div class="ob-journey-bar">
+          <div class="ob-j-step"><div class="ob-j-dot active"></div></div>
+          <div class="ob-j-line"></div>
+          <div class="ob-j-step"><div class="ob-j-dot"></div></div>
+          <div class="ob-j-line"></div>
+          <div class="ob-j-step"><div class="ob-j-dot"></div></div>
+          <div class="ob-j-line"></div>
+          <div class="ob-j-step"><div class="ob-j-dot"></div></div>
+          <div class="ob-j-line"></div>
+          <div class="ob-j-step"><div class="ob-j-dot"></div></div>
+        </div>
+        <div class="ob-j-labels">
+          <span class="active">Decouvrir</span>
+          <span>Mon metier</span>
+          <span>Mes besoins</span>
+          <span>Ma solution</span>
+          <span>Go !</span>
+        </div>
+      </div>
+
+      <div class="ob-showcase">
+        <div class="ob-case ob-case-1">
+          <div class="ob-case-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12L12 12"/><circle cx="18" cy="6" r="3"/><path d="M15.88 8.12L12 12"/><circle cx="6" cy="18" r="3"/><path d="M8.12 15.88L12 12"/><circle cx="18" cy="18" r="3"/><path d="M15.88 15.88L12 12"/></svg>
+          </div>
+          <div class="ob-case-bottom">
+            <div class="ob-case-metier">Coiffure</div>
+            <div class="ob-case-title">Salon Elodie</div>
+            <div class="ob-case-desc">Site vitrine + reservation en ligne</div>
+          </div>
+        </div>
+        <div class="ob-case ob-case-2">
+          <div class="ob-case-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f0e8dc" stroke-width="1.5"><path d="M2 20h20"/><path d="M5 20V9l7-5 7 5v11"/><path d="M9 20v-5h6v5"/></svg>
+          </div>
+          <div class="ob-case-bottom">
+            <div class="ob-case-metier">Architecture</div>
+            <div class="ob-case-title">Studio Archi+</div>
+            <div class="ob-case-desc">Portfolio 3D + espace client</div>
+          </div>
+        </div>
+        <div class="ob-case ob-case-3">
+          <div class="ob-case-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          </div>
+          <div class="ob-case-bottom">
+            <div class="ob-case-metier">Artisan</div>
+            <div class="ob-case-title">Martin & Fils</div>
+            <div class="ob-case-desc">SaaS devis + gestion chantier</div>
+          </div>
+        </div>
+        <div class="ob-case ob-case-4">
+          <div class="ob-case-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <div class="ob-case-bottom">
+            <div class="ob-case-metier">Sport</div>
+            <div class="ob-case-title">Coach Maxime</div>
+            <div class="ob-case-desc">App suivi + prise de RDV</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ob-bottom">
+        <div class="ob-tagline">
+          Voici ce qu'on a construit pour d'autres.<br>
+          <em>A vous de nous raconter votre metier.</em>
+        </div>
+        <div class="ob-contact">
+          Studio digital<br>
+          Marseille, France<br>
+          <a href="mailto:hello@latraverse.studio">hello@latraverse.studio</a>
+        </div>
+      </div>
+
+      <div class="ob-cta-row">
+        <button class="ob-cta-primary">C'est parti — je choisis mon metier</button>
+        <button class="ob-cta-secondary" onclick="closeOnboarding()">Je regarde d'abord</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Nav scroll effect
+  const nav = document.getElementById('mainNav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Mobile menu
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const mobileOverlay = document.getElementById('mobileOverlay');
+
+  function toggleMobileMenu() {
+    mobileMenu.classList.toggle('open');
+    mobileOverlay.classList.toggle('open');
+    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+  }
+
+  menuBtn.addEventListener('click', toggleMobileMenu);
+  mobileOverlay.addEventListener('click', toggleMobileMenu);
+  document.querySelectorAll('.mobile-link').forEach(link => {
+    link.addEventListener('click', () => {
+      if (mobileMenu.classList.contains('open')) toggleMobileMenu();
+    });
+  });
+
+  // Onboarding open/close
+  function openOnboarding(e) {
+    if (e) e.preventDefault();
+    document.getElementById('onboarding').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeOnboarding() {
+    document.getElementById('onboarding').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const href = a.getAttribute('href');
+      if (href === '#') return;
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+
+  // Scroll reveal animations
+  const revealElements = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  revealElements.forEach(el => revealObserver.observe(el));
+</script>
+
+</body>
+</html>
