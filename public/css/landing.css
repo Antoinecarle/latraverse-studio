@@ -13,7 +13,7 @@ body {
   color: #fff;
   overflow: hidden;
   height: 100vh;
-  cursor: none;
+  cursor: default;
 }
 
 /* Custom cursor glow */
@@ -27,6 +27,24 @@ body {
   z-index: 0;
   transform: translate(-50%, -50%);
   transition: opacity 0.3s;
+}
+
+/* Custom cursor dot */
+.cursor-dot {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--copper);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s ease, opacity 0.2s;
+  mix-blend-mode: difference;
+}
+.cursor-dot.hovering {
+  transform: translate(-50%, -50%) scale(3);
+  opacity: 0.6;
 }
 
 /* ===== SCENE ===== */
@@ -171,7 +189,7 @@ body {
   text-decoration: none;
   font-family: 'Libre Baskerville', serif;
   font-size: 16px;
-  cursor: none;
+  cursor: pointer;
   overflow: hidden;
   opacity: 0;
   animation: fadeIn 0.8s ease forwards 2s;
@@ -287,10 +305,8 @@ body {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  body { cursor: auto; }
-  .cursor-glow { display: none; }
+  .cursor-glow, .cursor-dot { display: none; }
   .title { letter-spacing: -2px; }
   .bottom-bar { gap: 8px; }
   .bottom-item { font-size: 10px; }
-  .enter-btn { cursor: pointer; }
 }

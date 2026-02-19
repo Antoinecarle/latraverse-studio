@@ -103,14 +103,23 @@ function animate() {
 }
 animate();
 
-// ===== CURSOR GLOW =====
+// ===== CURSOR =====
 const cursorGlow = document.getElementById('cursorGlow');
+const cursorDot = document.getElementById('cursorDot');
 
 document.addEventListener('mousemove', (e) => {
   mouse.x = e.clientX;
   mouse.y = e.clientY;
   cursorGlow.style.left = e.clientX + 'px';
   cursorGlow.style.top = e.clientY + 'px';
+  cursorDot.style.left = e.clientX + 'px';
+  cursorDot.style.top = e.clientY + 'px';
+});
+
+// Hover effect on interactive elements
+document.querySelectorAll('a, button, [data-hover]').forEach(el => {
+  el.addEventListener('mouseenter', () => cursorDot.classList.add('hovering'));
+  el.addEventListener('mouseleave', () => cursorDot.classList.remove('hovering'));
 });
 
 // ===== PAGE TRANSITION =====

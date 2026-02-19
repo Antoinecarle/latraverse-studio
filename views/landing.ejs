@@ -10,7 +10,8 @@
 <link rel="stylesheet" href="/css/landing.css">
 </head>
 <body>
-  <!-- Cursor glow -->
+  <!-- Custom cursor -->
+  <div class="cursor-dot" id="cursorDot"></div>
   <div class="cursor-glow" id="cursorGlow"></div>
 
   <!-- Full-screen immersive landing -->
@@ -23,9 +24,21 @@
     <div class="center">
       <div class="logo-mark">
         <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M30 5L55 50H5L30 5Z" stroke="rgba(196,98,42,0.4)" stroke-width="1" fill="none"/>
-          <path d="M30 15L45 45H15L30 15Z" stroke="rgba(196,98,42,0.6)" stroke-width="1" fill="none"/>
-          <circle cx="30" cy="32" r="3" fill="#c4622a" opacity="0.8"/>
+          <!-- Outer compass circle -->
+          <circle cx="30" cy="30" r="26" stroke="rgba(196,98,42,0.3)" stroke-width="0.8"/>
+          <!-- Inner circle -->
+          <circle cx="30" cy="30" r="16" stroke="rgba(196,98,42,0.15)" stroke-width="0.5"/>
+          <!-- Compass needle N -->
+          <path d="M30 6 L32 28 L30 14 L28 28 Z" fill="rgba(196,98,42,0.7)"/>
+          <!-- Compass needle S -->
+          <path d="M30 54 L28 32 L30 46 L32 32 Z" fill="rgba(196,98,42,0.25)"/>
+          <!-- Cardinal ticks -->
+          <line x1="30" y1="4" x2="30" y2="8" stroke="rgba(196,98,42,0.5)" stroke-width="0.8"/>
+          <line x1="30" y1="52" x2="30" y2="56" stroke="rgba(196,98,42,0.25)" stroke-width="0.8"/>
+          <line x1="4" y1="30" x2="8" y2="30" stroke="rgba(196,98,42,0.25)" stroke-width="0.8"/>
+          <line x1="52" y1="30" x2="56" y2="30" stroke="rgba(196,98,42,0.25)" stroke-width="0.8"/>
+          <!-- Center dot -->
+          <circle cx="30" cy="30" r="2.5" fill="#c4622a" opacity="0.9"/>
         </svg>
       </div>
 
