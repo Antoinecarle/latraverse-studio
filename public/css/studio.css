@@ -233,141 +233,138 @@ body {
 }
 
 /* =============================================
-   METIER GRID (Step 2)
+   METIER GRID (Step 2) — showcase-style cards
    ============================================= */
 .ob-metier-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
-  max-width: 720px;
+  max-width: 760px;
   margin: 0 auto;
 }
 .ob-metier-card {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 28px 16px 24px;
-  border-radius: 16px;
-  border: none;
+  justify-content: space-between;
+  align-items: flex-start;
+  text-align: left;
   cursor: pointer;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-}
-.ob-metier-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
   border: 2px solid transparent;
-  transition: border-color 0.3s;
-  pointer-events: none;
-  z-index: 1;
 }
 .ob-metier-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.08);
-}
-.ob-metier-card.selected::before {
-  border-color: var(--copper);
+  transform: translateY(-5px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.1);
 }
 .ob-metier-card.selected {
-  box-shadow: 0 0 0 3px rgba(196,98,42,0.12), 0 8px 24px rgba(196,98,42,0.1);
+  border-color: var(--copper);
+  box-shadow: 0 0 0 3px rgba(196,98,42,0.12), 0 12px 32px rgba(196,98,42,0.12);
 }
-/* Unique card colors */
+/* Unique backgrounds */
 .ob-metier-card[data-metier="commerce"]  { background: #faf6f1; }
 .ob-metier-card[data-metier="artisan"]   { background: #1a1714; color: #f0e8dc; }
-.ob-metier-card[data-metier="sante"]     { background: #f0f7f4; }
-.ob-metier-card[data-metier="liberal"]   { background: #f5f3f8; }
+.ob-metier-card[data-metier="sante"]     { background: #eef6f2; }
+.ob-metier-card[data-metier="liberal"]   { background: #f3f1f8; }
 .ob-metier-card[data-metier="sport"]     { background: var(--copper); color: #fff; }
-.ob-metier-card[data-metier="autre"]     { background: #f0f4f8; }
-/* Icon containers per card */
+.ob-metier-card[data-metier="autre"]     { background: #eef2f7; }
+/* Icon */
 .ob-metier-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
+  font-size: 32px;
 }
-.ob-metier-card[data-metier="commerce"] .ob-metier-icon  { background: rgba(196,98,42,0.1); }
-.ob-metier-card[data-metier="artisan"] .ob-metier-icon   { background: rgba(255,255,255,0.1); }
-.ob-metier-card[data-metier="sante"] .ob-metier-icon     { background: rgba(46,139,87,0.1); }
-.ob-metier-card[data-metier="liberal"] .ob-metier-icon   { background: rgba(106,90,205,0.1); }
-.ob-metier-card[data-metier="sport"] .ob-metier-icon     { background: rgba(255,255,255,0.2); }
-.ob-metier-card[data-metier="autre"] .ob-metier-icon     { background: rgba(70,130,180,0.1); }
-/* SVG colors per card */
-.ob-metier-card[data-metier="commerce"] svg  { stroke: var(--copper); }
+.ob-metier-card[data-metier="commerce"] svg  { stroke: #333; }
 .ob-metier-card[data-metier="artisan"] svg   { stroke: #f0e8dc; }
 .ob-metier-card[data-metier="sante"] svg     { stroke: #2e8b57; }
 .ob-metier-card[data-metier="liberal"] svg   { stroke: #6a5acd; }
 .ob-metier-card[data-metier="sport"] svg     { stroke: #fff; }
 .ob-metier-card[data-metier="autre"] svg     { stroke: #4682b4; }
-/* Text colors for dark cards */
-.ob-metier-card[data-metier="artisan"] .ob-metier-name { color: #f0e8dc; }
-.ob-metier-card[data-metier="artisan"] .ob-metier-ex   { color: rgba(240,232,220,0.5); }
-.ob-metier-card[data-metier="sport"] .ob-metier-name   { color: #fff; }
-.ob-metier-card[data-metier="sport"] .ob-metier-ex     { color: rgba(255,255,255,0.6); }
+/* Bottom text block */
+.ob-metier-bottom {}
+.ob-metier-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.45;
+  display: block;
+  margin-bottom: 3px;
+}
 .ob-metier-name {
   font-family: 'DM Serif Display', serif;
-  font-size: 16px;
-  color: #111;
+  font-size: 17px;
+  color: inherit;
+  display: block;
 }
 .ob-metier-ex {
   font-size: 11px;
-  color: #999;
-  line-height: 1.3;
+  opacity: 0.5;
+  line-height: 1.4;
+  margin-top: 3px;
+  display: block;
 }
 
 /* =============================================
-   NEEDS GRID (Step 3)
+   NEEDS GRID (Step 3) — showcase-style cards
    ============================================= */
 .ob-needs-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
-  max-width: 720px;
+  max-width: 760px;
   margin: 0 auto;
 }
 .ob-need-card {
-  position: relative;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 24px 14px 20px;
-  border-radius: 16px;
-  border: 2px solid transparent;
-  background: #f9f9f9;
+  justify-content: space-between;
+  align-items: flex-start;
+  text-align: left;
   cursor: pointer;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid transparent;
 }
 .ob-need-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.06);
-  background: #f5f5f5;
+  transform: translateY(-5px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.1);
 }
 .ob-need-card.selected {
   border-color: var(--copper);
-  background: #fff;
-  box-shadow: 0 0 0 2px rgba(196,98,42,0.12), 0 8px 24px rgba(196,98,42,0.08);
+  box-shadow: 0 0 0 3px rgba(196,98,42,0.12), 0 12px 32px rgba(196,98,42,0.12);
 }
+/* Unique backgrounds */
+.ob-need-card[data-need="site"]        { background: #faf6f1; }
+.ob-need-card[data-need="reservation"] { background: #eef6f2; }
+.ob-need-card[data-need="ecommerce"]   { background: #1a1714; color: #f0e8dc; }
+.ob-need-card[data-need="app"]         { background: #f3f1f8; }
+.ob-need-card[data-need="outil"]       { background: var(--copper); color: #fff; }
+.ob-need-card[data-need="seo"]         { background: #eef2f7; }
+/* Check indicator */
 .ob-need-check {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 20px;
-  height: 20px;
-  border-radius: 5px;
-  border: 2px solid #ddd;
+  top: 14px;
+  right: 14px;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid rgba(0,0,0,0.1);
   transition: all 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 2;
+}
+.ob-need-card[data-need="ecommerce"] .ob-need-check,
+.ob-need-card[data-need="outil"] .ob-need-check {
+  border-color: rgba(255,255,255,0.25);
 }
 .ob-need-card.selected .ob-need-check {
   background: var(--copper);
@@ -382,45 +379,30 @@ body {
   transform: rotate(45deg);
   margin-top: -2px;
 }
+/* Icon */
 .ob-need-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
+  font-size: 30px;
 }
-/* Unique icon colors per need */
-.ob-need-card[data-need="site"] .ob-need-icon         { background: rgba(196,98,42,0.1); }
-.ob-need-card[data-need="site"] svg                    { stroke: var(--copper); }
-.ob-need-card[data-need="reservation"] .ob-need-icon   { background: rgba(46,139,87,0.1); }
-.ob-need-card[data-need="reservation"] svg             { stroke: #2e8b57; }
-.ob-need-card[data-need="ecommerce"] .ob-need-icon     { background: rgba(106,90,205,0.1); }
-.ob-need-card[data-need="ecommerce"] svg               { stroke: #6a5acd; }
-.ob-need-card[data-need="app"] .ob-need-icon           { background: rgba(30,60,90,0.1); }
-.ob-need-card[data-need="app"] svg                     { stroke: #1e3c5a; }
-.ob-need-card[data-need="outil"] .ob-need-icon         { background: rgba(204,85,0,0.1); }
-.ob-need-card[data-need="outil"] svg                   { stroke: #cc5500; }
-.ob-need-card[data-need="seo"] .ob-need-icon           { background: rgba(70,130,180,0.1); }
-.ob-need-card[data-need="seo"] svg                     { stroke: #4682b4; }
-/* Selected state overrides */
-.ob-need-card.selected .ob-need-icon {
-  background: rgba(196,98,42,0.1);
-}
-.ob-need-card.selected svg {
-  stroke: var(--copper);
-}
+.ob-need-card[data-need="site"] svg        { stroke: #333; }
+.ob-need-card[data-need="reservation"] svg { stroke: #2e8b57; }
+.ob-need-card[data-need="ecommerce"] svg   { stroke: #f0e8dc; }
+.ob-need-card[data-need="app"] svg         { stroke: #6a5acd; }
+.ob-need-card[data-need="outil"] svg       { stroke: #fff; }
+.ob-need-card[data-need="seo"] svg         { stroke: #4682b4; }
+/* Bottom text */
+.ob-need-bottom {}
 .ob-need-name {
   font-family: 'DM Serif Display', serif;
-  font-size: 14px;
-  color: #111;
-  margin-top: 2px;
+  font-size: 16px;
+  color: inherit;
+  display: block;
+  margin-bottom: 3px;
 }
 .ob-need-desc {
   font-size: 11px;
-  color: #999;
-  line-height: 1.3;
+  opacity: 0.5;
+  line-height: 1.4;
+  display: block;
 }
 
 /* =============================================
@@ -696,7 +678,9 @@ body {
   .ob-footer-inner { padding: 16px 20px 20px; }
   .ob-showcase { grid-template-columns: 1fr 1fr; gap: 10px; }
   .ob-metier-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ob-metier-card { aspect-ratio: auto; padding: 18px; }
   .ob-needs-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ob-need-card { aspect-ratio: auto; padding: 18px; }
   .ob-bottom { flex-direction: column; gap: 20px; text-align: center; }
   .ob-contact { text-align: center; }
   .ob-j-line { width: 32px; }
