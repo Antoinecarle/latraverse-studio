@@ -126,10 +126,10 @@
   const needLabels = {
     site: 'Site professionnel responsive',
     reservation: 'Systeme de reservation en ligne',
-    ecommerce: 'Boutique e-commerce',
+    assistant: 'Assistant IA conversationnel',
     app: 'Application mobile sur-mesure',
-    outil: 'Outil de gestion metier',
-    seo: 'Referencement local Google'
+    auto: 'Automatisation des taches par IA',
+    contenu: 'Generation de contenu par IA'
   };
 
   // Watch step 4 activation

@@ -358,17 +358,17 @@ body {
 /* Per-card selection colors */
 .ob-need-card[data-need="site"].selected        { border-color: #8b7355; box-shadow: 0 0 0 3px rgba(139,115,85,0.15), 0 12px 32px rgba(139,115,85,0.12); }
 .ob-need-card[data-need="reservation"].selected { border-color: #2e8b57; box-shadow: 0 0 0 3px rgba(46,139,87,0.15), 0 12px 32px rgba(46,139,87,0.12); }
-.ob-need-card[data-need="ecommerce"].selected   { border-color: #f0e8dc; box-shadow: 0 0 0 3px rgba(240,232,220,0.2), 0 12px 32px rgba(0,0,0,0.2); }
+.ob-need-card[data-need="assistant"].selected   { border-color: #f0e8dc; box-shadow: 0 0 0 3px rgba(240,232,220,0.2), 0 12px 32px rgba(0,0,0,0.2); }
 .ob-need-card[data-need="app"].selected         { border-color: #6a5acd; box-shadow: 0 0 0 3px rgba(106,90,205,0.15), 0 12px 32px rgba(106,90,205,0.12); }
-.ob-need-card[data-need="outil"].selected       { border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.25), 0 12px 32px rgba(196,98,42,0.2); }
-.ob-need-card[data-need="seo"].selected         { border-color: #4682b4; box-shadow: 0 0 0 3px rgba(70,130,180,0.15), 0 12px 32px rgba(70,130,180,0.12); }
+.ob-need-card[data-need="auto"].selected        { border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.25), 0 12px 32px rgba(196,98,42,0.2); }
+.ob-need-card[data-need="contenu"].selected     { border-color: #4682b4; box-shadow: 0 0 0 3px rgba(70,130,180,0.15), 0 12px 32px rgba(70,130,180,0.12); }
 /* Unique backgrounds */
 .ob-need-card[data-need="site"]        { background: #faf6f1; }
 .ob-need-card[data-need="reservation"] { background: #eef6f2; }
-.ob-need-card[data-need="ecommerce"]   { background: #1a1714; color: #f0e8dc; }
+.ob-need-card[data-need="assistant"]   { background: #1a1714; color: #f0e8dc; }
 .ob-need-card[data-need="app"]         { background: #f3f1f8; }
-.ob-need-card[data-need="outil"]       { background: var(--copper); color: #fff; }
-.ob-need-card[data-need="seo"]         { background: #eef2f7; }
+.ob-need-card[data-need="auto"]        { background: var(--copper); color: #fff; }
+.ob-need-card[data-need="contenu"]     { background: #eef2f7; }
 /* Check indicator */
 .ob-need-check {
   position: absolute;
@@ -384,8 +384,8 @@ body {
   justify-content: center;
   z-index: 2;
 }
-.ob-need-card[data-need="ecommerce"] .ob-need-check,
-.ob-need-card[data-need="outil"] .ob-need-check {
+.ob-need-card[data-need="assistant"] .ob-need-check,
+.ob-need-card[data-need="auto"] .ob-need-check {
   border-color: rgba(255,255,255,0.25);
 }
 .ob-need-card.selected .ob-need-check::after {
@@ -400,12 +400,12 @@ body {
 /* Per-card check colors */
 .ob-need-card[data-need="site"].selected .ob-need-check        { background: #8b7355; border-color: #8b7355; }
 .ob-need-card[data-need="reservation"].selected .ob-need-check { background: #2e8b57; border-color: #2e8b57; }
-.ob-need-card[data-need="ecommerce"].selected .ob-need-check   { background: #f0e8dc; border-color: #f0e8dc; }
-.ob-need-card[data-need="ecommerce"].selected .ob-need-check::after { border-color: #1a1714; }
+.ob-need-card[data-need="assistant"].selected .ob-need-check   { background: #f0e8dc; border-color: #f0e8dc; }
+.ob-need-card[data-need="assistant"].selected .ob-need-check::after { border-color: #1a1714; }
 .ob-need-card[data-need="app"].selected .ob-need-check         { background: #6a5acd; border-color: #6a5acd; }
-.ob-need-card[data-need="outil"].selected .ob-need-check       { background: #fff; border-color: #fff; }
-.ob-need-card[data-need="outil"].selected .ob-need-check::after { border-color: var(--copper); }
-.ob-need-card[data-need="seo"].selected .ob-need-check         { background: #4682b4; border-color: #4682b4; }
+.ob-need-card[data-need="auto"].selected .ob-need-check        { background: #fff; border-color: #fff; }
+.ob-need-card[data-need="auto"].selected .ob-need-check::after { border-color: var(--copper); }
+.ob-need-card[data-need="contenu"].selected .ob-need-check     { background: #4682b4; border-color: #4682b4; }
 /* Icon */
 .ob-need-icon {
   font-size: 22px;
@@ -413,10 +413,10 @@ body {
 .ob-need-icon svg { width: 26px; height: 26px; }
 .ob-need-card[data-need="site"] svg        { stroke: #333; }
 .ob-need-card[data-need="reservation"] svg { stroke: #2e8b57; }
-.ob-need-card[data-need="ecommerce"] svg   { stroke: #f0e8dc; }
+.ob-need-card[data-need="assistant"] svg   { stroke: #f0e8dc; }
 .ob-need-card[data-need="app"] svg         { stroke: #6a5acd; }
-.ob-need-card[data-need="outil"] svg       { stroke: #fff; }
-.ob-need-card[data-need="seo"] svg         { stroke: #4682b4; }
+.ob-need-card[data-need="auto"] svg        { stroke: #fff; }
+.ob-need-card[data-need="contenu"] svg     { stroke: #4682b4; }
 /* Bottom text */
 .ob-need-bottom {}
 .ob-need-name {
