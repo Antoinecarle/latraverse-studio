@@ -1,0 +1,11 @@
+{
+  "name": "latraverse-studio",
+  "version": "1.0.0",
+  "description": "La Traverse Studio - Site vitrine",
+  "scripts": {
+    "start": "npx serve . -l $PORT -s --no-clipboard"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
