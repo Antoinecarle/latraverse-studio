@@ -1,9 +1,10 @@
-// Studio onboarding - step navigation
+// Studio onboarding — step navigation
 (function() {
   let currentStep = 1;
   const totalSteps = 5;
   let selectedMetier = null;
   const selectedNeeds = new Set();
+  let isTransitioning = false;
 
   const steps = document.querySelectorAll('.ob-step');
   const dots = document.querySelectorAll('.ob-j-dot');
@@ -14,15 +15,39 @@
   const nextBtn = document.getElementById('nextBtn');
 
   function goToStep(n) {
-    if (n < 1 || n > totalSteps) return;
+    if (n < 1 || n > totalSteps || n === currentStep || isTransitioning) return;
+    isTransitioning = true;
+
+    const oldStep = document.querySelector('.ob-step.active');
+    const newStep = document.querySelector(`.ob-step[data-step="${n}"]`);
+
+    // Animate out current step
+    if (oldStep) {
+      oldStep.classList.remove('active');
+      oldStep.classList.add('leaving');
+      oldStep.addEventListener('animationend', function handler() {
+        oldStep.classList.remove('leaving');
+        oldStep.removeEventListener('animationend', handler);
+      }, { once: true });
+    }
+
+    // Animate in new step after short delay
+    setTimeout(() => {
+      if (newStep) {
+        newStep.classList.add('active');
+        // Scroll the step content to top
+        newStep.scrollTop = 0;
+      }
+      isTransitioning = false;
+    }, 200);
+
     currentStep = n;
+    updateProgress(n);
+    updateButtons(n);
+  }
 
-    // Update steps visibility
-    steps.forEach(s => s.classList.remove('active'));
-    const target = document.querySelector(`.ob-step[data-step="${n}"]`);
-    if (target) target.classList.add('active');
-
-    // Update dots
+  function updateProgress(n) {
+    // Dots
     dots.forEach(d => {
       const num = parseInt(d.dataset.dot);
       d.classList.remove('active', 'done');
@@ -30,42 +55,39 @@
       else if (num < n) d.classList.add('done');
     });
 
-    // Update lines
+    // Lines
     lines.forEach(l => {
       const num = parseInt(l.dataset.line);
       l.classList.toggle('done', num < n);
     });
 
-    // Update labels
+    // Labels
     labels.forEach(l => {
       const num = parseInt(l.dataset.label);
       l.classList.toggle('active', num === n);
     });
 
-    // Update step indicator
+    // Step indicator
     stepNum.textContent = String(n).padStart(2, '0');
+  }
 
-    // Update buttons
+  function updateButtons(n) {
     prevBtn.style.visibility = n === 1 ? 'hidden' : 'visible';
     if (n === totalSteps) {
       nextBtn.style.display = 'none';
     } else {
       nextBtn.style.display = '';
     }
-
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Next / Prev
+  // Button clicks
   nextBtn.addEventListener('click', () => goToStep(currentStep + 1));
   prevBtn.addEventListener('click', () => goToStep(currentStep - 1));
 
   // Dot click navigation
   dots.forEach(d => {
     d.addEventListener('click', () => {
-      const target = parseInt(d.dataset.dot);
-      goToStep(target);
+      goToStep(parseInt(d.dataset.dot));
     });
   });
 
@@ -83,15 +105,12 @@
     card.addEventListener('click', () => {
       card.classList.toggle('selected');
       const need = card.dataset.need;
-      if (selectedNeeds.has(need)) {
-        selectedNeeds.delete(need);
-      } else {
-        selectedNeeds.add(need);
-      }
+      if (selectedNeeds.has(need)) selectedNeeds.delete(need);
+      else selectedNeeds.add(need);
     });
   });
 
-  // Update solution based on selections when entering step 4
+  // Dynamic solution content
   const solutionTitle = document.getElementById('solutionTitle');
   const solutionFeatures = document.getElementById('solutionFeatures');
 
@@ -113,27 +132,20 @@
     seo: 'Referencement local Google'
   };
 
-  // Observe step 4 becoming active to update solution
+  // Watch step 4 activation
   const observer = new MutationObserver(() => {
     const step4 = document.querySelector('.ob-step[data-step="4"]');
-    if (step4 && step4.classList.contains('active')) {
-      updateSolution();
-    }
+    if (step4 && step4.classList.contains('active')) updateSolution();
   });
   steps.forEach(s => observer.observe(s, { attributes: true, attributeFilter: ['class'] }));
 
   function updateSolution() {
-    const metierLabel = selectedMetier ? metierNames[selectedMetier] : 'Votre activite';
-    solutionTitle.textContent = `Parcours ${metierLabel}`;
+    const label = selectedMetier ? metierNames[selectedMetier] : 'Votre activite';
+    solutionTitle.textContent = `Parcours ${label}`;
 
     const features = [];
-    if (selectedNeeds.size > 0) {
-      selectedNeeds.forEach(n => {
-        if (needLabels[n]) features.push(needLabels[n]);
-      });
-    }
-    // Always add these base features
-    features.push('Formation a l\'autonomie');
+    selectedNeeds.forEach(n => { if (needLabels[n]) features.push(needLabels[n]); });
+    features.push("Formation a l'autonomie");
     features.push('Support continu post-lancement');
 
     solutionFeatures.innerHTML = features.map(f => `

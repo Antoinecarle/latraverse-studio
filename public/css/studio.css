@@ -5,26 +5,33 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Instrument Sans', sans-serif;
   background: #fff;
   color: #111;
-  overflow-x: hidden;
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  animation: pageIn 0.5s ease forwards;
+}
+@keyframes pageIn {
+  to { opacity: 1; }
 }
 
-/* ===== NAV ===== */
+/* =============================================
+   NAV — fixed top
+   ============================================= */
 .ob-nav {
-  padding: 20px 48px;
+  padding: 16px 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #f0f0f0;
   background: #fff;
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   z-index: 100;
 }
 .ob-logo {
@@ -38,16 +45,15 @@ body {
 }
 .ob-logo-sub {
   font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 6px;
+  font-size: 10px;
+  letter-spacing: 5px;
   text-transform: uppercase;
   color: #bbb;
-  font-weight: 400;
 }
 .ob-nav-right {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
 }
 .ob-step-indicator {
   font-family: 'Space Mono', monospace;
@@ -74,37 +80,53 @@ body {
   color: #111;
 }
 
-/* ===== BODY ===== */
-.ob-body {
+/* =============================================
+   MAIN — scrollable middle
+   ============================================= */
+.ob-main {
   flex: 1;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 60px 48px 40px;
-  min-height: calc(100vh - 77px);
-}
-.ob-container {
-  max-width: 1000px;
-  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
 }
 
-/* ===== STEPS ===== */
+/* =============================================
+   STEPS
+   ============================================= */
 .ob-step {
   display: none;
-  animation: stepIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  padding: 48px 48px 32px;
 }
 .ob-step.active {
   display: block;
+  animation: stepFade 0.4s ease forwards;
 }
-@keyframes stepIn {
-  from { opacity: 0; transform: translateY(20px); }
+.ob-step.leaving {
+  display: block;
+  animation: stepOut 0.25s ease forwards;
+}
+@keyframes stepFade {
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@keyframes stepOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-12px); }
+}
+.ob-step-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
 
-/* ===== WELCOME HEADER ===== */
+/* =============================================
+   WELCOME HEADER (all steps)
+   ============================================= */
 .ob-welcome {
   text-align: center;
-  margin-bottom: 56px;
+  margin-bottom: 48px;
 }
 .ob-welcome-overline {
   font-family: 'Space Mono', monospace;
@@ -112,100 +134,85 @@ body {
   letter-spacing: 4px;
   text-transform: uppercase;
   color: var(--copper);
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 .ob-welcome-title {
   font-family: 'DM Serif Display', serif;
-  font-size: clamp(32px, 4vw, 52px);
-  line-height: 1.1;
-  margin-bottom: 16px;
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: 1.15;
+  margin-bottom: 14px;
   color: #111;
   font-weight: 400;
 }
 .ob-welcome-desc {
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.7;
-  color: #888;
-  max-width: 480px;
+  color: #999;
+  max-width: 440px;
   margin: 0 auto;
 }
 
-/* ===== SHOWCASE (Step 1) ===== */
+/* =============================================
+   SHOWCASE (Step 1)
+   ============================================= */
 .ob-showcase {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 48px;
+  gap: 14px;
+  margin-bottom: 40px;
 }
 .ob-case {
   aspect-ratio: 1;
   border-radius: 14px;
-  padding: 24px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: all 0.4s;
+  transition: transform 0.4s, box-shadow 0.4s;
   cursor: pointer;
   position: relative;
   overflow: hidden;
 }
-.ob-case::after {
-  content: 'Decouvrir \2192';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 16px 24px;
-  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  transform: translateY(100%);
-  transition: transform 0.4s;
-}
-.ob-case:hover::after { transform: translateY(0); }
 .ob-case:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 48px rgba(0,0,0,0.08);
+  transform: translateY(-5px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.08);
 }
 .ob-case-1 { background: #f7f3ee; }
 .ob-case-2 { background: #1a1714; color: #f0e8dc; }
 .ob-case-3 { background: var(--copper); color: #fff; }
 .ob-case-4 { background: #f0f4f8; }
 .ob-case-icon { font-size: 32px; }
-.ob-case-bottom {}
 .ob-case-metier {
   font-family: 'Space Mono', monospace;
   font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
   opacity: 0.5;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 .ob-case-title {
   font-family: 'DM Serif Display', serif;
-  font-size: 18px;
+  font-size: 17px;
 }
 .ob-case-desc {
-  font-size: 12px;
+  font-size: 11px;
   opacity: 0.6;
-  line-height: 1.5;
-  margin-top: 4px;
+  line-height: 1.4;
+  margin-top: 3px;
 }
 
-/* ===== BOTTOM (Step 1) ===== */
+/* Step 1 bottom */
 .ob-bottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 32px;
+  padding-top: 28px;
   border-top: 1px solid #f0f0f0;
 }
 .ob-tagline {
-  font-size: 15px;
+  font-size: 14px;
   color: #999;
-  max-width: 400px;
+  max-width: 380px;
   line-height: 1.6;
 }
 .ob-tagline em {
@@ -215,7 +222,7 @@ body {
 }
 .ob-contact {
   text-align: right;
-  font-size: 13px;
+  font-size: 12px;
   color: #bbb;
   line-height: 2;
 }
@@ -225,134 +232,17 @@ body {
   font-weight: 600;
 }
 
-/* ===== JOURNEY PROGRESS ===== */
-.ob-journey {
-  margin-bottom: 32px;
-}
-.ob-journey-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  margin-bottom: 8px;
-}
-.ob-j-step {
-  display: flex;
-  align-items: center;
-}
-.ob-j-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #e8e8e8;
-  border: 2px solid #e8e8e8;
-  transition: all 0.4s;
-  cursor: pointer;
-}
-.ob-j-dot.active {
-  background: var(--copper);
-  border-color: var(--copper);
-  box-shadow: 0 0 0 4px rgba(196,98,42,0.15);
-}
-.ob-j-dot.done {
-  background: var(--copper);
-  border-color: var(--copper);
-}
-.ob-j-line {
-  width: 80px;
-  height: 2px;
-  background: #eee;
-  transition: background 0.4s;
-}
-.ob-j-line.done {
-  background: var(--copper);
-}
-.ob-j-labels {
-  display: flex;
-  justify-content: space-between;
-  max-width: 500px;
-  margin: 12px auto 0;
-  font-size: 11px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #ccc;
-}
-.ob-j-labels span {
-  transition: all 0.3s;
-}
-.ob-j-labels span.active {
-  color: var(--copper);
-  font-weight: 700;
-}
-
-/* ===== METIER GRID (Step 2) ===== */
+/* =============================================
+   METIER GRID (Step 2)
+   ============================================= */
 .ob-metier-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  max-width: 720px;
+  gap: 14px;
+  max-width: 680px;
   margin: 0 auto;
 }
 .ob-metier-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 32px 20px;
-  border-radius: 14px;
-  border: 2px solid #f0f0f0;
-  background: #fff;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-align: center;
-}
-.ob-metier-card:hover {
-  border-color: #ddd;
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.06);
-}
-.ob-metier-card.selected {
-  border-color: var(--copper);
-  background: rgba(196,98,42,0.04);
-  box-shadow: 0 0 0 4px rgba(196,98,42,0.1);
-}
-.ob-metier-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  background: #f8f8f8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
-}
-.ob-metier-card.selected .ob-metier-icon {
-  background: rgba(196,98,42,0.1);
-}
-.ob-metier-card.selected .ob-metier-icon svg {
-  stroke: var(--copper);
-}
-.ob-metier-name {
-  font-family: 'DM Serif Display', serif;
-  font-size: 16px;
-  color: #111;
-}
-.ob-metier-ex {
-  font-size: 12px;
-  color: #bbb;
-  line-height: 1.4;
-}
-
-/* ===== NEEDS GRID (Step 3) ===== */
-.ob-needs-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  max-width: 720px;
-  margin: 0 auto;
-}
-.ob-need-card {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -365,22 +255,83 @@ body {
   transition: all 0.3s;
   text-align: center;
 }
+.ob-metier-card:hover {
+  border-color: #ddd;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+}
+.ob-metier-card.selected {
+  border-color: var(--copper);
+  background: rgba(196,98,42,0.03);
+  box-shadow: 0 0 0 3px rgba(196,98,42,0.1);
+}
+.ob-metier-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: #f8f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+.ob-metier-card.selected .ob-metier-icon {
+  background: rgba(196,98,42,0.08);
+}
+.ob-metier-card.selected .ob-metier-icon svg {
+  stroke: var(--copper);
+}
+.ob-metier-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 15px;
+  color: #111;
+}
+.ob-metier-ex {
+  font-size: 11px;
+  color: #bbb;
+  line-height: 1.3;
+}
+
+/* =============================================
+   NEEDS GRID (Step 3)
+   ============================================= */
+.ob-needs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+.ob-need-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 14px;
+  border-radius: 14px;
+  border: 2px solid #f0f0f0;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
 .ob-need-card:hover {
   border-color: #ddd;
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.06);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.05);
 }
 .ob-need-card.selected {
   border-color: var(--copper);
-  background: rgba(196,98,42,0.04);
+  background: rgba(196,98,42,0.03);
 }
 .ob-need-check {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
   border: 2px solid #e0e0e0;
   transition: all 0.3s;
   display: flex;
@@ -393,115 +344,119 @@ body {
 }
 .ob-need-card.selected .ob-need-check::after {
   content: '';
-  width: 6px;
-  height: 10px;
+  width: 5px;
+  height: 9px;
   border: solid #fff;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
   margin-top: -2px;
 }
 .ob-need-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   background: #f8f8f8;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s;
+  transition: background 0.3s;
 }
 .ob-need-card.selected .ob-need-icon {
-  background: rgba(196,98,42,0.1);
+  background: rgba(196,98,42,0.08);
 }
 .ob-need-card.selected .ob-need-icon svg {
   stroke: var(--copper);
 }
 .ob-need-name {
   font-family: 'DM Serif Display', serif;
-  font-size: 15px;
+  font-size: 14px;
   color: #111;
 }
 .ob-need-desc {
   font-size: 11px;
   color: #bbb;
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
-/* ===== SOLUTION CARD (Step 4) ===== */
+/* =============================================
+   SOLUTION CARD (Step 4)
+   ============================================= */
 .ob-solution-card {
-  max-width: 560px;
+  max-width: 520px;
   margin: 0 auto;
-  border-radius: 20px;
+  border-radius: 18px;
   border: 1px solid #f0f0f0;
   background: #fff;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.06);
 }
 .ob-solution-header {
-  padding: 36px 36px 24px;
+  padding: 32px 32px 20px;
   border-bottom: 1px solid #f5f5f5;
 }
 .ob-solution-badge {
   display: inline-block;
-  padding: 6px 14px;
-  border-radius: 20px;
+  padding: 5px 12px;
+  border-radius: 16px;
   background: rgba(196,98,42,0.08);
   color: var(--copper);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.5px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 .ob-solution-title {
   font-family: 'DM Serif Display', serif;
-  font-size: 26px;
+  font-size: 24px;
   color: #111;
   font-weight: 400;
 }
 .ob-solution-features {
-  padding: 24px 36px;
+  padding: 20px 32px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 .ob-solution-feature {
   display: flex;
   align-items: center;
-  gap: 14px;
-  font-size: 15px;
+  gap: 12px;
+  font-size: 14px;
   color: #444;
 }
 .ob-solution-footer {
-  padding: 24px 36px 36px;
+  padding: 20px 32px 28px;
   border-top: 1px solid #f5f5f5;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 .ob-solution-from {
-  font-size: 12px;
+  font-size: 11px;
   color: #bbb;
   display: block;
   margin-bottom: 2px;
 }
 .ob-solution-amount {
   font-family: 'DM Serif Display', serif;
-  font-size: 22px;
+  font-size: 20px;
   color: #111;
 }
 .ob-solution-note {
-  font-size: 13px;
+  font-size: 12px;
   color: #999;
   font-style: italic;
 }
 
-/* ===== FINAL CARD (Step 5) ===== */
+/* =============================================
+   FINAL CARD (Step 5)
+   ============================================= */
 .ob-final-card {
-  max-width: 480px;
+  max-width: 440px;
   margin: 0 auto;
   text-align: center;
-  padding: 48px 40px;
-  border-radius: 20px;
+  padding: 44px 36px;
+  border-radius: 18px;
   background: #fafafa;
   border: 1px solid #f0f0f0;
 }
@@ -509,62 +464,134 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: -12px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .ob-final-avatar {
-  width: 72px;
-  height: 72px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid #fff;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 .ob-final-avatar:nth-child(2) {
-  margin-left: -16px;
+  margin-left: -14px;
 }
 .ob-final-text {
   font-family: 'DM Serif Display', serif;
-  font-size: 20px;
+  font-size: 19px;
   color: #111;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   line-height: 1.4;
 }
 .ob-final-text span {
   font-family: 'Instrument Sans', sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   color: #999;
-  font-weight: 400;
 }
 .ob-final-btn {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   text-decoration: none;
 }
 .ob-final-email {
   font-family: 'Space Mono', monospace;
-  font-size: 13px;
+  font-size: 12px;
   color: #bbb;
   letter-spacing: 1px;
 }
 
-/* ===== CTA BUTTONS ===== */
+/* =============================================
+   FOOTER — fixed bottom
+   ============================================= */
+.ob-footer {
+  flex-shrink: 0;
+  border-top: 1px solid #f0f0f0;
+  background: #fff;
+  z-index: 100;
+}
+.ob-footer-inner {
+  padding: 20px 48px 24px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Journey progress */
+.ob-journey {
+  margin-bottom: 16px;
+}
+.ob-journey-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 6px;
+}
+.ob-j-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #e8e8e8;
+  border: 2px solid #e8e8e8;
+  transition: all 0.4s;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.ob-j-dot.active {
+  background: var(--copper);
+  border-color: var(--copper);
+  box-shadow: 0 0 0 3px rgba(196,98,42,0.15);
+}
+.ob-j-dot.done {
+  background: var(--copper);
+  border-color: var(--copper);
+}
+.ob-j-line {
+  width: 60px;
+  height: 2px;
+  background: #eee;
+  transition: background 0.4s;
+  flex-shrink: 0;
+}
+.ob-j-line.done {
+  background: var(--copper);
+}
+.ob-j-labels {
+  display: flex;
+  justify-content: space-between;
+  max-width: 380px;
+  margin: 0 auto;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #ccc;
+}
+.ob-j-labels span {
+  transition: all 0.3s;
+  text-align: center;
+  min-width: 50px;
+}
+.ob-j-labels span.active {
+  color: var(--copper);
+  font-weight: 700;
+}
+
+/* CTA buttons */
 .ob-cta-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  margin-top: 40px;
+  gap: 16px;
 }
 .ob-cta-primary {
-  padding: 16px 36px;
+  padding: 13px 32px;
   background: #111;
   color: #fff;
   text-decoration: none;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 14px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
@@ -575,18 +602,17 @@ body {
 }
 .ob-cta-primary:hover {
   background: var(--copper);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(196,98,42,0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(196,98,42,0.25);
 }
 .ob-cta-secondary {
-  padding: 16px 36px;
+  padding: 13px 32px;
   background: transparent;
-  color: #111;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 15px;
+  color: #666;
+  font-weight: 500;
+  font-size: 14px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid #e0e0e0;
   cursor: pointer;
   transition: all 0.3s;
   display: inline-flex;
@@ -594,40 +620,37 @@ body {
   gap: 8px;
 }
 .ob-cta-secondary:hover {
-  border-color: #111;
+  border-color: #999;
+  color: #111;
 }
 
-/* ===== PAGE ENTRANCE ===== */
-body {
-  animation: pageEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-@keyframes pageEnter {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* ===== RESPONSIVE ===== */
+/* =============================================
+   RESPONSIVE
+   ============================================= */
 @media (max-width: 768px) {
-  .ob-nav { padding: 16px 24px; }
-  .ob-body { padding: 40px 24px 24px; }
-  .ob-showcase { grid-template-columns: 1fr 1fr; }
-  .ob-metier-grid { grid-template-columns: 1fr 1fr; }
-  .ob-needs-grid { grid-template-columns: 1fr 1fr; }
-  .ob-bottom { flex-direction: column; gap: 24px; text-align: center; }
+  .ob-nav { padding: 14px 20px; }
+  .ob-step { padding: 32px 20px 24px; }
+  .ob-footer-inner { padding: 16px 20px 20px; }
+  .ob-showcase { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ob-metier-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ob-needs-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ob-bottom { flex-direction: column; gap: 20px; text-align: center; }
   .ob-contact { text-align: center; }
-  .ob-cta-row { flex-direction: column; }
-  .ob-j-line { width: 40px; }
-  .ob-j-labels { font-size: 9px; }
-  .ob-solution-card { margin: 0 -8px; }
+  .ob-j-line { width: 32px; }
+  .ob-j-labels { font-size: 8px; max-width: 300px; }
+  .ob-j-labels span { min-width: 40px; }
+  .ob-cta-primary,
+  .ob-cta-secondary { padding: 12px 24px; font-size: 13px; }
   .ob-solution-header,
   .ob-solution-features,
-  .ob-solution-footer { padding-left: 24px; padding-right: 24px; }
-  .ob-final-card { padding: 36px 24px; }
+  .ob-solution-footer { padding-left: 20px; padding-right: 20px; }
+  .ob-solution-footer { flex-direction: column; gap: 8px; text-align: center; }
+  .ob-final-card { padding: 32px 20px; }
 }
 @media (max-width: 480px) {
   .ob-showcase { grid-template-columns: 1fr; }
-  .ob-metier-grid { grid-template-columns: 1fr; }
+  .ob-metier-grid { grid-template-columns: 1fr 1fr; }
   .ob-needs-grid { grid-template-columns: 1fr 1fr; }
   .ob-step-indicator { display: none; }
-  .ob-solution-footer { flex-direction: column; gap: 12px; text-align: center; }
+  .ob-welcome-title { font-size: 28px; }
 }
