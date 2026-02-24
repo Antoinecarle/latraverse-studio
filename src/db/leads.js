@@ -1,44 +1,52 @@
-const pool = require('./pool');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+
+const DATA_FILE = path.join(__dirname, '..', '..', 'data', 'leads.json');
+
+function readAll() {
+  if (!fs.existsSync(DATA_FILE)) return [];
+  try { return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); }
+  catch { return []; }
+}
+
+function writeAll(leads) {
+  const dir = path.dirname(DATA_FILE);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(DATA_FILE, JSON.stringify(leads, null, 2));
+}
 
 async function createLead(data) {
-  const { rows } = await pool.query(
-    `INSERT INTO leads (email, name, phone, metier, parcours, selections, estimated_min, estimated_max, duration)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-     RETURNING *`,
-    [
-      data.email,
-      data.name || null,
-      data.phone || null,
-      data.metier || null,
-      data.parcours,
-      JSON.stringify(data.selections || {}),
-      data.estimated_min || 0,
-      data.estimated_max || 0,
-      data.duration || null,
-    ]
-  );
-  return rows[0];
+  const leads = readAll();
+  const lead = {
+    id: crypto.randomUUID(),
+    email: data.email,
+    name: data.name || null,
+    phone: data.phone || null,
+    metier: data.metier || null,
+    parcours: data.parcours,
+    selections: data.selections || {},
+    estimated_min: data.estimated_min || 0,
+    estimated_max: data.estimated_max || 0,
+    duration: data.duration || null,
+    created_at: new Date().toISOString(),
+  };
+  leads.unshift(lead);
+  writeAll(leads);
+  return lead;
 }
 
 async function getAllLeads() {
-  const { rows } = await pool.query(
-    'SELECT * FROM leads ORDER BY created_at DESC'
-  );
-  return rows;
+  return readAll();
 }
 
 async function getLeadById(id) {
-  const { rows } = await pool.query('SELECT * FROM leads WHERE id = $1', [id]);
-  return rows[0] || null;
+  return readAll().find(l => l.id === id) || null;
 }
 
 async function deleteLead(id) {
-  await pool.query('DELETE FROM leads WHERE id = $1', [id]);
+  const leads = readAll().filter(l => l.id !== id);
+  writeAll(leads);
 }
 
-module.exports = {
-  createLead,
-  getAllLeads,
-  getLeadById,
-  deleteLead,
-};
+module.exports = { createLead, getAllLeads, getLeadById, deleteLead };

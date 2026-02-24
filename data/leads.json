@@ -1,0 +1,22 @@
+[
+  {
+    "id": "21efc26c-7018-4f73-aebb-894cb4baa92c",
+    "email": "test@test.com",
+    "name": null,
+    "phone": null,
+    "metier": "Test",
+    "parcours": "ia",
+    "selections": {
+      "step1": [
+        "chatbot"
+      ],
+      "step2": [
+        "web"
+      ]
+    },
+    "estimated_min": 3000,
+    "estimated_max": 4200,
+    "duration": "1-2 semaines",
+    "created_at": "2026-02-24T17:37:28.392Z"
+  }
+]

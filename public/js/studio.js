@@ -63,9 +63,9 @@
           ]
         }
       ],
-      basePrice: 800,
+      basePrice: 3000,
       pricePerOption: 150,
-      duration: '3-5 semaines',
+      duration: '1-2 semaines',
       included: ['Design responsive mobile', 'Hebergement 1 an inclus', 'Formation a l\'autonomie', 'Support continu 6 mois']
     },
 
@@ -100,9 +100,9 @@
           ]
         }
       ],
-      basePrice: 3000,
+      basePrice: 8000,
       pricePerOption: 400,
-      duration: '6-10 semaines',
+      duration: '4-6 semaines',
       included: ['iOS & Android natif', 'Design sur-mesure', 'Publication sur les stores', 'Formation equipe', 'Support continu 6 mois']
     },
 
@@ -137,9 +137,9 @@
           ]
         }
       ],
-      basePrice: 2500,
+      basePrice: 6000,
       pricePerOption: 350,
-      duration: '6-12 semaines',
+      duration: '3-5 semaines',
       included: ['Hebergement cloud securise', 'Mises a jour continues', 'Formation equipe complete', 'Support continu 6 mois']
     },
 
@@ -180,9 +180,9 @@
           ]
         }
       ],
-      basePrice: 1500,
+      basePrice: 3000,
       pricePerOption: 300,
-      duration: '2-6 semaines',
+      duration: '1-2 semaines',
       included: ['Configuration sur-mesure', 'Entrainement IA sur vos donnees', 'Formation equipe', 'Support continu 6 mois', 'Mises a jour du modele IA']
     }
   };
@@ -465,12 +465,8 @@
     html += includedHtml;
     html += '</div>';
     html += '<div class="ob-estimation-footer">';
-    html += '<div class="ob-estimation-price-block">';
-    html += '<span class="ob-estimation-from">Estimation</span>';
-    html += '<span class="ob-estimation-amount">' + priceMin.toLocaleString('fr-FR') + ' &ndash; ' + priceMax.toLocaleString('fr-FR') + ' &euro; HT</span>';
-    html += '</div>';
     html += '<div class="ob-estimation-duration-block">';
-    html += '<span class="ob-estimation-from">Delai</span>';
+    html += '<span class="ob-estimation-from">Delai estime</span>';
     html += '<span class="ob-estimation-time">' + parcours.duration + '</span>';
     html += '</div>';
     html += '</div>';
