@@ -21,8 +21,8 @@ async function getClientById(id) {
 
 async function createClient(data) {
   const { rows } = await pool.query(
-    `INSERT INTO clients (name, url, industry, description, services_provided, testimonial, screenshot_url, logo_url, color, is_featured, display_order)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    `INSERT INTO clients (name, url, industry, description, services_provided, testimonial, testimonial_name, testimonial_linkedin, testimonial_photo, screenshot_url, logo_url, color, is_featured, display_order)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
      RETURNING *`,
     [
       data.name,
@@ -31,6 +31,9 @@ async function createClient(data) {
       data.description || null,
       data.services_provided || null,
       data.testimonial || null,
+      data.testimonial_name || null,
+      data.testimonial_linkedin || null,
+      data.testimonial_photo || null,
       data.screenshot_url || null,
       data.logo_url || null,
       data.color || '#c4622a',
@@ -45,8 +48,10 @@ async function updateClient(id, data) {
   const { rows } = await pool.query(
     `UPDATE clients SET
        name = $2, url = $3, industry = $4, description = $5,
-       services_provided = $6, testimonial = $7, screenshot_url = $8,
-       logo_url = $9, color = $10, is_featured = $11, display_order = $12,
+       services_provided = $6, testimonial = $7, testimonial_name = $8,
+       testimonial_linkedin = $9, testimonial_photo = $10,
+       screenshot_url = $11, logo_url = $12, color = $13,
+       is_featured = $14, display_order = $15,
        updated_at = NOW()
      WHERE id = $1
      RETURNING *`,
@@ -58,6 +63,9 @@ async function updateClient(id, data) {
       data.description || null,
       data.services_provided || null,
       data.testimonial || null,
+      data.testimonial_name || null,
+      data.testimonial_linkedin || null,
+      data.testimonial_photo || null,
       data.screenshot_url || null,
       data.logo_url || null,
       data.color || '#c4622a',

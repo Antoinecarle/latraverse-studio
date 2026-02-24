@@ -224,6 +224,12 @@
       l.style.transform = 'none';
     });
 
+    /* Show title + descriptor immediately */
+    var rmTitle = document.getElementById('heroTitle');
+    if (rmTitle) { rmTitle.style.opacity = '1'; rmTitle.style.transform = 'none'; }
+    var rmDesc = document.querySelector('.hero__descriptor');
+    if (rmDesc) { rmDesc.style.opacity = '1'; rmDesc.style.transform = 'none'; }
+
     /* Show tagline, CTA, reassurance */
     ['heroTagline', 'heroCTA', 'heroReassurance'].forEach(function(id) {
       var el = document.getElementById(id);
@@ -401,6 +407,8 @@
   /* ACT 1: Static elements fade in */
   if (heroBadge) heroFadeIn(heroBadge, 200, 600, 20);
 
+  var heroDescriptor = document.querySelector('.hero__descriptor');
+
   if (heroTitle) {
     setTimeout(function() {
       animateValue(900, easeOutQuart, function(p) {
@@ -414,6 +422,10 @@
               traverseAccent.style.setProperty('--underline-scale', p);
             });
           }, 200);
+        }
+        /* Reveal descriptor after title */
+        if (heroDescriptor) {
+          setTimeout(function() { heroDescriptor.classList.add('is-visible'); }, 400);
         }
       });
     }, 500);
@@ -1007,7 +1019,7 @@
       '2': 0.80,
       '0': 0.05,
       '6': 0.65,
-      '1': 0.90
+      '30': 0.90
     };
     var ratio = ratioMap[String(target)] !== undefined ? ratioMap[String(target)] : Math.min(target / 120, 0.95);
     var targetOffset = CIRCUMFERENCE * (1 - ratio);
