@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — La Traverse</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <nav class="admin-nav">
+    <a href="/" class="admin-logo">
+      <span class="logo-icon">&#9971;</span>
+      Traverse <span class="logo-sub">Admin</span>
+    </a>
+    <div class="admin-nav-right">
+      <a href="/admin" class="nav-link active">Clients</a>
+      <a href="/" class="nav-link" target="_blank">Voir le site</a>
+    </div>
+  </nav>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <div>
+        <h1 class="admin-title">Exemples clients</h1>
+        <p class="admin-subtitle"><%= clients.length %> projet<%= clients.length > 1 ? 's' : '' %> enregistre<%= clients.length > 1 ? 's' : '' %></p>
+      </div>
+      <a href="/admin/clients/new" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Nouveau client
+      </a>
+    </div>
+
+    <% if (clients.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(196,98,42,0.4)" stroke-width="1.5">
+            <path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4"/>
+          </svg>
+        </div>
+        <h3>Aucun client pour l'instant</h3>
+        <p>Ajoutez votre premier exemple client pour l'afficher sur le site.</p>
+        <a href="/admin/clients/new" class="btn-primary" style="margin-top: 16px;">Ajouter un client</a>
+      </div>
+    <% } else { %>
+      <div class="clients-grid">
+        <% clients.forEach(client => { %>
+          <div class="client-card">
+            <div class="client-card-top" style="border-left: 3px solid <%= client.color || '#c4622a' %>">
+              <div class="client-info">
+                <h3 class="client-name"><%= client.name %></h3>
+                <span class="client-industry"><%= client.industry || 'Non defini' %></span>
+              </div>
+              <% if (client.is_featured) { %>
+                <span class="badge-featured">En vedette</span>
+              <% } %>
+            </div>
+            <% if (client.description) { %>
+              <p class="client-desc"><%= client.description.substring(0, 150) %><%= client.description.length > 150 ? '...' : '' %></p>
+            <% } %>
+            <% if (client.services_provided) { %>
+              <div class="client-services">
+                <% client.services_provided.split(',').slice(0, 3).forEach(s => { %>
+                  <span class="service-tag"><%= s.trim() %></span>
+                <% }) %>
+                <% if (client.services_provided.split(',').length > 3) { %>
+                  <span class="service-tag more">+<%= client.services_provided.split(',').length - 3 %></span>
+                <% } %>
+              </div>
+            <% } %>
+            <% if (client.url) { %>
+              <a href="<%= client.url %>" class="client-url" target="_blank" rel="noopener"><%= client.url.replace(/^https?:\/\//, '') %></a>
+            <% } %>
+            <div class="client-actions">
+              <a href="/admin/clients/<%= client.id %>/edit" class="btn-secondary">Editer</a>
+              <form method="POST" action="/admin/clients/<%= client.id %>/delete" onsubmit="return confirm('Supprimer ce client ?')">
+                <button type="submit" class="btn-danger">Supprimer</button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+</body>
+</html>

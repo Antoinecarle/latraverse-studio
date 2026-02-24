@@ -24,7 +24,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400;1,500;1,700&family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/landing.css">
+<link rel="stylesheet" href="/css/landing.css?v=<%= Date.now() %>">
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -69,114 +69,237 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <main>
 
-  <!-- ===== HERO ===== -->
-  <section class="hero" id="hero">
-    <div class="hero__content">
-      <!-- Overline: typewriter effect via JS -->
-      <span class="overline hero__overline" id="heroOverline" data-typewriter="Studio digital · Marseille"></span>
-      <!-- Title: each word wrapped for stagger reveal -->
-      <h1 class="hero__title" id="heroTitle">
-        <span class="hero__title-line" id="heroLine1">
-          <span class="hero__word">Du</span>
-          <span class="hero__word">m&eacute;tier</span>
-          <span class="hero__word">au</span>
-          <span class="hero__word">num&eacute;rique,</span>
-        </span>
-        <br>
-        <!-- The italic/accent part gets a clip-path reveal -->
-        <em class="hero__title-accent" id="heroAccent">sans jamais vous perdre.</em>
+  <!-- ===== HERO (Dark Immersive — Motion Narrative) ===== -->
+  <section class="hero hero--dark" id="hero" aria-label="La Traverse &mdash; Studio digital &agrave; Marseille. On trace la route ensemble, du m&eacute;tier au num&eacute;rique, &agrave; votre rythme, sans jamais vous perdre.">
+
+    <!-- SVG Curved Text Ribbons -->
+    <div class="hero-ribbon" aria-hidden="true">
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <path id="ribbonCurve1" d="M-300,880 C0,820 150,680 350,600 C550,520 620,400 780,380 C940,360 1050,500 1200,520 C1350,540 1450,400 1600,320 C1750,240 1850,160 2000,100" />
+          <path id="ribbonCurve2" d="M-400,180 C-100,160 100,220 300,280 C500,340 600,200 800,160 C1000,120 1100,300 1300,380 C1500,460 1600,600 1800,680 C2000,760 2100,820 2200,860" />
+        </defs>
+        <use href="#ribbonCurve1" class="ribbon-path-glow" />
+        <use href="#ribbonCurve2" class="ribbon-path-glow" />
+        <use href="#ribbonCurve1" class="ribbon-path" />
+        <use href="#ribbonCurve2" class="ribbon-path" />
+        <text class="ribbon-text">
+          <textPath id="textPath1" href="#ribbonCurve1" startOffset="0%">je ne sais pas par ou commencer &middot; un site ? une app ? je suis perdu &middot; le numerique c'est pas mon truc &middot; mes clients ne me trouvent pas &middot; comment etre visible en ligne &middot; j'ai pas le temps pour ca &middot; c'est trop complique &middot; par ou commencer &middot; un site ? une app ? je suis perdu &middot; le numerique c'est pas mon truc &middot; mes clients ne me trouvent pas &middot; comment etre visible &middot; j'ai pas le temps &middot;</textPath>
+        </text>
+        <text class="ribbon-text-2">
+          <textPath id="textPath2" href="#ribbonCurve2" startOffset="-20%">je voudrais que ca ressemble a mon metier &middot; quelque chose de simple &middot; qui me ressemble &middot; pas un truc generique &middot; je veux etre fier de montrer ca &middot; mais je sais pas comment faire &middot; j'ai essaye tout seul &middot; c'etait pas terrible &middot; je voudrais que ca me ressemble &middot; quelque chose de simple &middot; qui me ressemble &middot; pas un truc generique &middot;</textPath>
+        </text>
+      </svg>
+    </div>
+
+    <!-- Atmospheric particles -->
+    <div class="hero-particles" aria-hidden="true"></div>
+
+    <!-- Grain texture -->
+    <div class="hero__grain" aria-hidden="true"></div>
+
+    <!-- Badge -->
+    <div class="hero__badge" id="heroBadge" aria-label="Studio digital, Marseille">
+      Studio digital &middot; Marseille
+    </div>
+
+    <!-- Title -->
+    <div class="hero__title-block">
+      <h1 class="hero__title" id="heroTitle" aria-label="La Traverse">
+        <span class="hero__title-la">La</span>
+        <span class="hero__title-traverse">Traverse</span>
       </h1>
-      <p class="hero__subtitle hero__reveal-item" id="heroSubtitle">
-        On accompagne artisans, commer&ccedil;ants et ind&eacute;pendants dans leur travers&eacute;e num&eacute;rique.
-        Pas de jargon, pas de pression &mdash; juste des solutions qui marchent, &agrave; votre rythme.
-      </p>
-      <div class="hero__actions hero__reveal-item" id="heroCTAs">
-        <a href="/studio" class="btn btn--filled">Commencer la travers&eacute;e <span class="btn__arrow">&rarr;</span></a>
-        <a href="#services" class="btn btn--outline">D&eacute;couvrir nos services <span class="btn__arrow">&rarr;</span></a>
+    </div>
+
+    <!-- Transformation Scene: chaos → clarity -->
+    <div class="hero__scene" id="heroScene" role="presentation">
+      <div class="scene-container">
+        <div class="scene-chaos" aria-hidden="true">
+          <span class="scene-chaos__line" data-chaos="0">
+            <span class="chaos-word">&laquo;&nbsp;Je</span>
+            <span class="chaos-word">ne</span>
+            <span class="chaos-word">sais</span>
+            <span class="chaos-word">pas</span>
+            <span class="chaos-word">par</span>
+            <span class="chaos-word">o&ugrave;</span>
+            <span class="chaos-word">commencer...&nbsp;&raquo;</span>
+          </span>
+          <span class="scene-chaos__line" data-chaos="1">
+            <span class="chaos-word">&laquo;&nbsp;Un</span>
+            <span class="chaos-word">site&nbsp;?</span>
+            <span class="chaos-word">une</span>
+            <span class="chaos-word">app&nbsp;?</span>
+            <span class="chaos-word">je</span>
+            <span class="chaos-word">suis</span>
+            <span class="chaos-word">perdu...&nbsp;&raquo;</span>
+          </span>
+          <span class="scene-chaos__line" data-chaos="2">
+            <span class="chaos-word">&laquo;&nbsp;Le</span>
+            <span class="chaos-word">num&eacute;rique,</span>
+            <span class="chaos-word">c'est</span>
+            <span class="chaos-word">pas</span>
+            <span class="chaos-word">mon</span>
+            <span class="chaos-word">truc...&nbsp;&raquo;</span>
+          </span>
+        </div>
+        <div class="scene-clarity" aria-label="On s'occupe de tout. Vous, concentrez-vous sur votre m&eacute;tier.">
+          <span class="scene-clarity__line">On s'occupe de <em>tout</em></span>
+          <span class="scene-clarity__line scene-clarity__line--sub">Vous, concentrez-vous sur <em>votre m&eacute;tier.</em></span>
+        </div>
       </div>
     </div>
+
+    <!-- Tagline -->
+    <p class="hero__tagline" id="heroTagline">On trace la route ensemble</p>
+
+    <!-- CTA -->
+    <div class="hero__cta-wrap" id="heroCTA">
+      <a href="#contact" class="hero__cta" aria-label="Commencer la travers&eacute;e">
+        <span>Commencer la travers&eacute;e</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Reassurance strip -->
+    <div class="hero__reassurance" id="heroReassurance" aria-label="Artisans et commer&ccedil;ants. Sur mesure. Marseille et alentours.">
+      <div class="reassurance-item">
+        <div class="reassurance-icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <span>Artisans &amp; commer&ccedil;ants</span>
+      </div>
+      <div class="reassurance-sep" aria-hidden="true"></div>
+      <div class="reassurance-item">
+        <div class="reassurance-icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <span>Sur mesure</span>
+      </div>
+      <div class="reassurance-sep" aria-hidden="true"></div>
+      <div class="reassurance-item">
+        <div class="reassurance-icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <span>Marseille &amp; alentours</span>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
     <div class="hero__scroll-indicator">
       <span class="hero__scroll-text">D&eacute;filer</span>
       <div class="hero__scroll-line"></div>
     </div>
   </section>
 
+  <!-- ===== MARQUEE TRANSITION (dark → light) ===== -->
+  <div class="marquee-transition" aria-hidden="true">
+    <div class="marquee-transition__track">
+      <span class="marquee-transition__inner">
+        <span class="marquee-transition__dot"></span>Coiffure &amp; Beaut&eacute;<span class="marquee-transition__dot"></span>Artisans du b&acirc;timent<span class="marquee-transition__dot"></span>Architecture d'int&eacute;rieur<span class="marquee-transition__dot"></span>Restaurants &amp; Caf&eacute;s<span class="marquee-transition__dot"></span>E-commerce local<span class="marquee-transition__dot"></span>Consultants ind&eacute;pendants<span class="marquee-transition__dot"></span>Photographes<span class="marquee-transition__dot"></span>M&eacute;decins &amp; Th&eacute;rapeutes<span class="marquee-transition__dot"></span>Agences immobili&egrave;res&nbsp;&nbsp;
+      </span>
+      <span class="marquee-transition__inner">
+        <span class="marquee-transition__dot"></span>Coiffure &amp; Beaut&eacute;<span class="marquee-transition__dot"></span>Artisans du b&acirc;timent<span class="marquee-transition__dot"></span>Architecture d'int&eacute;rieur<span class="marquee-transition__dot"></span>Restaurants &amp; Caf&eacute;s<span class="marquee-transition__dot"></span>E-commerce local<span class="marquee-transition__dot"></span>Consultants ind&eacute;pendants<span class="marquee-transition__dot"></span>Photographes<span class="marquee-transition__dot"></span>M&eacute;decins &amp; Th&eacute;rapeutes<span class="marquee-transition__dot"></span>Agences immobili&egrave;res&nbsp;&nbsp;
+      </span>
+    </div>
+  </div>
+
   <!-- ===== STATS / CHIFFRES CLES ===== -->
-  <section class="stats-band reveal-section" id="stats" aria-label="Chiffres cl&eacute;s">
+  <section class="stats-band reveal-section" id="stats" aria-label="Chiffres cl&eacute;s" data-parallax-speed="0.03">
     <div class="stats-band__inner">
 
-      <div class="stats-band__item" data-stat-target="50" data-stat-suffix="+" data-stat-label="Clients accompagn&eacute;s" data-gauge-color="#c4622a">
+      <div class="stats-band__item" data-stat-target="2" data-stat-suffix="" data-stat-label="Fondateurs d&eacute;veloppeurs" data-gauge-color="#c4622a">
         <div class="stats-band__gauge-wrap">
           <svg class="stats-band__gauge" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
             <circle class="stats-gauge__track" cx="32" cy="32" r="26" fill="none" stroke="rgba(196,98,42,0.12)" stroke-width="3"/>
             <circle class="stats-gauge__fill" cx="32" cy="32" r="26" fill="none" stroke="#c4622a" stroke-width="3" stroke-linecap="round" stroke-dasharray="163.36" stroke-dashoffset="163.36" transform="rotate(-90 32 32)"/>
           </svg>
-          <span class="stats-band__value" data-stat-target="50" data-stat-suffix="+">0</span>
+          <span class="stats-band__value" data-stat-target="2" data-stat-suffix="">0</span>
         </div>
-        <span class="stats-band__label">Clients accompagn&eacute;s</span>
+        <span class="stats-band__label">Fondateurs d&eacute;veloppeurs</span>
       </div>
 
-      <div class="stats-band__item" data-stat-target="120" data-stat-suffix="+" data-stat-label="Projets livr&eacute;s" data-gauge-color="#5a8f7b">
+      <div class="stats-band__item" data-stat-target="0" data-stat-suffix="" data-stat-label="Sous-traitance" data-gauge-color="#5a8f7b">
         <div class="stats-band__gauge-wrap">
           <svg class="stats-band__gauge" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
             <circle class="stats-gauge__track" cx="32" cy="32" r="26" fill="none" stroke="rgba(90,143,123,0.12)" stroke-width="3"/>
             <circle class="stats-gauge__fill" cx="32" cy="32" r="26" fill="none" stroke="#5a8f7b" stroke-width="3" stroke-linecap="round" stroke-dasharray="163.36" stroke-dashoffset="163.36" transform="rotate(-90 32 32)"/>
           </svg>
-          <span class="stats-band__value" data-stat-target="120" data-stat-suffix="+">0</span>
+          <span class="stats-band__value" data-stat-target="0" data-stat-suffix="">0</span>
         </div>
-        <span class="stats-band__label">Projets livr&eacute;s</span>
+        <span class="stats-band__label">Sous-traitance</span>
       </div>
 
-      <div class="stats-band__item" data-stat-target="4" data-stat-suffix=" ans" data-stat-label="D'exp&eacute;rience" data-gauge-color="#c49a2a">
+      <div class="stats-band__item" data-stat-target="6" data-stat-suffix=" mois" data-stat-label="Suivi apr&egrave;s livraison" data-gauge-color="#c49a2a">
         <div class="stats-band__gauge-wrap">
           <svg class="stats-band__gauge" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
             <circle class="stats-gauge__track" cx="32" cy="32" r="26" fill="none" stroke="rgba(196,154,42,0.12)" stroke-width="3"/>
             <circle class="stats-gauge__fill" cx="32" cy="32" r="26" fill="none" stroke="#c49a2a" stroke-width="3" stroke-linecap="round" stroke-dasharray="163.36" stroke-dashoffset="163.36" transform="rotate(-90 32 32)"/>
           </svg>
-          <span class="stats-band__value" data-stat-target="4" data-stat-suffix=" ans">0</span>
+          <span class="stats-band__value" data-stat-target="6" data-stat-suffix=" mois">0</span>
         </div>
-        <span class="stats-band__label">D'exp&eacute;rience</span>
+        <span class="stats-band__label">Suivi apr&egrave;s livraison</span>
       </div>
 
-      <div class="stats-band__item" data-stat-target="100" data-stat-suffix="%" data-stat-label="Satisfaction client" data-gauge-color="#d4722e">
+      <div class="stats-band__item" data-stat-target="1" data-stat-suffix="h" data-stat-label="Premier caf&eacute; gratuit" data-gauge-color="#d4722e">
         <div class="stats-band__gauge-wrap">
           <svg class="stats-band__gauge" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
             <circle class="stats-gauge__track" cx="32" cy="32" r="26" fill="none" stroke="rgba(212,114,46,0.12)" stroke-width="3"/>
             <circle class="stats-gauge__fill" cx="32" cy="32" r="26" fill="none" stroke="#d4722e" stroke-width="3" stroke-linecap="round" stroke-dasharray="163.36" stroke-dashoffset="163.36" transform="rotate(-90 32 32)"/>
           </svg>
-          <span class="stats-band__value" data-stat-target="100" data-stat-suffix="%">0</span>
+          <span class="stats-band__value" data-stat-target="1" data-stat-suffix="h">0</span>
         </div>
-        <span class="stats-band__label">Satisfaction client</span>
+        <span class="stats-band__label">Premier caf&eacute; gratuit</span>
       </div>
 
     </div>
   </section>
 
-  <!-- ===== ACTIVITY DOT MATRIX ===== -->
-  <section class="activity reveal-section" id="activity" aria-label="Activit&eacute; projets">
+  <!-- ===== PROMESSE SECTION ===== -->
+  <section class="activity reveal-section" id="activity" aria-label="Ce qu'on vous garantit" data-parallax-speed="0.04">
     <div class="activity__inner">
       <div class="activity__header">
         <div>
-          <span class="activity__eyebrow">Activit&eacute; projets</span>
-          <span class="activity__title">14 semaines</span>
-          <span class="activity__subtitle">Intensit&eacute; des projets en cours &amp; livr&eacute;s</span>
+          <span class="activity__eyebrow">Notre engagement</span>
+          <span class="activity__title">Ce qu'on vous garantit</span>
+          <span class="activity__subtitle">Chaque projet La Traverse repose sur ces principes</span>
         </div>
       </div>
-      <div class="activity__grid" id="activityGrid" aria-hidden="true"></div>
-      <div class="activity__legend">
-        <div class="activity__legend-item"><div class="activity__legend-sq" style="opacity:0.15"></div>Faible</div>
-        <div class="activity__legend-item"><div class="activity__legend-sq" style="opacity:0.5"></div>Mod&eacute;r&eacute;</div>
-        <div class="activity__legend-item"><div class="activity__legend-sq" style="opacity:1"></div>Intense</div>
+      <div class="promise-grid">
+        <div class="promise-item reveal-item">
+          <span class="promise-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </span>
+          <span class="promise-text">Un seul interlocuteur du d&eacute;but &agrave; la fin</span>
+        </div>
+        <div class="promise-item reveal-item">
+          <span class="promise-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </span>
+          <span class="promise-text">Devis d&eacute;taill&eacute;, pas de surprise sur la facture</span>
+        </div>
+        <div class="promise-item reveal-item">
+          <span class="promise-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </span>
+          <span class="promise-text">Vous voyez l'avancement &agrave; chaque &eacute;tape</span>
+        </div>
+        <div class="promise-item reveal-item">
+          <span class="promise-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          <span class="promise-text">On vous forme, vous repartez autonome</span>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- ===== MANIFESTO ===== -->
-  <section class="manifesto reveal-section" id="manifesto">
+  <section class="manifesto reveal-section" id="manifesto" data-parallax-speed="0.05">
     <div class="manifesto__inner">
       <div class="manifesto__rule manifesto__rule--animate"></div>
       <blockquote class="manifesto__quote" id="manifestoQuote">
-        <!-- Words wrapped by JS for scroll-driven opacity reveal -->
         Votre m&eacute;tier, c'est votre expertise.<br>
         Le num&eacute;rique, c'est la n&ocirc;tre.<br>
         <em>On trace la route ensemble.</em>
@@ -195,7 +318,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 
   <!-- ===== SERVICES ===== -->
-  <section class="section services reveal-section" id="services">
+  <section class="section services reveal-section" id="services" data-parallax-speed="0.02">
     <div class="section__container">
       <div class="section__header">
         <span class="section__number" data-count-target="01">01</span>
@@ -218,7 +341,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <svg class="sparkline" viewBox="0 0 160 40" preserveAspectRatio="none" aria-hidden="true">
               <polyline class="sparkline__path" points="0,32 20,28 40,22 60,26 80,14 100,18 120,10 140,6 160,3" fill="none" stroke="#c4622a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span class="sparkline__label">Trafic organique +140%</span>
+            <span class="sparkline__label">Visibilit&eacute; locale</span>
           </div>
           <span class="service-card__duration">3&ndash;5 semaines</span>
         </article>
@@ -230,13 +353,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
           <h3 class="service-card__title">Parcours Application</h3>
           <p class="service-card__desc">
-            Votre outil m&eacute;tier dans la poche de vos clients. App iOS &amp; Android, notifications, mode hors-ligne, dashboard admin.
+            Votre outil m&eacute;tier dans la poche de vos clients. App iOS &amp; Android, notifications, mode hors-ligne, espace de gestion.
           </p>
           <div class="sparkline-wrap" data-sparkline-color="#5a8f7b">
             <svg class="sparkline" viewBox="0 0 160 40" preserveAspectRatio="none" aria-hidden="true">
               <polyline class="sparkline__path" points="0,36 20,32 40,30 60,20 80,22 100,12 120,8 140,4 160,2" fill="none" stroke="#5a8f7b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span class="sparkline__label">Engagement +220%</span>
+            <span class="sparkline__label">Fid&eacute;lisation client</span>
           </div>
           <span class="service-card__duration">6&ndash;10 semaines</span>
         </article>
@@ -244,7 +367,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <article class="service-card reveal-item reveal-item--from-right">
           <div class="service-card__head">
             <span class="service-card__index">03</span>
-            <span class="service-card__tag">SaaS &amp; outil m&eacute;tier</span>
+            <span class="service-card__tag">Outil m&eacute;tier</span>
           </div>
           <h3 class="service-card__title">Parcours Outil</h3>
           <p class="service-card__desc">
@@ -254,7 +377,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <svg class="sparkline" viewBox="0 0 160 40" preserveAspectRatio="none" aria-hidden="true">
               <polyline class="sparkline__path" points="0,38 20,34 40,38 60,30 80,24 100,28 120,16 140,10 160,6" fill="none" stroke="#c49a2a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span class="sparkline__label">Temps admin &minus;60%</span>
+            <span class="sparkline__label">Gain de temps</span>
           </div>
           <span class="service-card__duration">6&ndash;12 semaines</span>
         </article>
@@ -272,7 +395,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <svg class="sparkline" viewBox="0 0 160 40" preserveAspectRatio="none" aria-hidden="true">
               <polyline class="sparkline__path" points="0,34 20,30 40,32 60,24 80,26 100,16 120,18 140,10 160,8" fill="none" stroke="#a85050" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span class="sparkline__label">Panier moyen +35%</span>
+            <span class="sparkline__label">Ventes en ligne</span>
           </div>
           <span class="service-card__duration">4&ndash;8 semaines</span>
         </article>
@@ -281,17 +404,421 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </section>
 
+  <!-- ===== SUR-MESURE / EXPERTISES — HORIZONTAL SCROLL ===== -->
+  <section class="sm-section" id="expertises">
+    <!-- Dark overlay background -->
+    <div class="sm-bg" aria-hidden="true">
+      <div class="sm-bg__glow sm-bg__glow--1"></div>
+      <div class="sm-bg__glow sm-bg__glow--2"></div>
+      <div class="sm-bg__grain"></div>
+    </div>
+
+    <!-- Header -->
+    <div class="sm-header reveal-section">
+      <div class="sm-header__inner">
+        <span class="sm-header__overline">
+          <span class="sm-header__overline-dot"></span>
+          Le sur-mesure
+        </span>
+        <h2 class="sm-header__title">
+          Nous construisons des<br>
+          <em>produits num&eacute;riques</em> sur-mesure
+        </h2>
+        <p class="sm-header__desc">Notre agence vous accompagne de l'id&eacute;e au lancement. Logiciels, applications, plateformes &mdash; chaque projet est unique, chaque solution est taill&eacute;e pour votre m&eacute;tier.</p>
+        <div class="sm-header__count" aria-hidden="true">
+          <span class="sm-header__count-num">10</span>
+          <span class="sm-header__count-label">expertises</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 1 — scrolls LEFT (slow) -->
+    <div class="sm-row sm-row--1" aria-label="Nos expertises - rang&eacute;e 1">
+      <div class="sm-row__track sm-row__track--left">
+
+        <article class="sm-card sm-card--copper">
+          <div class="sm-card__number">01</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8h2m2 0h4"/></svg>
+          </div>
+          <h3 class="sm-card__title">Logiciels &amp; outils m&eacute;tiers</h3>
+          <p class="sm-card__desc">Gestion, planification, facturation &mdash; des outils sur-mesure qui remplacent vos tableurs.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">CRM</span>
+            <span class="sm-card__tag">ERP</span>
+            <span class="sm-card__tag">Planning</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--dark">
+          <div class="sm-card__number">02</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+          </div>
+          <h3 class="sm-card__title">Applications mobiles</h3>
+          <p class="sm-card__desc">iOS &amp; Android. Des apps natives qui mettent votre m&eacute;tier dans la poche de vos clients.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">iOS</span>
+            <span class="sm-card__tag">Android</span>
+            <span class="sm-card__tag">Multi-appareils</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--accent">
+          <div class="sm-card__number">03</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <h3 class="sm-card__title">Plateformes en ligne</h3>
+          <p class="sm-card__desc">Outils accessibles partout, multi-utilisateurs, avec abonnement. Votre id&eacute;e transform&eacute;e en produit rentable.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">En ligne</span>
+            <span class="sm-card__tag">Multi-utilisateurs</span>
+            <span class="sm-card__tag">Abonnement</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--glass">
+          <div class="sm-card__number">04</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h3 class="sm-card__title">Places de march&eacute;</h3>
+          <p class="sm-card__desc">Connectez acheteurs et vendeurs. Paiement int&eacute;gr&eacute;, commissions, avis clients.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">Paiement</span>
+            <span class="sm-card__tag">Commission</span>
+            <span class="sm-card__tag">Avis</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--copper">
+          <div class="sm-card__number">05</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          </div>
+          <h3 class="sm-card__title">Plateformes vid&eacute;o</h3>
+          <p class="sm-card__desc">Cours en ligne, vid&eacute;os &agrave; la demande, formations. Diffusez vos contenus et fid&eacute;lisez votre audience.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">Formations</span>
+            <span class="sm-card__tag">Vid&eacute;o</span>
+            <span class="sm-card__tag">Cours en ligne</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <!-- Duplicate for infinite loop -->
+        <article class="sm-card sm-card--copper" aria-hidden="true">
+          <div class="sm-card__number">01</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8h2m2 0h4"/></svg>
+          </div>
+          <h3 class="sm-card__title">Logiciels &amp; outils m&eacute;tiers</h3>
+          <p class="sm-card__desc">Gestion, planification, facturation &mdash; des outils sur-mesure qui remplacent vos tableurs.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">CRM</span>
+            <span class="sm-card__tag">ERP</span>
+            <span class="sm-card__tag">Planning</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--dark" aria-hidden="true">
+          <div class="sm-card__number">02</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+          </div>
+          <h3 class="sm-card__title">Applications mobiles</h3>
+          <p class="sm-card__desc">iOS &amp; Android. Des apps natives qui mettent votre m&eacute;tier dans la poche de vos clients.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">iOS</span>
+            <span class="sm-card__tag">Android</span>
+            <span class="sm-card__tag">Multi-appareils</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--accent" aria-hidden="true">
+          <div class="sm-card__number">03</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <h3 class="sm-card__title">Plateformes en ligne</h3>
+          <p class="sm-card__desc">Outils accessibles partout, multi-utilisateurs, avec abonnement. Votre id&eacute;e transform&eacute;e en produit rentable.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">En ligne</span>
+            <span class="sm-card__tag">Multi-utilisateurs</span>
+            <span class="sm-card__tag">Abonnement</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--glass" aria-hidden="true">
+          <div class="sm-card__number">04</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h3 class="sm-card__title">Places de march&eacute;</h3>
+          <p class="sm-card__desc">Connectez acheteurs et vendeurs. Paiement int&eacute;gr&eacute;, commissions, avis clients.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">Paiement</span>
+            <span class="sm-card__tag">Commission</span>
+            <span class="sm-card__tag">Avis</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--copper" aria-hidden="true">
+          <div class="sm-card__number">05</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          </div>
+          <h3 class="sm-card__title">Plateformes vid&eacute;o</h3>
+          <p class="sm-card__desc">Cours en ligne, vid&eacute;os &agrave; la demande, formations. Diffusez vos contenus et fid&eacute;lisez votre audience.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">Formations</span>
+            <span class="sm-card__tag">Vid&eacute;o</span>
+            <span class="sm-card__tag">Cours en ligne</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- Row 2 — scrolls RIGHT (faster) -->
+    <div class="sm-row sm-row--2" aria-label="Nos expertises - rang&eacute;e 2">
+      <div class="sm-row__track sm-row__track--right">
+
+        <article class="sm-card sm-card--glass">
+          <div class="sm-card__number">06</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <h3 class="sm-card__title">Design d'interfaces</h3>
+          <p class="sm-card__desc">Des &eacute;crans clairs et agr&eacute;ables. On dessine, on teste, on am&eacute;liore &mdash; chaque d&eacute;tail est pens&eacute; pour simplifier.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">Maquettes</span>
+            <span class="sm-card__tag">Prototypage</span>
+            <span class="sm-card__tag">Ergonomie</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--accent">
+          <div class="sm-card__number">07</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/><path d="M13 15h4"/><path d="M13 12h4"/></svg>
+          </div>
+          <h3 class="sm-card__title">Espace d'administration</h3>
+          <p class="sm-card__desc">Tableaux de bord, statistiques, exports. Toute votre activit&eacute; en un coup d'oeil.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">Suivi</span>
+            <span class="sm-card__tag">Statistiques</span>
+            <span class="sm-card__tag">Gestion</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--dark">
+          <div class="sm-card__number">08</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <h3 class="sm-card__title">Sites vitrines sur-mesure</h3>
+          <p class="sm-card__desc">Pas de Wix. Un site cod&eacute; pour vous, rapide, accessible, qui convertit.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">SEO</span>
+            <span class="sm-card__tag">Responsive</span>
+            <span class="sm-card__tag">Performance</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--copper">
+          <div class="sm-card__number">09</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3 class="sm-card__title">Mise en relation</h3>
+          <p class="sm-card__desc">Mise en relation intelligente, messagerie, profils v&eacute;rifi&eacute;s, avis. Connectez les bons profils.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">Connexion</span>
+            <span class="sm-card__tag">Messagerie</span>
+            <span class="sm-card__tag">Avis</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--glass">
+          <div class="sm-card__number">10</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </div>
+          <h3 class="sm-card__title">Boutiques en ligne</h3>
+          <p class="sm-card__desc">Boutiques rapides et compl&egrave;tes. Paiement s&eacute;curis&eacute;, stocks, Click &amp; Collect.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">Paiement</span>
+            <span class="sm-card__tag">Stocks</span>
+            <span class="sm-card__tag">Click&amp;Collect</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <!-- Duplicate for infinite loop -->
+        <article class="sm-card sm-card--glass" aria-hidden="true">
+          <div class="sm-card__number">06</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <h3 class="sm-card__title">Design d'interfaces</h3>
+          <p class="sm-card__desc">Des &eacute;crans clairs et agr&eacute;ables. On dessine, on teste, on am&eacute;liore &mdash; chaque d&eacute;tail est pens&eacute; pour simplifier.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">Maquettes</span>
+            <span class="sm-card__tag">Prototypage</span>
+            <span class="sm-card__tag">Ergonomie</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--accent" aria-hidden="true">
+          <div class="sm-card__number">07</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/><path d="M13 15h4"/><path d="M13 12h4"/></svg>
+          </div>
+          <h3 class="sm-card__title">Espace d'administration</h3>
+          <p class="sm-card__desc">Tableaux de bord, statistiques, exports. Toute votre activit&eacute; en un coup d'oeil.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">Suivi</span>
+            <span class="sm-card__tag">Statistiques</span>
+            <span class="sm-card__tag">Gestion</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--dark" aria-hidden="true">
+          <div class="sm-card__number">08</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <h3 class="sm-card__title">Sites vitrines sur-mesure</h3>
+          <p class="sm-card__desc">Pas de Wix. Un site cod&eacute; pour vous, rapide, accessible, qui convertit.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">SEO</span>
+            <span class="sm-card__tag">Responsive</span>
+            <span class="sm-card__tag">Performance</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--copper" aria-hidden="true">
+          <div class="sm-card__number">09</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3 class="sm-card__title">Mise en relation</h3>
+          <p class="sm-card__desc">Mise en relation intelligente, messagerie, profils v&eacute;rifi&eacute;s, avis. Connectez les bons profils.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">Connexion</span>
+            <span class="sm-card__tag">Messagerie</span>
+            <span class="sm-card__tag">Avis</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+        <article class="sm-card sm-card--glass" aria-hidden="true">
+          <div class="sm-card__number">10</div>
+          <div class="sm-card__icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </div>
+          <h3 class="sm-card__title">Boutiques en ligne</h3>
+          <p class="sm-card__desc">Boutiques rapides et compl&egrave;tes. Paiement s&eacute;curis&eacute;, stocks, Click &amp; Collect.</p>
+          <div class="sm-card__tags">
+            <span class="sm-card__tag">Paiement</span>
+            <span class="sm-card__tag">Stocks</span>
+            <span class="sm-card__tag">Click&amp;Collect</span>
+          </div>
+          <div class="sm-card__glow" aria-hidden="true"></div>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- Bottom CTA -->
+    <div class="sm-bottom reveal-section">
+      <div class="sm-bottom__inner">
+        <p class="sm-bottom__text">Vous avez un projet en t&ecirc;te&nbsp;?</p>
+        <a href="#contact" class="sm-bottom__cta">
+          <span>Parlons-en autour d'un caf&eacute;</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== RIBBON INTERLUDE ===== -->
+  <section class="ribbon-interlude" id="ribbon-interlude" aria-label="Les doutes que vous avez, on les connait.">
+    <div class="ribbon-interlude__svg-wrap" aria-hidden="true">
+      <svg viewBox="0 0 1440 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <path id="riCurve1" d="M-200,350 C100,200 350,450 720,300 C1090,150 1200,500 1640,350"/>
+          <path id="riCurve2" d="M-300,500 C0,300 300,600 720,400 C1140,200 1300,550 1740,400"/>
+          <path id="riCurve3" d="M-150,200 C200,400 500,100 720,350 C940,600 1100,250 1600,300"/>
+          <path id="riCurve4" d="M-250,600 C0,450 350,250 720,350 C1090,450 1200,200 1700,250"/>
+        </defs>
+        <!-- Guide strokes -->
+        <use href="#riCurve1" fill="none" stroke="rgba(196,98,42,0.08)" stroke-width="1" class="ri-stroke"/>
+        <use href="#riCurve2" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1" class="ri-stroke"/>
+        <use href="#riCurve3" fill="none" stroke="rgba(196,98,42,0.05)" stroke-width="1" class="ri-stroke"/>
+        <!-- Text ribbons -->
+        <text class="ri-text ri-text--1">
+          <textPath id="riTP1" href="#riCurve1" startOffset="0%">combien ca va couter · est-ce que ca vaut le coup · et si ca marche pas · j'ai deja essaye tout seul · c'etait pas terrible · j'y connais rien en numerique ·</textPath>
+        </text>
+        <text class="ri-text ri-text--2">
+          <textPath id="riTP2" href="#riCurve2" startOffset="25%">et si je me fais arnaquer · les devis ne sont jamais clairs · je veux pas un truc generique · j'ai pas confiance · c'est toujours plus cher que prevu ·</textPath>
+        </text>
+        <text class="ri-text ri-text--3">
+          <textPath id="riTP3" href="#riCurve3" startOffset="50%">les autres ont l'air de s'en sortir · pourquoi pas moi · j'ai besoin d'aide mais de quelqu'un qui comprend mon metier ·</textPath>
+        </text>
+        <text class="ri-text ri-text--4">
+          <textPath id="riTP4" href="#riCurve4" startOffset="75%">il doit bien y avoir quelqu'un de confiance · sans jargon · sans me prendre de haut · qui m'explique simplement ·</textPath>
+        </text>
+      </svg>
+    </div>
+    <!-- Visible doubts display -->
+    <div class="ri-doubts" aria-label="Les doutes courants de nos clients">
+      <div class="ri-doubt" data-delay="0">&laquo;&nbsp;Combien &ccedil;a va co&ucirc;ter&nbsp;?&nbsp;&raquo;</div>
+      <div class="ri-doubt" data-delay="1">&laquo;&nbsp;Et si &ccedil;a marche pas&nbsp;?&nbsp;&raquo;</div>
+      <div class="ri-doubt" data-delay="2">&laquo;&nbsp;J'y connais rien en num&eacute;rique&nbsp;&raquo;</div>
+      <div class="ri-doubt" data-delay="3">&laquo;&nbsp;Et si je me fais arnaquer&nbsp;?&nbsp;&raquo;</div>
+      <div class="ri-doubt" data-delay="4">&laquo;&nbsp;C'est toujours plus cher que pr&eacute;vu&nbsp;&raquo;</div>
+      <div class="ri-doubt" data-delay="5">&laquo;&nbsp;J'ai pas confiance&nbsp;&raquo;</div>
+      <div class="ri-doubt" data-delay="6">&laquo;&nbsp;Je veux pas un truc g&eacute;n&eacute;rique&nbsp;&raquo;</div>
+      <div class="ri-doubt" data-delay="7">&laquo;&nbsp;Les devis ne sont jamais clairs&nbsp;&raquo;</div>
+    </div>
+
+    <div class="ribbon-interlude__message">
+      <div class="ri-msg-label">On connait ces doutes</div>
+      <h2 class="ri-msg-title">Ces questions,<br>on les entend <em>chaque semaine</em>.</h2>
+      <p class="ri-msg-sub">Et c'est exactement pour ca qu'on est la.<br>Pas pour tout compliquer &mdash; pour tout clarifier.</p>
+    </div>
+  </section>
+
   <!-- ===== SECTION BREAK: Méthode ===== -->
   <div class="section-break reveal-section" aria-hidden="true">
     <div class="section-break__inner">
       <span class="section-break__label">Notre m&eacute;thode</span>
       <div class="section-break__rule"></div>
-      <span class="section-break__badge">Agile &amp; transparent</span>
+      <span class="section-break__badge">Clair &amp; sans surprise</span>
     </div>
   </div>
 
   <!-- ===== METHODE ===== -->
-  <section class="section methode reveal-section" id="methode">
+  <section class="section methode reveal-section" id="methode" data-parallax-speed="0.03">
     <div class="section__container">
       <div class="section__header">
         <span class="section__number" data-count-target="02">02</span>
@@ -351,7 +878,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="methode__progress-track">
           <div class="methode__progress-fill" id="methodeProgressFill"></div>
         </div>
-        <span class="methode__progress-label">&Eacute;tape 3/5 en cours &middot; Dur&eacute;e moyenne&nbsp;: 10 semaines</span>
+        <span class="methode__progress-label">Dur&eacute;e moyenne d'un projet&nbsp;: 6 &agrave; 10 semaines, du premier caf&eacute; &agrave; la mise en ligne</span>
       </div>
 
     </div>
@@ -362,12 +889,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="section-break__inner">
       <span class="section-break__label">Portfolio</span>
       <div class="section-break__rule"></div>
-      <span class="section-break__badge">100% satisfaction</span>
+      <span class="section-break__badge">Nos r&eacute;alisations</span>
     </div>
   </div>
 
   <!-- ===== REALISATIONS ===== -->
-  <section class="section realisations reveal-section" id="realisations">
+  <section class="section realisations reveal-section" id="realisations" data-parallax-speed="0.025">
     <div class="section__container">
       <div class="section__header">
         <span class="section__number" data-count-target="03">03</span>
@@ -377,40 +904,52 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       <div class="realisations__grid">
 
-        <article class="real-card real-card--featured real-card--cream reveal-item">
-          <span class="real-card__tag" data-typewriter-card="Coiffure">Coiffure</span>
-          <h3 class="real-card__title">Salon &Eacute;lodie</h3>
-          <p class="real-card__desc">Site vitrine + r&eacute;servation en ligne. Une pr&eacute;sence soign&eacute;e qui refl&egrave;te son savoir-faire, avec un syst&egrave;me de prise de rendez-vous int&eacute;gr&eacute;.</p>
-          <span class="real-card__type">Parcours Vitrine</span>
-        </article>
+        <% if (typeof clients !== 'undefined' && clients.length > 0) { %>
+          <% const cardStyles = ['real-card--featured real-card--cream', 'real-card--dark', 'real-card--copper', 'real-card--light']; %>
+          <% clients.forEach((c, i) => { %>
+            <article class="real-card <%= cardStyles[i % cardStyles.length] %> reveal-item"<% if (c.url) { %> onclick="window.open('<%= c.url %>', '_blank')" style="cursor:pointer"<% } %>>
+              <span class="real-card__tag" data-typewriter-card="<%= c.industry || 'Digital' %>"><%= c.industry || 'Digital' %></span>
+              <h3 class="real-card__title"><%= c.name %></h3>
+              <p class="real-card__desc"><%= c.description || (c.services_provided ? c.services_provided.split(',').join(' + ') : 'Projet digital sur-mesure.') %></p>
+              <span class="real-card__type"><%= c.services_provided ? c.services_provided.split(',')[0].trim() : 'Parcours Digital' %></span>
+            </article>
+          <% }) %>
+        <% } else { %>
+          <article class="real-card real-card--featured real-card--cream reveal-item">
+            <span class="real-card__tag" data-typewriter-card="Coiffure">Coiffure</span>
+            <h3 class="real-card__title">Salon &Eacute;lodie</h3>
+            <p class="real-card__desc">Site vitrine + r&eacute;servation en ligne. Une pr&eacute;sence soign&eacute;e qui refl&egrave;te son savoir-faire, avec un syst&egrave;me de prise de rendez-vous int&eacute;gr&eacute;.</p>
+            <span class="real-card__type">Parcours Vitrine</span>
+          </article>
 
-        <article class="real-card real-card--dark reveal-item">
-          <span class="real-card__tag" data-typewriter-card="Architecture">Architecture</span>
-          <h3 class="real-card__title">Studio Archi+</h3>
-          <p class="real-card__desc">Portfolio 3D + espace client. Un &eacute;crin visuel pour des projets d'exception.</p>
-          <span class="real-card__type">Parcours Vitrine</span>
-        </article>
+          <article class="real-card real-card--dark reveal-item reveal-item--scale">
+            <span class="real-card__tag" data-typewriter-card="Architecture">Architecture</span>
+            <h3 class="real-card__title">Studio Archi+</h3>
+            <p class="real-card__desc">Portfolio 3D + espace client. Un &eacute;crin visuel pour des projets d'exception.</p>
+            <span class="real-card__type">Parcours Vitrine</span>
+          </article>
 
-        <article class="real-card real-card--copper reveal-item">
-          <span class="real-card__tag" data-typewriter-card="Artisan BTP">Artisan BTP</span>
-          <h3 class="real-card__title">Martin &amp; Fils</h3>
-          <p class="real-card__desc">SaaS devis + gestion chantier. Fini le papier, place &agrave; l'efficacit&eacute;.</p>
-          <span class="real-card__type">Parcours Outil</span>
-        </article>
+          <article class="real-card real-card--copper reveal-item reveal-item--tilt">
+            <span class="real-card__tag" data-typewriter-card="Artisan BTP">Artisan BTP</span>
+            <h3 class="real-card__title">Martin &amp; Fils</h3>
+            <p class="real-card__desc">Outil de devis + gestion chantier. Fini le papier, place &agrave; l'efficacit&eacute;.</p>
+            <span class="real-card__type">Parcours Outil</span>
+          </article>
 
-        <article class="real-card real-card--light reveal-item">
-          <span class="real-card__tag" data-typewriter-card="Sport & Coaching">Sport &amp; Coaching</span>
-          <h3 class="real-card__title">Coach Maxime</h3>
-          <p class="real-card__desc">App suivi + prise de rendez-vous. Un outil complet pour fid&eacute;liser ses clients.</p>
-          <span class="real-card__type">Parcours Application</span>
-        </article>
+          <article class="real-card real-card--light reveal-item reveal-item--deep">
+            <span class="real-card__tag" data-typewriter-card="Sport & Coaching">Sport &amp; Coaching</span>
+            <h3 class="real-card__title">Coach Maxime</h3>
+            <p class="real-card__desc">App suivi + prise de rendez-vous. Un outil complet pour fid&eacute;liser ses clients.</p>
+            <span class="real-card__type">Parcours Application</span>
+          </article>
+        <% } %>
 
       </div>
     </div>
   </section>
 
   <!-- ===== EQUIPE ===== -->
-  <section class="section equipe reveal-section" id="equipe">
+  <section class="section equipe reveal-section" id="equipe" data-parallax-speed="0.035">
     <div class="section__container">
       <div class="section__header">
         <span class="section__number" data-count-target="04">04</span>
@@ -461,21 +1000,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </section>
 
   <!-- ===== VALEURS ===== -->
-  <section class="section valeurs reveal-section" id="valeurs">
+  <section class="section valeurs reveal-section" id="valeurs" data-parallax-speed="0.04">
     <div class="section__container">
       <div class="valeurs__grid">
 
-        <div class="valeur reveal-item">
+        <div class="valeur reveal-item reveal-item--from-left">
           <h3 class="valeur__title">Z&eacute;ro jargon</h3>
           <p class="valeur__desc">On parle m&eacute;tier, pas code. Chaque d&eacute;cision vous est expliqu&eacute;e clairement.</p>
         </div>
 
-        <div class="valeur reveal-item">
-          <h3 class="valeur__title">Anti-FOMO</h3>
-          <p class="valeur__desc">On avance &agrave; votre rythme. Pas de tendances inutiles, pas de pression.</p>
+        <div class="valeur reveal-item reveal-item--scale">
+          <h3 class="valeur__title">&Agrave; votre rythme</h3>
+          <p class="valeur__desc">On avance au rythme qui vous convient. Pas de tendances inutiles, pas de pression.</p>
         </div>
 
-        <div class="valeur reveal-item">
+        <div class="valeur reveal-item reveal-item--from-right">
           <h3 class="valeur__title">Transparence totale</h3>
           <p class="valeur__desc">Pas de surprise sur la facture. Chaque euro est justifi&eacute;, chaque &eacute;tape visible.</p>
         </div>
@@ -488,10 +1027,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="marquee-wrap" aria-hidden="true">
     <div class="marquee-track" id="marqueeTrack">
       <span class="marquee__inner">
-        <span class="marquee__dot"></span>Coiffure &amp; Beaut&eacute;<span class="marquee__dot"></span>Artisans du b&acirc;timent<span class="marquee__dot"></span>Architecture d'int&eacute;rieur<span class="marquee__dot"></span>Restaurants &amp; Caf&eacute;s<span class="marquee__dot"></span>E-commerce local<span class="marquee__dot"></span>Consultants ind&eacute;pendants<span class="marquee__dot"></span>Photographes<span class="marquee__dot"></span>M&eacute;decins &amp; Th&eacute;rapeutes<span class="marquee__dot"></span>Agences immobili&egrave;res&nbsp;&nbsp;
+        <span class="marquee__dot"></span>Site vitrine<span class="marquee__dot"></span>R&eacute;servation en ligne<span class="marquee__dot"></span>Boutique e-commerce<span class="marquee__dot"></span>Application mobile<span class="marquee__dot"></span>Outil de gestion<span class="marquee__dot"></span>R&eacute;f&eacute;rencement local<span class="marquee__dot"></span>Design sur-mesure<span class="marquee__dot"></span>Formation incluse<span class="marquee__dot"></span>Accompagnement durable&nbsp;&nbsp;
       </span>
       <span class="marquee__inner" aria-hidden="true">
-        <span class="marquee__dot"></span>Coiffure &amp; Beaut&eacute;<span class="marquee__dot"></span>Artisans du b&acirc;timent<span class="marquee__dot"></span>Architecture d'int&eacute;rieur<span class="marquee__dot"></span>Restaurants &amp; Caf&eacute;s<span class="marquee__dot"></span>E-commerce local<span class="marquee__dot"></span>Consultants ind&eacute;pendants<span class="marquee__dot"></span>Photographes<span class="marquee__dot"></span>M&eacute;decins &amp; Th&eacute;rapeutes<span class="marquee__dot"></span>Agences immobili&egrave;res&nbsp;&nbsp;
+        <span class="marquee__dot"></span>Site vitrine<span class="marquee__dot"></span>R&eacute;servation en ligne<span class="marquee__dot"></span>Boutique e-commerce<span class="marquee__dot"></span>Application mobile<span class="marquee__dot"></span>Outil de gestion<span class="marquee__dot"></span>R&eacute;f&eacute;rencement local<span class="marquee__dot"></span>Design sur-mesure<span class="marquee__dot"></span>Formation incluse<span class="marquee__dot"></span>Accompagnement durable&nbsp;&nbsp;
       </span>
     </div>
   </div>
@@ -506,7 +1045,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 
   <!-- ===== CONTACT ===== -->
-  <section class="section contact reveal-section" id="contact">
+  <section class="section contact reveal-section" id="contact" data-parallax-speed="0.02">
     <div class="section__container">
       <div class="section__header">
         <span class="section__number" data-count-target="05">05</span>
@@ -576,7 +1115,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
         <p class="ob-final-text">Adrien &amp; Antoine<br><span>Studio digital &middot; Marseille</span></p>
         <a href="https://tidycal.com/m202e9l/30-minute-meeting" target="_blank" rel="noopener" class="ob-cta-primary ob-final-btn">
-          Reserver un meeting
+          R&eacute;server un cr&eacute;neau
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
         </a>
         <div class="ob-final-contact">
@@ -595,16 +1134,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="footer__inner">
     <div class="footer__left">
       <span class="footer__brand">La Traverse</span>
-      <span class="footer__copy">&copy; 2025 &mdash; Studio digital &middot; Marseille</span>
+      <span class="footer__copy">&copy; 2026 &mdash; Studio digital &middot; Marseille</span>
     </div>
     <div class="footer__right">
-      <a href="#" class="footer__link">Mentions l&eacute;gales</a>
-      <a href="#" class="footer__link">Politique de confidentialit&eacute;</a>
+      <a href="/mentions-legales" class="footer__link">Mentions l&eacute;gales</a>
+      <a href="/confidentialite" class="footer__link">Politique de confidentialit&eacute;</a>
       <a href="#hero" class="footer__link footer__back-top">Retour en haut &uarr;</a>
     </div>
   </div>
 </footer>
 
-<script src="/js/landing.js"></script>
+<script src="/js/landing.js?v=<%= Date.now() %>"></script>
 </body>
 </html>
