@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostic — La Traverse</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0d0f11;
+    --night-card: #13161a;
+    --night-light: #1a1d22;
+    --night-hover: #1f2329;
+    --copper: #c4622a;
+    --copper-soft: rgba(196,98,42,0.15);
+    --copper-glow: rgba(196,98,42,0.08);
+    --gold: #d4a574;
+    --text-bright: rgba(255,255,255,0.92);
+    --text-mid: rgba(255,255,255,0.6);
+    --text-dim: rgba(255,255,255,0.35);
+    --ghost: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.08);
+    --green: #3ecf8e;
+    --blue: #6cb4ee;
+    --amber: #f5a623;
+    --rose: #e8788a;
+    --violet: #a78bfa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--night);
+    color: var(--text-mid);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--copper); color: white; }
+
+  /* ===== LAYOUT ===== */
+  .page-wrapper {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 40px 24px 100px;
+  }
+
+  /* ===== HEADER ===== */
+  .diag-header {
+    text-align: center;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--ghost);
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .diag-header::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(circle, var(--copper-glow) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .diag-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+  }
+
+  .diag-logo-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--copper);
+    margin-bottom: 32px;
+  }
+
+  .diag-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 4vw, 42px);
+    color: var(--text-bright);
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+
+  .diag-header h1 em { font-style: italic; color: var(--copper); }
+
+  .diag-header p {
+    font-size: 16px;
+    color: var(--text-dim);
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 40px;
+    padding: 0 4px;
+  }
+
+  .progress-step {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--ghost);
+    transition: background 0.4s ease;
+  }
+
+  .progress-step.done { background: var(--copper); }
+  .progress-step.active { background: var(--gold); }
+
+  .progress-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  /* ===== STEP CONTAINER ===== */
+  .step {
+    display: none;
+    animation: stepIn 0.4s ease;
+  }
+
+  .step.active { display: block; }
+
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--text-bright);
+    font-weight: 400;
+    margin-bottom: 8px;
+  }
+
+  .step-title em { color: var(--copper); font-style: italic; }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 32px;
+    max-width: 560px;
+  }
+
+  /* ===== FORM ELEMENTS ===== */
+  .field-group {
+    margin-bottom: 20px;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+  }
+
+  .field-label .required { color: var(--copper); }
+
+  .field-hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-style: italic;
+    margin-top: 4px;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  textarea,
+  select {
+    width: 100%;
+    background: var(--night-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text-bright);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    transition: all 0.25s;
+    outline: none;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--copper);
+    box-shadow: 0 0 0 3px var(--copper-soft);
+  }
+
+  input::placeholder, textarea::placeholder { color: var(--text-dim); }
+
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* ===== PROFILE SELECTION ===== */
+  .profile-select {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .profile-option {
+    background: var(--night-card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    position: relative;
+  }
+
+  .profile-option:hover {
+    border-color: rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+  }
+
+  .profile-option.selected {
+    border-color: var(--copper);
+    background: rgba(196,98,42,0.06);
+  }
+
+  .profile-option .p-icon { font-size: 28px; margin-bottom: 10px; }
+
+  .profile-option .p-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+  }
+
+  .profile-option .p-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--copper);
+    margin-bottom: 10px;
+  }
+
+  .profile-option .p-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .profile-option input { display: none; }
+
+  /* ===== SCENARIO SELECTION ===== */
+  .scenario-select {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .scenario-option {
+    background: var(--night-card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+  }
+
+  .scenario-option:hover { border-color: rgba(255,255,255,0.12); }
+  .scenario-option.selected { border-color: var(--copper); background: rgba(196,98,42,0.06); }
+  .scenario-option .s-icon { font-size: 22px; margin-bottom: 8px; }
+  .scenario-option .s-label { font-size: 11px; color: var(--text-mid); line-height: 1.4; font-weight: 500; }
+  .scenario-option input { display: none; }
+
+  /* ===== QUESTION BLOCK ===== */
+  .question-block {
+    background: var(--night-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: border-color 0.3s;
+  }
+
+  .question-block:focus-within {
+    border-color: rgba(196,98,42,0.3);
+  }
+
+  .question-block .q-label {
+    font-size: 14px;
+    color: var(--text-bright);
+    font-weight: 500;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .question-block .q-label .q-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--copper);
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+
+  .question-block .q-context {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    padding-left: 28px;
+  }
+
+  .question-block textarea {
+    background: var(--night-light);
+    border: 1px solid rgba(255,255,255,0.04);
+    min-height: 60px;
+  }
+
+  /* ===== LAYER HEADER ===== */
+  .layer-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--ghost);
+  }
+
+  .layer-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .layer-icon.metier { background: rgba(62,207,142,0.12); color: var(--green); }
+  .layer-icon.outils { background: rgba(108,180,238,0.12); color: var(--blue); }
+  .layer-icon.tech { background: rgba(245,166,35,0.12); color: var(--amber); }
+  .layer-icon.data { background: rgba(232,120,138,0.12); color: var(--rose); }
+  .layer-icon.ia { background: rgba(167,139,250,0.12); color: var(--violet); }
+  .layer-icon.friction { background: rgba(196,98,42,0.12); color: var(--copper); }
+
+  .layer-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+
+  .layer-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--ghost);
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  /* ===== CHECKLIST ===== */
+  .checklist-category {
+    margin-bottom: 28px;
+  }
+
+  .checklist-cat-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .checklist-cat-header h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+
+  .checklist-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 400;
+  }
+
+  .checklist-badge.all { background: rgba(62,207,142,0.12); color: var(--green); }
+  .checklist-badge.tech { background: rgba(245,166,35,0.12); color: var(--amber); }
+  .checklist-badge.ia { background: rgba(167,139,250,0.12); color: var(--violet); }
+  .checklist-badge.ecom { background: rgba(232,120,138,0.12); color: var(--rose); }
+
+  .checklist-items {
+    background: var(--night-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ghost);
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+  .checklist-item:last-child { border-bottom: none; }
+  .checklist-item:hover { background: var(--night-hover); }
+
+  .checklist-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--copper);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .checklist-item label {
+    font-size: 13px;
+    color: var(--text-mid);
+    cursor: pointer;
+    flex: 1;
+  }
+
+  .checklist-item .upload-slot {
+    font-size: 11px;
+    color: var(--copper);
+    padding: 4px 10px;
+    border: 1px solid var(--copper-soft);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .checklist-item .upload-slot:hover {
+    background: var(--copper-soft);
+  }
+
+  /* ===== ACCESS FIELDS ===== */
+  .access-section {
+    margin-bottom: 24px;
+  }
+
+  .access-section h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+  }
+
+  .access-section .access-scope {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  .access-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--ghost);
+  }
+
+  .access-field:last-child { border-bottom: none; }
+
+  .access-field .access-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--copper);
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+
+  .access-field .access-name {
+    font-size: 13px;
+    color: var(--text-mid);
+    min-width: 200px;
+  }
+
+  .access-field input {
+    flex: 1;
+    background: var(--night-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text-bright);
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.25s;
+  }
+
+  .access-field input:focus { border-color: var(--copper); }
+  .access-field input::placeholder { color: var(--text-dim); }
+
+  /* ===== HUMAN AUDIT ===== */
+  .human-block {
+    background: var(--night-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+
+  .human-block h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+  }
+
+  .human-block .human-context {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+
+  /* ===== BUTTONS ===== */
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--ghost);
+  }
+
+  .btn {
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-prev {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-mid);
+  }
+
+  .btn-prev:hover { border-color: rgba(255,255,255,0.15); color: var(--text-bright); }
+
+  .btn-next {
+    background: var(--copper);
+    color: white;
+  }
+
+  .btn-next:hover { background: #d4722e; transform: translateY(-1px); }
+
+  .btn-next:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-submit {
+    background: var(--green);
+    color: #0d0f11;
+    font-weight: 700;
+    padding: 14px 36px;
+    font-size: 15px;
+  }
+
+  .btn-submit:hover { background: #4dd89a; transform: translateY(-1px); }
+
+  /* ===== CONFIRMATION ===== */
+  .confirmation {
+    text-align: center;
+    padding: 80px 20px;
+  }
+
+  .confirmation .conf-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(62,207,142,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 24px;
+  }
+
+  .confirmation h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: var(--text-bright);
+    font-weight: 400;
+    margin-bottom: 12px;
+  }
+
+  .confirmation p {
+    font-size: 16px;
+    color: var(--text-dim);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .confirmation .back-link {
+    display: inline-block;
+    margin-top: 32px;
+    color: var(--copper);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: color 0.2s;
+  }
+
+  .confirmation .back-link:hover { color: var(--gold); }
+
+  /* ===== CONDITIONAL ===== */
+  .tech-only { display: none; }
+  body.profile-equipe .tech-only,
+  body.profile-migrant .tech-only { display: block; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 700px) {
+    .field-row { grid-template-columns: 1fr; }
+    .profile-select { grid-template-columns: 1fr; }
+    .scenario-select { grid-template-columns: repeat(2, 1fr); }
+    .access-field { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .access-field .access-name { min-width: auto; }
+    .access-field input { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <!-- HEADER -->
+  <div class="diag-header">
+    <div class="diag-logo">La Traverse</div>
+    <div class="diag-logo-sub">Diagnostic Client</div>
+    <h1>Aidez-nous a vous <em>comprendre</em></h1>
+    <p>Ce formulaire nous permet de cartographier votre activite, vos outils et vos besoins pour vous proposer la meilleure route possible.</p>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-label" id="progressLabel">Etape 1 sur 7</div>
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-step active"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+  </div>
+
+  <!-- ========== STEP 1 : COORDONNEES ========== -->
+  <div class="step active" data-step="1">
+    <h2 class="step-title">Vos <em>coordonnees</em></h2>
+    <p class="step-desc">Pour qu'on puisse vous recontacter et preparer votre diagnostic.</p>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">Votre nom <span class="required">*</span></label>
+        <input type="text" id="client_name" placeholder="Jean Dupont" required>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Nom de l'entreprise</label>
+        <input type="text" id="client_company" placeholder="Mon Entreprise SARL">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">Email <span class="required">*</span></label>
+        <input type="email" id="client_email" placeholder="jean@monentreprise.fr" required>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Telephone</label>
+        <input type="tel" id="client_phone" placeholder="06 12 34 56 78">
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Site web actuel</label>
+      <input type="url" id="client_website" placeholder="https://monentreprise.fr">
+      <div class="field-hint">Laissez vide si vous n'en avez pas encore</div>
+    </div>
+
+    <div class="nav-buttons">
+      <div></div>
+      <button class="btn btn-next" onclick="goToStep(2)">Continuer</button>
+    </div>
+  </div>
+
+  <!-- ========== STEP 2 : PROFIL & SCENARIO ========== -->
+  <div class="step" data-step="2">
+    <h2 class="step-title">Votre <em>situation</em></h2>
+    <p class="step-desc">Choisissez le profil qui vous ressemble le plus, et le type de projet envisage.</p>
+
+    <label class="field-label" style="margin-bottom:14px">Quel profil vous correspond ? <span class="required">*</span></label>
+    <div class="profile-select">
+      <div class="profile-option" onclick="selectProfile(this, 'vierge')">
+        <input type="radio" name="profile" value="vierge">
+        <div class="p-icon">🌱</div>
+        <div class="p-sub">Profil A</div>
+        <div class="p-name">Le Vierge</div>
+        <div class="p-desc">Pas de tech, ou juste un site basique et des tableurs. Tout est a creer.</div>
+      </div>
+      <div class="profile-option" onclick="selectProfile(this, 'equipe')">
+        <input type="radio" name="profile" value="equipe">
+        <div class="p-icon">⚡</div>
+        <div class="p-sub">Profil B</div>
+        <div class="p-name">L'Equipe</div>
+        <div class="p-desc">Deja un SaaS, CRM, ou e-commerce. Vous voulez greffer quelque chose dessus.</div>
+      </div>
+      <div class="profile-option" onclick="selectProfile(this, 'migrant')">
+        <input type="radio" name="profile" value="migrant">
+        <div class="p-icon">🔄</div>
+        <div class="p-sub">Profil C</div>
+        <div class="p-name">Le Migrant</div>
+        <div class="p-desc">Un outil qui marche mais devenu un frein. Trop lent, trop cher, plus maintenu.</div>
+      </div>
+    </div>
+
+    <label class="field-label" style="margin-bottom:14px">Quel type de projet ? <span class="required">*</span></label>
+    <div class="scenario-select">
+      <div class="scenario-option" onclick="selectScenario(this, 'saas')">
+        <input type="radio" name="scenario" value="saas">
+        <div class="s-icon">🧩</div>
+        <div class="s-label">SaaS existant</div>
+      </div>
+      <div class="scenario-option" onclick="selectScenario(this, 'scratch')">
+        <input type="radio" name="scenario" value="scratch">
+        <div class="s-icon">🌱</div>
+        <div class="s-label">From scratch</div>
+      </div>
+      <div class="scenario-option" onclick="selectScenario(this, 'migration')">
+        <input type="radio" name="scenario" value="migration">
+        <div class="s-icon">🔄</div>
+        <div class="s-label">Migration</div>
+      </div>
+      <div class="scenario-option" onclick="selectScenario(this, 'ecommerce')">
+        <input type="radio" name="scenario" value="ecommerce">
+        <div class="s-icon">🛒</div>
+        <div class="s-label">E-commerce</div>
+      </div>
+      <div class="scenario-option" onclick="selectScenario(this, 'ia')">
+        <input type="radio" name="scenario" value="ia">
+        <div class="s-icon">🤖</div>
+        <div class="s-label">Integration IA</div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-prev" onclick="goToStep(1)">Retour</button>
+      <button class="btn btn-next" onclick="goToStep(3)">Continuer</button>
+    </div>
+  </div>
+
+  <!-- ========== STEP 3 : METIER + OUTILS ========== -->
+  <div class="step" data-step="3">
+    <h2 class="step-title">Votre <em>metier</em> & outils</h2>
+    <p class="step-desc">Parlez-nous de votre activite et des outils que vous utilisez au quotidien.</p>
+
+    <!-- Metier -->
+    <div class="layer-head">
+      <div class="layer-icon metier">01</div>
+      <div class="layer-name">Metier & Vision</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">01</span> C'est quoi votre activite, en une phrase ?</div>
+      <textarea id="q_metier_1" placeholder="Ex : On vend des meubles sur-mesure pour les professionnels..."></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">02</span> Qui sont vos clients ?</div>
+      <div class="q-context">B2B, B2C, les deux ?</div>
+      <textarea id="q_metier_2" placeholder="Ex : Principalement des restaurants et hotels en region PACA..."></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">03</span> Decrivez votre journee type, de A a Z</div>
+      <div class="q-context">Le flux reel, pas l'ideal</div>
+      <textarea id="q_metier_3" placeholder="Ex : Le matin je reponds aux mails, puis je traite les commandes sur Excel..."></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">04</span> Ou perdez-vous le plus de temps aujourd'hui ?</div>
+      <textarea id="q_metier_4" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">05</span> Qu'est-ce qui vous frustre le plus dans vos outils actuels ?</div>
+      <textarea id="q_metier_5" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">06</span> Baguette magique : qu'est-ce que vous changeriez demain matin ?</div>
+      <textarea id="q_metier_6" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">07</span> Objectifs a 6 mois ? A 2 ans ?</div>
+      <textarea id="q_metier_7" placeholder=""></textarea>
+    </div>
+
+    <!-- Outils -->
+    <div class="layer-head" style="margin-top:40px">
+      <div class="layer-icon outils">02</div>
+      <div class="layer-name">Vos outils actuels</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">01</span> Listez TOUS les outils que vous utilisez</div>
+      <div class="q-context">Meme Excel, WhatsApp, le carnet papier...</div>
+      <textarea id="q_outils_1" placeholder="Ex : Gmail, Excel, WhatsApp, un CRM Hubspot, Canva..."></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">02</span> Qui utilise quoi dans l'equipe ?</div>
+      <div class="q-context">Mapping personne / outil</div>
+      <textarea id="q_outils_2" placeholder="Ex : Marie gere le CRM, Paul fait les devis sur Excel..."></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">03</span> Est-ce que ces outils se parlent entre eux ?</div>
+      <div class="q-context">Integrations, Zapier, copier-coller ?</div>
+      <textarea id="q_outils_3" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">04</span> Combien payez-vous par mois/an en abonnements outils ?</div>
+      <textarea id="q_outils_4" placeholder="Ex : ~200EUR/mois en tout"></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">05</span> Y a-t-il des outils payes mais plus utilises ?</div>
+      <textarea id="q_outils_5" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">06</span> Avez-vous un prestataire technique actuel ?</div>
+      <div class="q-context">Dev, agence, freelance...</div>
+      <textarea id="q_outils_6" placeholder=""></textarea>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-prev" onclick="goToStep(2)">Retour</button>
+      <button class="btn btn-next" onclick="goToStep(4)">Continuer</button>
+    </div>
+  </div>
+
+  <!-- ========== STEP 4 : TECH (Profil B & C only) ========== -->
+  <div class="step" data-step="4">
+    <h2 class="step-title">Votre <em>stack technique</em></h2>
+    <p class="step-desc">Dites-nous tout sur votre infrastructure actuelle. Repondez au mieux, c'est normal de ne pas tout savoir.</p>
+
+    <div class="tech-only">
+      <div class="layer-head">
+        <div class="layer-icon tech">03</div>
+        <div class="layer-name">Stack Technique</div>
+        <span class="layer-badge">Profil B & C</span>
+      </div>
+
+      <div class="question-block">
+        <div class="q-label"><span class="q-num">01</span> Quel langage / framework utilisez-vous ?</div>
+        <div class="q-context">Front, back, mobile — ou "je ne sais pas"</div>
+        <textarea id="q_tech_1" placeholder="Ex : WordPress, React, PHP... ou je ne sais pas"></textarea>
+      </div>
+      <div class="question-block">
+        <div class="q-label"><span class="q-num">02</span> Ou est heberge votre site/application ?</div>
+        <div class="q-context">AWS, OVH, Heroku, "je sais pas"</div>
+        <textarea id="q_tech_2" placeholder=""></textarea>
+      </div>
+      <div class="question-block">
+        <div class="q-label"><span class="q-num">03</span> Base de donnees : type, taille approximative</div>
+        <textarea id="q_tech_3" placeholder=""></textarea>
+      </div>
+      <div class="question-block">
+        <div class="q-label"><span class="q-num">04</span> Avez-vous une API ? Documentee ?</div>
+        <textarea id="q_tech_4" placeholder=""></textarea>
+      </div>
+      <div class="question-block">
+        <div class="q-label"><span class="q-num">05</span> Versioning : Git ? Ou ?</div>
+        <div class="q-context">GitHub, GitLab, rien du tout</div>
+        <textarea id="q_tech_5" placeholder=""></textarea>
+      </div>
+      <div class="question-block">
+        <div class="q-label"><span class="q-num">06</span> Deploiement automatise ou a la main ?</div>
+        <textarea id="q_tech_6" placeholder=""></textarea>
+      </div>
+      <div class="question-block">
+        <div class="q-label"><span class="q-num">07</span> Monitoring : vous savez quand ca plante ?</div>
+        <div class="q-context">Logs, alertes, rien</div>
+        <textarea id="q_tech_7" placeholder=""></textarea>
+      </div>
+      <div class="question-block">
+        <div class="q-label"><span class="q-num">08</span> Derniere mise a jour significative : quand ?</div>
+        <textarea id="q_tech_8" placeholder=""></textarea>
+      </div>
+      <div class="question-block">
+        <div class="q-label"><span class="q-num">09</span> Y a-t-il de la dette technique ?</div>
+        <div class="q-context">Des trucs "qui marchent mais faut pas toucher" ?</div>
+        <textarea id="q_tech_9" placeholder=""></textarea>
+      </div>
+    </div>
+
+    <div class="layer-head" style="margin-top:40px">
+      <div class="layer-icon data">04</div>
+      <div class="layer-name">Donnees & Securite</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">01</span> Quelles donnees collectez-vous ?</div>
+      <div class="q-context">Clients, transactions, comportement...</div>
+      <textarea id="q_data_1" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">02</span> Ou sont stockees vos donnees ?</div>
+      <div class="q-context">France, EU, US, "aucune idee"</div>
+      <textarea id="q_data_2" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">03</span> RGPD : conformes ? DPO ? Registre ?</div>
+      <textarea id="q_data_3" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">04</span> Backups : frequence, teste recemment ?</div>
+      <textarea id="q_data_4" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">05</span> Qui a les acces admin ? Combien de personnes ?</div>
+      <textarea id="q_data_5" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">06</span> Gestion des mots de passe : comment ?</div>
+      <div class="q-context">Gestionnaire, post-it, memoire...</div>
+      <textarea id="q_data_6" placeholder=""></textarea>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-prev" onclick="goToStep(3)">Retour</button>
+      <button class="btn btn-next" onclick="goToStep(5)">Continuer</button>
+    </div>
+  </div>
+
+  <!-- ========== STEP 5 : IA + FRICTION ========== -->
+  <div class="step" data-step="5">
+    <h2 class="step-title">L'IA & vos <em>points de friction</em></h2>
+    <p class="step-desc">Votre rapport a l'intelligence artificielle et les zones ou ca coince au quotidien.</p>
+
+    <div class="layer-head">
+      <div class="layer-icon ia">05</div>
+      <div class="layer-name">IA — Appetence & Privacy</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">01</span> Utilisez-vous deja de l'IA ?</div>
+      <div class="q-context">ChatGPT, Copilot, outils integres...</div>
+      <textarea id="q_ia_1" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">02</span> Comment percevez-vous l'IA dans votre metier ?</div>
+      <div class="q-context">Opportunite, menace, gadget, indifferent</div>
+      <textarea id="q_ia_2" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">03</span> Taches repetitives qui pourraient etre assistees par l'IA ?</div>
+      <textarea id="q_ia_3" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">04</span> Quelles donnees OK de faire transiter par un modele IA ? Lesquelles sont interdites ?</div>
+      <textarea id="q_ia_4" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">05</span> Vos clients, ils penseraient quoi si une IA intervenait dans votre service ?</div>
+      <div class="q-context">Transparence vs invisible</div>
+      <textarea id="q_ia_5" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">06</span> Contraintes reglementaires vis-a-vis de l'IA ?</div>
+      <div class="q-context">Sante, finance, juridique...</div>
+      <textarea id="q_ia_6" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">07</span> Budget IA : cout recurrent (API) ou modele a cout fixe ?</div>
+      <textarea id="q_ia_7" placeholder=""></textarea>
+    </div>
+
+    <div class="layer-head" style="margin-top:40px">
+      <div class="layer-icon friction">06</div>
+      <div class="layer-name">Friction & Points de Douleur</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">01</span> Montrez-nous votre journee type : ou est-ce que ca coince ?</div>
+      <textarea id="q_friction_1" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">02</span> Quand un nouveau client arrive, combien d'etapes manuelles avant qu'il soit "dans le systeme" ?</div>
+      <textarea id="q_friction_2" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">03</span> Combien de copier-coller par jour entre deux outils ?</div>
+      <textarea id="q_friction_3" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">04</span> Y a-t-il des taches reportees systematiquement parce que c'est trop penible ?</div>
+      <textarea id="q_friction_4" placeholder=""></textarea>
+    </div>
+    <div class="question-block">
+      <div class="q-label"><span class="q-num">05</span> Si un employe quitte demain, combien de temps pour former le remplacant ?</div>
+      <textarea id="q_friction_5" placeholder=""></textarea>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-prev" onclick="goToStep(4)">Retour</button>
+      <button class="btn btn-next" onclick="goToStep(6)">Continuer</button>
+    </div>
+  </div>
+
+  <!-- ========== STEP 6 : DOCUMENTS & ACCES ========== -->
+  <div class="step" data-step="6">
+    <h2 class="step-title">Documents & <em>acces</em></h2>
+    <p class="step-desc">Cochez ce que vous pouvez nous fournir et renseignez vos acces. On ne vous demande pas de tout avoir maintenant — cochez ce que vous avez deja.</p>
+
+    <!-- Documents checklist -->
+    <div class="checklist-category">
+      <div class="checklist-cat-header">
+        <h4>Documents de base</h4>
+        <span class="checklist-badge all">Tous profils</span>
+      </div>
+      <div class="checklist-items">
+        <div class="checklist-item"><input type="checkbox" id="doc_organigramme"><label for="doc_organigramme">Organigramme ou liste equipe + roles</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_outils"><label for="doc_outils">Liste des outils / abonnements en cours</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_process"><label for="doc_process">Process metier documentes (meme un schema griffonne)</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_charte"><label for="doc_charte">Charte graphique / guidelines de marque</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_contrats"><label for="doc_contrats">Contrats en cours avec prestataires tech</label></div>
+      </div>
+    </div>
+
+    <div class="checklist-category tech-only">
+      <div class="checklist-cat-header">
+        <h4>Documents techniques</h4>
+        <span class="checklist-badge tech">Profil B & C</span>
+      </div>
+      <div class="checklist-items">
+        <div class="checklist-item"><input type="checkbox" id="doc_git"><label for="doc_git">Acces au repo Git (lecture)</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_tech_doc"><label for="doc_tech_doc">Documentation technique existante</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_db_schema"><label for="doc_db_schema">Schema de base de donnees / export modele</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_api"><label for="doc_api">Documentation API (Swagger, Postman)</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_env"><label for="doc_env">Fichiers d'environnement (.env.example)</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_archi"><label for="doc_archi">Architecture infra (meme un dessin sur serviette)</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_incidents"><label for="doc_incidents">Historique incidents / bugs connus</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_analytics"><label for="doc_analytics">Analytics (GA4, Mixpanel...)</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_hebergement"><label for="doc_hebergement">Contrat d'hebergement</label></div>
+      </div>
+    </div>
+
+    <div class="checklist-category">
+      <div class="checklist-cat-header">
+        <h4>Volet IA</h4>
+        <span class="checklist-badge ia">Transversal</span>
+      </div>
+      <div class="checklist-items">
+        <div class="checklist-item"><input type="checkbox" id="doc_privacy"><label for="doc_privacy">Politique de confidentialite actuelle</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_cgu"><label for="doc_cgu">CGU du service</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_rgpd"><label for="doc_rgpd">Registre RGPD s'il existe</label></div>
+        <div class="checklist-item"><input type="checkbox" id="doc_sensible"><label for="doc_sensible">Documents sur donnees sensibles / classifiees</label></div>
+      </div>
+    </div>
+
+    <!-- Acces -->
+    <h3 class="step-title" style="margin-top:48px;margin-bottom:8px">Vos <em>acces</em></h3>
+    <p class="step-desc" style="margin-bottom:28px">Renseignez les URLs/identifiants que vous pouvez nous fournir. Laissez vide ce que vous n'avez pas.</p>
+
+    <div class="access-section">
+      <h4>Acces de base</h4>
+      <div class="access-scope">Tous profils</div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">Google Analytics / Search Console</span><input type="text" id="acc_ga" placeholder="URL ou email a inviter"></div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">Nom de domaine (registrar)</span><input type="text" id="acc_domain" placeholder="Ex : OVH, Gandi, GoDaddy..."></div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">Hebergement</span><input type="text" id="acc_hosting" placeholder="Ex : OVH, AWS, O2Switch..."></div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">Zone DNS</span><input type="text" id="acc_dns" placeholder=""></div>
+    </div>
+
+    <div class="access-section tech-only">
+      <h4>Acces techniques</h4>
+      <div class="access-scope">Profil B & C</div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">Repository Git</span><input type="text" id="acc_git" placeholder="URL GitHub/GitLab..."></div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">Base de donnees</span><input type="text" id="acc_db" placeholder="Type + comment y acceder"></div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">Serveur / SSH</span><input type="text" id="acc_ssh" placeholder=""></div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">Dashboard hebergeur</span><input type="text" id="acc_cloud" placeholder=""></div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">CI/CD</span><input type="text" id="acc_cicd" placeholder="GitHub Actions, Vercel..."></div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">Monitoring</span><input type="text" id="acc_monitoring" placeholder="Sentry, Datadog..."></div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">Back-office / admin</span><input type="text" id="acc_admin" placeholder="URL + comment se connecter"></div>
+    </div>
+
+    <div class="access-section">
+      <h4>Acces business</h4>
+      <div class="access-scope">Tous profils</div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">CRM</span><input type="text" id="acc_crm" placeholder="HubSpot, Pipedrive, Excel..."></div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">Facturation</span><input type="text" id="acc_billing" placeholder="Stripe, Pennylane..."></div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">Reseaux sociaux</span><input type="text" id="acc_social" placeholder="Instagram, LinkedIn..."></div>
+      <div class="access-field"><span class="access-dot"></span><span class="access-name">Plateforme e-commerce</span><input type="text" id="acc_ecom" placeholder="Shopify, WooCommerce..."></div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-prev" onclick="goToStep(5)">Retour</button>
+      <button class="btn btn-next" onclick="goToStep(7)">Continuer</button>
+    </div>
+  </div>
+
+  <!-- ========== STEP 7 : NOTES + ENVOI ========== -->
+  <div class="step" data-step="7">
+    <h2 class="step-title">Derniere <em>ligne droite</em></h2>
+    <p class="step-desc">Un dernier mot avant d'envoyer ? Budget, deadline, contraintes particulieres...</p>
+
+    <div class="human-block">
+      <h4>Budget envisage</h4>
+      <div class="human-context">Pas "combien vous voulez mettre" mais "combien ca vaut pour vous de resoudre ce probleme".</div>
+      <textarea id="q_budget" placeholder="Ex : Entre 3000 et 8000 EUR, a voir selon le perimetre"></textarea>
+    </div>
+
+    <div class="human-block">
+      <h4>Timeline & Deadlines</h4>
+      <div class="human-context">Y a-t-il une deadline dure ? Lancement produit, saison, evenement...</div>
+      <textarea id="q_timeline" placeholder="Ex : On aimerait lancer avant septembre"></textarea>
+    </div>
+
+    <div class="human-block">
+      <h4>Qui decide dans votre equipe ?</h4>
+      <div class="human-context">Le vrai decideur vs l'interlocuteur operationnel — c'est souvent pas la meme personne.</div>
+      <textarea id="q_decideur" placeholder="Ex : C'est moi qui decide, mais mon associe valide le budget"></textarea>
+    </div>
+
+    <div class="human-block">
+      <h4>Autre chose a nous dire ?</h4>
+      <div class="human-context">Tout ce qui ne rentre pas dans les cases. Craintes, envies, inspirations...</div>
+      <textarea id="q_autre" placeholder=""></textarea>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-prev" onclick="goToStep(6)">Retour</button>
+      <button class="btn btn-submit" id="submitBtn" onclick="submitDiagnostic()">Envoyer le diagnostic</button>
+    </div>
+  </div>
+
+  <!-- ========== CONFIRMATION ========== -->
+  <div class="step" data-step="done">
+    <div class="confirmation">
+      <div class="conf-icon">✓</div>
+      <h2>C'est envoye !</h2>
+      <p>Merci d'avoir pris le temps de remplir ce diagnostic. Notre equipe va analyser vos reponses et revient vers vous tres rapidement pour planifier la suite.</p>
+      <a href="/" class="back-link">Retour au site La Traverse</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let currentStep = 1;
+  const totalSteps = 7;
+
+  function goToStep(n) {
+    // Validation step 1
+    if (n > 1 && currentStep === 1) {
+      const name = document.getElementById('client_name').value.trim();
+      const email = document.getElementById('client_email').value.trim();
+      if (!name || !email) {
+        alert('Merci de remplir au moins votre nom et votre email.');
+        return;
+      }
+    }
+
+    // Validation step 2
+    if (n > 2 && currentStep === 2) {
+      const profile = document.querySelector('input[name="profile"]:checked');
+      const scenario = document.querySelector('input[name="scenario"]:checked');
+      if (!profile || !scenario) {
+        alert('Merci de choisir un profil et un type de projet.');
+        return;
+      }
+    }
+
+    currentStep = n;
+
+    // Update steps visibility
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    const target = document.querySelector(`.step[data-step="${n}"]`);
+    if (target) target.classList.add('active');
+
+    // Update progress
+    const steps = document.querySelectorAll('.progress-step');
+    steps.forEach((s, i) => {
+      s.classList.remove('done', 'active');
+      if (i < n - 1) s.classList.add('done');
+      if (i === n - 1) s.classList.add('active');
+    });
+
+    document.getElementById('progressLabel').textContent = `Etape ${n} sur ${totalSteps}`;
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function selectProfile(el, value) {
+    document.querySelectorAll('.profile-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    el.querySelector('input').checked = true;
+
+    // Toggle body class for conditional tech sections
+    document.body.className = '';
+    document.body.classList.add('profile-' + value);
+  }
+
+  function selectScenario(el, value) {
+    document.querySelectorAll('.scenario-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    el.querySelector('input').checked = true;
+  }
+
+  function collectData() {
+    const profile = document.querySelector('input[name="profile"]:checked');
+    const scenario = document.querySelector('input[name="scenario"]:checked');
+
+    // Collect all textarea answers
+    const answers = {};
+    document.querySelectorAll('textarea[id^="q_"]').forEach(ta => {
+      if (ta.value.trim()) answers[ta.id] = ta.value.trim();
+    });
+
+    // Collect document checklist
+    const documents = {};
+    document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(cb => {
+      documents[cb.id] = cb.checked;
+    });
+
+    // Collect accesses
+    const accesses = {};
+    document.querySelectorAll('.access-field input').forEach(inp => {
+      if (inp.value.trim()) accesses[inp.id] = inp.value.trim();
+    });
+
+    return {
+      client_name: document.getElementById('client_name').value.trim(),
+      client_email: document.getElementById('client_email').value.trim(),
+      client_phone: document.getElementById('client_phone').value.trim(),
+      client_website: document.getElementById('client_website').value.trim(),
+      client_company: document.getElementById('client_company').value.trim(),
+      profile: profile ? profile.value : null,
+      scenario: scenario ? scenario.value : null,
+      answers,
+      documents,
+      accesses,
+      human_notes: null,
+    };
+  }
+
+  async function submitDiagnostic() {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Envoi en cours...';
+
+    try {
+      const data = collectData();
+
+      const res = await fetch('/api/diagnostic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Erreur serveur');
+      }
+
+      // Show confirmation
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.querySelector('.step[data-step="done"]').classList.add('active');
+      document.getElementById('progressLabel').textContent = 'Termine !';
+      document.querySelectorAll('.progress-step').forEach(s => s.classList.add('done'));
+
+    } catch (err) {
+      alert('Erreur lors de l\'envoi : ' + err.message);
+      btn.disabled = false;
+      btn.textContent = 'Envoyer le diagnostic';
+    }
+  }
+</script>
+
+</body>
+</html>

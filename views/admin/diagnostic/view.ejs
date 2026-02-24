@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostic #<%= diagnostic.id %> — La Traverse Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Instrument+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --copper: #c4622a; --copper-light: #d4722e; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Instrument Sans', sans-serif; background: #0f0d0a; color: #f0e8dc; min-height: 100vh; }
+
+  .admin-nav { padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); }
+  .admin-logo { font-family: 'DM Serif Display', serif; font-size: 20px; color: #f0e8dc; text-decoration: none; }
+  .admin-logo span { color: var(--copper); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; margin-left: 8px; }
+  .admin-back { color: rgba(240,232,220,0.5); text-decoration: none; font-size: 13px; transition: color 0.3s; display: inline-flex; align-items: center; gap: 6px; }
+  .admin-back:hover { color: var(--copper); }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 32px; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; color: rgba(240,232,220,0.4); text-decoration: none; font-size: 13px; margin-bottom: 24px; transition: color 0.2s; }
+  .back-link:hover { color: var(--copper); }
+
+  .diag-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .diag-title { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; margin-bottom: 6px; }
+  .diag-meta { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; }
+  .diag-meta-item { font-size: 12px; color: rgba(240,232,220,0.4); }
+  .diag-meta-item strong { color: rgba(240,232,220,0.7); }
+
+  .status-form { display: flex; gap: 8px; align-items: center; }
+  .status-form select { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #f0e8dc; padding: 8px 12px; border-radius: 8px; font-family: 'Instrument Sans', sans-serif; font-size: 13px; outline: none; }
+  .status-form select:focus { border-color: var(--copper); }
+  .btn-sm { padding: 8px 16px; background: var(--copper); color: #fff; border: none; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; font-family: 'Instrument Sans', sans-serif; }
+  .btn-sm:hover { background: var(--copper-light); }
+
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; }
+  .badge-nouveau { background: rgba(108,180,238,0.15); color: #6cb4ee; }
+  .badge-en_cours { background: rgba(245,166,35,0.15); color: #f5a623; }
+  .badge-complete { background: rgba(62,207,142,0.15); color: #3ecf8e; }
+  .badge-archive { background: rgba(100,100,100,0.15); color: #888; }
+
+  /* Contact card */
+  .contact-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 24px; margin-bottom: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .contact-item .label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(240,232,220,0.3); margin-bottom: 4px; }
+  .contact-item .value { font-size: 14px; color: #f0e8dc; font-weight: 500; }
+  .contact-item .value a { color: var(--copper); text-decoration: none; }
+  .contact-item .value a:hover { text-decoration: underline; }
+
+  /* Section */
+  .section { margin-bottom: 32px; }
+  .section-title { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--copper); margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
+
+  /* Answer blocks */
+  .answer-block { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 16px 20px; margin-bottom: 10px; }
+  .answer-block .a-question { font-size: 13px; color: rgba(240,232,220,0.5); margin-bottom: 6px; font-weight: 500; }
+  .answer-block .a-answer { font-size: 14px; color: #f0e8dc; line-height: 1.7; white-space: pre-wrap; }
+  .answer-block .a-empty { font-size: 13px; color: rgba(240,232,220,0.2); font-style: italic; }
+
+  /* Checklist */
+  .checklist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; }
+  .check-item { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 8px 12px; border-radius: 8px; background: rgba(255,255,255,0.01); }
+  .check-item .check-icon { width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+  .check-item .check-icon.yes { background: rgba(62,207,142,0.15); color: #3ecf8e; }
+  .check-item .check-icon.no { background: rgba(255,255,255,0.04); color: rgba(240,232,220,0.2); }
+  .check-item .check-label { color: rgba(240,232,220,0.6); }
+  .check-item .check-label.checked { color: #f0e8dc; }
+
+  /* Access */
+  .access-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 13px; }
+  .access-row:last-child { border-bottom: none; }
+  .access-row .access-name { color: rgba(240,232,220,0.5); min-width: 180px; }
+  .access-row .access-value { color: #f0e8dc; font-family: 'Space Mono', monospace; font-size: 12px; word-break: break-all; }
+
+  @media (max-width: 768px) {
+    .container { padding: 16px; }
+    .diag-header { flex-direction: column; gap: 16px; }
+    .contact-card { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="admin-nav">
+  <a href="/admin" class="admin-logo">Traverse <span>Admin</span></a>
+  <a href="/" class="admin-back" target="_blank">Voir le site</a>
+</nav>
+
+<div class="container">
+
+  <a href="/admin" class="back-link">← Retour a l'admin</a>
+
+  <%
+    const profileLabels = { vierge: 'Le Vierge', equipe: "L'Equipe", migrant: 'Le Migrant' };
+    const scenarioLabels = { saas: 'SaaS existant', scratch: 'From scratch', migration: 'Migration', ecommerce: 'E-commerce', ia: 'Integration IA' };
+    const answers = typeof diagnostic.answers === 'string' ? JSON.parse(diagnostic.answers) : (diagnostic.answers || {});
+    const documents = typeof diagnostic.documents === 'string' ? JSON.parse(diagnostic.documents) : (diagnostic.documents || {});
+    const accesses = typeof diagnostic.accesses === 'string' ? JSON.parse(diagnostic.accesses) : (diagnostic.accesses || {});
+  %>
+
+  <div class="diag-header">
+    <div>
+      <h1 class="diag-title"><%= diagnostic.client_name %></h1>
+      <div class="diag-meta">
+        <span class="diag-meta-item"><strong>Profil :</strong> <%= profileLabels[diagnostic.profile] || diagnostic.profile || '-' %></span>
+        <span class="diag-meta-item"><strong>Scenario :</strong> <%= scenarioLabels[diagnostic.scenario] || diagnostic.scenario || '-' %></span>
+        <span class="diag-meta-item"><strong>Soumis le :</strong> <%= new Date(diagnostic.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></span>
+      </div>
+    </div>
+    <form method="POST" action="/admin/diagnostic/<%= diagnostic.id %>/status" class="status-form">
+      <select name="status">
+        <option value="nouveau" <%= diagnostic.status === 'nouveau' ? 'selected' : '' %>>Nouveau</option>
+        <option value="en_cours" <%= diagnostic.status === 'en_cours' ? 'selected' : '' %>>En cours</option>
+        <option value="complete" <%= diagnostic.status === 'complete' ? 'selected' : '' %>>Complete</option>
+        <option value="archive" <%= diagnostic.status === 'archive' ? 'selected' : '' %>>Archive</option>
+      </select>
+      <button type="submit" class="btn-sm">Mettre a jour</button>
+    </form>
+  </div>
+
+  <!-- Contact info -->
+  <div class="contact-card">
+    <div class="contact-item">
+      <div class="label">Nom</div>
+      <div class="value"><%= diagnostic.client_name %></div>
+    </div>
+    <div class="contact-item">
+      <div class="label">Email</div>
+      <div class="value"><a href="mailto:<%= diagnostic.client_email %>"><%= diagnostic.client_email %></a></div>
+    </div>
+    <% if (diagnostic.client_phone) { %>
+    <div class="contact-item">
+      <div class="label">Telephone</div>
+      <div class="value"><a href="tel:<%= diagnostic.client_phone %>"><%= diagnostic.client_phone %></a></div>
+    </div>
+    <% } %>
+    <% if (diagnostic.client_company) { %>
+    <div class="contact-item">
+      <div class="label">Entreprise</div>
+      <div class="value"><%= diagnostic.client_company %></div>
+    </div>
+    <% } %>
+    <% if (diagnostic.client_website) { %>
+    <div class="contact-item">
+      <div class="label">Site web</div>
+      <div class="value"><a href="<%= diagnostic.client_website %>" target="_blank"><%= diagnostic.client_website.replace(/^https?:\/\//, '') %></a></div>
+    </div>
+    <% } %>
+  </div>
+
+  <!-- Answers by category -->
+  <%
+    const questionLabels = {
+      q_metier_1: "C'est quoi votre activite, en une phrase ?",
+      q_metier_2: "Qui sont vos clients ?",
+      q_metier_3: "Votre journee type, de A a Z",
+      q_metier_4: "Ou perdez-vous le plus de temps ?",
+      q_metier_5: "Frustrations dans vos outils actuels ?",
+      q_metier_6: "Baguette magique : que changeriez-vous ?",
+      q_metier_7: "Objectifs a 6 mois / 2 ans",
+      q_outils_1: "Tous les outils utilises",
+      q_outils_2: "Qui utilise quoi dans l'equipe ?",
+      q_outils_3: "Les outils se parlent entre eux ?",
+      q_outils_4: "Budget abonnements outils",
+      q_outils_5: "Outils payes mais plus utilises ?",
+      q_outils_6: "Prestataire technique actuel ?",
+      q_tech_1: "Langage / framework",
+      q_tech_2: "Hebergement",
+      q_tech_3: "Base de donnees",
+      q_tech_4: "API existante ?",
+      q_tech_5: "Versioning / Git",
+      q_tech_6: "CI/CD",
+      q_tech_7: "Monitoring",
+      q_tech_8: "Derniere mise a jour",
+      q_tech_9: "Dette technique",
+      q_data_1: "Donnees collectees",
+      q_data_2: "Ou sont stockees les donnees",
+      q_data_3: "RGPD",
+      q_data_4: "Backups",
+      q_data_5: "Acces admin",
+      q_data_6: "Gestion mots de passe",
+      q_ia_1: "Utilisation IA actuelle",
+      q_ia_2: "Perception de l'IA",
+      q_ia_3: "Taches repetitives pour l'IA",
+      q_ia_4: "Donnees OK / interdites pour IA",
+      q_ia_5: "Perception clients de l'IA",
+      q_ia_6: "Contraintes reglementaires IA",
+      q_ia_7: "Budget IA",
+      q_friction_1: "Journee type — ou ca coince",
+      q_friction_2: "Etapes manuelles nouveau client",
+      q_friction_3: "Copier-coller entre outils",
+      q_friction_4: "Taches reportees",
+      q_friction_5: "Temps de formation remplacant",
+      q_budget: "Budget envisage",
+      q_timeline: "Timeline & Deadlines",
+      q_decideur: "Qui decide",
+      q_autre: "Notes supplementaires",
+    };
+
+    const categories = {
+      'Metier & Vision': ['q_metier_1','q_metier_2','q_metier_3','q_metier_4','q_metier_5','q_metier_6','q_metier_7'],
+      'Outils existants': ['q_outils_1','q_outils_2','q_outils_3','q_outils_4','q_outils_5','q_outils_6'],
+      'Stack technique': ['q_tech_1','q_tech_2','q_tech_3','q_tech_4','q_tech_5','q_tech_6','q_tech_7','q_tech_8','q_tech_9'],
+      'Donnees & Securite': ['q_data_1','q_data_2','q_data_3','q_data_4','q_data_5','q_data_6'],
+      'IA & Privacy': ['q_ia_1','q_ia_2','q_ia_3','q_ia_4','q_ia_5','q_ia_6','q_ia_7'],
+      'Friction & Douleur': ['q_friction_1','q_friction_2','q_friction_3','q_friction_4','q_friction_5'],
+      'Budget & Organisation': ['q_budget','q_timeline','q_decideur','q_autre'],
+    };
+  %>
+
+  <% Object.entries(categories).forEach(function([catName, keys]) { %>
+    <% const hasAny = keys.some(k => answers[k]); %>
+    <% if (hasAny) { %>
+      <div class="section">
+        <div class="section-title"><%= catName %></div>
+        <% keys.forEach(function(key) { %>
+          <% if (answers[key]) { %>
+            <div class="answer-block">
+              <div class="a-question"><%= questionLabels[key] || key %></div>
+              <div class="a-answer"><%= answers[key] %></div>
+            </div>
+          <% } %>
+        <% }); %>
+      </div>
+    <% } %>
+  <% }); %>
+
+  <!-- Documents checklist -->
+  <% const docLabels = {
+    doc_organigramme: 'Organigramme / equipe + roles',
+    doc_outils: 'Liste outils / abonnements',
+    doc_process: 'Process metier documentes',
+    doc_charte: 'Charte graphique',
+    doc_contrats: 'Contrats prestataires tech',
+    doc_git: 'Acces repo Git',
+    doc_tech_doc: 'Documentation technique',
+    doc_db_schema: 'Schema base de donnees',
+    doc_api: 'Documentation API',
+    doc_env: 'Fichiers environnement',
+    doc_archi: 'Architecture infra',
+    doc_incidents: 'Historique incidents',
+    doc_analytics: 'Analytics',
+    doc_hebergement: 'Contrat hebergement',
+    doc_privacy: 'Politique de confidentialite',
+    doc_cgu: 'CGU du service',
+    doc_rgpd: 'Registre RGPD',
+    doc_sensible: 'Documents donnees sensibles',
+  }; %>
+
+  <% if (Object.keys(documents).length > 0) { %>
+    <div class="section">
+      <div class="section-title">Documents disponibles</div>
+      <div class="checklist-grid">
+        <% Object.entries(docLabels).forEach(function([key, label]) { %>
+          <% if (documents[key] !== undefined) { %>
+            <div class="check-item">
+              <div class="check-icon <%= documents[key] ? 'yes' : 'no' %>"><%= documents[key] ? '✓' : '—' %></div>
+              <span class="check-label <%= documents[key] ? 'checked' : '' %>"><%= label %></span>
+            </div>
+          <% } %>
+        <% }); %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Accesses -->
+  <% const accessLabels = {
+    acc_ga: 'Google Analytics / Search Console',
+    acc_domain: 'Nom de domaine (registrar)',
+    acc_hosting: 'Hebergement',
+    acc_dns: 'Zone DNS',
+    acc_git: 'Repository Git',
+    acc_db: 'Base de donnees',
+    acc_ssh: 'Serveur / SSH',
+    acc_cloud: 'Dashboard hebergeur',
+    acc_cicd: 'CI/CD',
+    acc_monitoring: 'Monitoring',
+    acc_admin: 'Back-office / admin',
+    acc_crm: 'CRM',
+    acc_billing: 'Facturation',
+    acc_social: 'Reseaux sociaux',
+    acc_ecom: 'Plateforme e-commerce',
+  }; %>
+
+  <% if (Object.keys(accesses).length > 0) { %>
+    <div class="section">
+      <div class="section-title">Acces fournis</div>
+      <% Object.entries(accessLabels).forEach(function([key, label]) { %>
+        <% if (accesses[key]) { %>
+          <div class="access-row">
+            <span class="access-name"><%= label %></span>
+            <span class="access-value"><%= accesses[key] %></span>
+          </div>
+        <% } %>
+      <% }); %>
+    </div>
+  <% } %>
+
+</div>
+
+</body>
+</html>

@@ -196,12 +196,71 @@
 <div class="admin-container">
 
   <div class="admin-tabs">
-    <button class="admin-tab active" data-tab="leads">Leads (<%= leads.length %>)</button>
+    <button class="admin-tab active" data-tab="diagnostics">Diagnostics (<%= diagnostics.length %>)</button>
+    <button class="admin-tab" data-tab="leads">Leads (<%= leads.length %>)</button>
     <button class="admin-tab" data-tab="clients">Clients (<%= clients.length %>)</button>
   </div>
 
+  <!-- ===== DIAGNOSTICS PANEL ===== -->
+  <div class="admin-panel active" id="panel-diagnostics">
+    <div class="admin-header">
+      <div>
+        <h2 class="admin-title">Diagnostics Clients</h2>
+        <div class="admin-count"><%= diagnostics.length %> diagnostic<%= diagnostics.length > 1 ? 's' : '' %></div>
+      </div>
+      <a href="/diagnostic" class="admin-btn" target="_blank">Lien formulaire</a>
+    </div>
+
+    <% if (diagnostics.length === 0) { %>
+      <div class="admin-empty">Aucun diagnostic pour le moment. Envoyez le lien /diagnostic a vos clients.</div>
+    <% } else { %>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Entreprise</th>
+            <th>Profil</th>
+            <th>Scenario</th>
+            <th>Statut</th>
+            <th>Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% diagnostics.forEach(function(d) { %>
+            <%
+              const profileLabels = { vierge: 'Le Vierge', equipe: "L'Equipe", migrant: 'Le Migrant' };
+              const scenarioLabels = { saas: 'SaaS', scratch: 'Scratch', migration: 'Migration', ecommerce: 'E-com', ia: 'IA' };
+              const statusColors = { nouveau: '#6cb4ee', en_cours: '#f5a623', complete: '#3ecf8e', archive: '#666' };
+            %>
+            <tr>
+              <td>
+                <div class="lead-email"><%= d.client_name %></div>
+                <div class="lead-sub"><%= d.client_email %></div>
+                <% if (d.client_phone) { %><div class="lead-sub"><%= d.client_phone %></div><% } %>
+              </td>
+              <td><span class="lead-metier"><%= d.client_company || '-' %></span></td>
+              <td><span class="lead-parcours" style="background:rgba(196,98,42,0.15);color:#d4722e"><%= profileLabels[d.profile] || d.profile || '-' %></span></td>
+              <td><span class="lead-parcours" style="background:rgba(108,180,238,0.15);color:#6cb4ee"><%= scenarioLabels[d.scenario] || d.scenario || '-' %></span></td>
+              <td><span class="lead-parcours" style="background:<%= statusColors[d.status] || '#666' %>22;color:<%= statusColors[d.status] || '#666' %>"><%= d.status %></span></td>
+              <td><span class="lead-date"><%= new Date(d.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) %></span></td>
+              <td>
+                <div class="admin-actions">
+                  <a href="/admin/diagnostic/<%= d.id %>" class="admin-btn admin-btn-sm admin-btn-outline">Voir</a>
+                  <form method="POST" action="/admin/diagnostic/<%= d.id %>/delete" onsubmit="return confirm('Supprimer ce diagnostic ?')">
+                    <button type="submit" class="admin-btn admin-btn-sm admin-btn-danger">X</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
   <!-- ===== LEADS PANEL ===== -->
-  <div class="admin-panel active" id="panel-leads">
+  <div class="admin-panel" id="panel-leads">
     <div class="admin-header">
       <div>
         <h2 class="admin-title">Prospects Studio</h2>

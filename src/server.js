@@ -4,6 +4,7 @@ const path = require('path');
 const multer = require('multer');
 const clientsDb = require('./db/clients');
 const leadsDb = require('./db/leads');
+const diagnosticsDb = require('./db/diagnostics');
 
 let resend = null;
 try {
@@ -94,12 +95,73 @@ app.get('/confidentialite', (req, res) => {
   res.render('confidentialite');
 });
 
+// Page 5 — Diagnostic client (public onboarding form)
+app.get('/diagnostic', (req, res) => {
+  res.render('diagnostic');
+});
+
+// ===== API — DIAGNOSTIC =====
+
+app.post('/api/diagnostic', async (req, res) => {
+  const { client_name, client_email } = req.body;
+  if (!client_name || !client_email) {
+    return res.status(400).json({ error: 'Nom et email requis' });
+  }
+
+  try {
+    const diagnostic = await diagnosticsDb.createDiagnostic(req.body);
+
+    // Email notification via Resend
+    if (resend) {
+      try {
+        const profileLabels = { vierge: 'Le Vierge', equipe: "L'Equipe", migrant: 'Le Migrant' };
+        const scenarioLabels = { saas: 'SaaS existant', scratch: 'From scratch', migration: 'Migration', ecommerce: 'E-commerce', ia: 'Integration IA' };
+        const profileLabel = profileLabels[req.body.profile] || req.body.profile || '-';
+        const scenarioLabel = scenarioLabels[req.body.scenario] || req.body.scenario || '-';
+
+        await resend.emails.send({
+          from: 'La Traverse <onboarding@resend.dev>',
+          to: ['hello@latraverse.studio'],
+          subject: `Nouveau diagnostic : ${client_name} (${profileLabel})`,
+          html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#333">
+            <div style="background:#1a1714;padding:24px 32px;border-radius:12px 12px 0 0">
+              <h1 style="color:#f0e8dc;font-size:20px;margin:0 0 4px">Nouveau diagnostic client</h1>
+              <p style="color:#c4622a;font-size:14px;margin:0">${profileLabel} — ${scenarioLabel}</p>
+            </div>
+            <div style="background:#faf6f1;padding:24px 32px;border:1px solid #eee;border-top:none">
+              <table style="width:100%;border-collapse:collapse;font-size:14px">
+                <tr><td style="padding:8px 0;color:#999;width:120px">Nom</td><td style="padding:8px 0;font-weight:600">${client_name}</td></tr>
+                <tr><td style="padding:8px 0;color:#999">Email</td><td style="padding:8px 0">${client_email}</td></tr>
+                ${req.body.client_company ? `<tr><td style="padding:8px 0;color:#999">Entreprise</td><td style="padding:8px 0">${req.body.client_company}</td></tr>` : ''}
+                ${req.body.client_phone ? `<tr><td style="padding:8px 0;color:#999">Tel</td><td style="padding:8px 0">${req.body.client_phone}</td></tr>` : ''}
+                ${req.body.client_website ? `<tr><td style="padding:8px 0;color:#999">Site</td><td style="padding:8px 0">${req.body.client_website}</td></tr>` : ''}
+              </table>
+            </div>
+            <div style="background:#f5f5f5;padding:16px 32px;border-radius:0 0 12px 12px;border:1px solid #eee;border-top:none">
+              <p style="font-size:12px;color:#999;margin:0">Voir le diagnostic complet dans l'admin La Traverse</p>
+            </div>
+          </div>`,
+        });
+      } catch (emailErr) {
+        console.error('[DIAGNOSTIC] Email send failed:', emailErr.message);
+      }
+    }
+
+    console.log('[DIAGNOSTIC]', diagnostic.created_at, '-', client_name, '-', req.body.profile, '-', req.body.scenario);
+    res.json({ success: true, id: diagnostic.id });
+  } catch (err) {
+    console.error('Diagnostic creation error:', err);
+    res.status(500).json({ error: 'Erreur lors de la sauvegarde' });
+  }
+});
+
 // ===== ADMIN PANEL =====
 
 app.get('/admin', async (req, res) => {
   const clients = await clientsDb.getAllClients();
   const leads = await leadsDb.getAllLeads();
-  res.render('admin/index', { clients, leads });
+  const diagnostics = await diagnosticsDb.getAllDiagnostics();
+  res.render('admin/index', { clients, leads, diagnostics });
 });
 
 app.get('/admin/clients/new', (req, res) => {
@@ -136,6 +198,25 @@ app.post('/admin/clients/:id/delete', async (req, res) => {
 // Admin — delete lead
 app.post('/admin/leads/:id/delete', async (req, res) => {
   await leadsDb.deleteLead(req.params.id);
+  res.redirect('/admin');
+});
+
+// Admin — view diagnostic detail
+app.get('/admin/diagnostic/:id', async (req, res) => {
+  const diagnostic = await diagnosticsDb.getDiagnosticById(req.params.id);
+  if (!diagnostic) return res.redirect('/admin');
+  res.render('admin/diagnostic/view', { diagnostic });
+});
+
+// Admin — update diagnostic status
+app.post('/admin/diagnostic/:id/status', async (req, res) => {
+  await diagnosticsDb.updateDiagnosticStatus(req.params.id, req.body.status);
+  res.redirect('/admin/diagnostic/' + req.params.id);
+});
+
+// Admin — delete diagnostic
+app.post('/admin/diagnostic/:id/delete', async (req, res) => {
+  await diagnosticsDb.deleteDiagnostic(req.params.id);
   res.redirect('/admin');
 });
 
