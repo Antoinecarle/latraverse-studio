@@ -3,6 +3,10 @@ const express = require('express');
 const path = require('path');
 const multer = require('multer');
 const clientsDb = require('./db/clients');
+const leadsDb = require('./db/leads');
+const { Resend } = require('resend');
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -87,7 +91,8 @@ app.get('/confidentialite', (req, res) => {
 
 app.get('/admin', async (req, res) => {
   const clients = await clientsDb.getAllClients();
-  res.render('admin/index', { clients });
+  const leads = await leadsDb.getAllLeads();
+  res.render('admin/index', { clients, leads });
 });
 
 app.get('/admin/clients/new', (req, res) => {
@@ -119,6 +124,86 @@ app.post('/admin/clients/:id', async (req, res) => {
 app.post('/admin/clients/:id/delete', async (req, res) => {
   await clientsDb.deleteClient(req.params.id);
   res.redirect('/admin');
+});
+
+// Admin — delete lead
+app.post('/admin/leads/:id/delete', async (req, res) => {
+  await leadsDb.deleteLead(req.params.id);
+  res.redirect('/admin');
+});
+
+// ===== API — LEADS (parcours studio) =====
+
+app.post('/api/leads', async (req, res) => {
+  const { email, name, phone, metier, parcours, selections, estimated_min, estimated_max, duration } = req.body;
+
+  if (!email || !parcours) {
+    return res.status(400).json({ error: 'Email et parcours requis' });
+  }
+
+  try {
+    // Sauvegarder en DB
+    const lead = await leadsDb.createLead({
+      email, name, phone, metier, parcours, selections,
+      estimated_min, estimated_max, duration,
+    });
+
+    // Envoyer l'email de notification via Resend
+    const parcoursNames = { vitrine: 'Vitrine', application: 'Application', outil: 'Outil metier', ia: 'IA' };
+    const parcoursLabel = parcoursNames[parcours] || parcours;
+    const sel = selections || {};
+    const step1Items = sel.step1 || [];
+    const step2Items = sel.step2 || [];
+
+    const emailHtml = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+        <div style="background: #1a1714; padding: 24px 32px; border-radius: 12px 12px 0 0;">
+          <h1 style="color: #f0e8dc; font-size: 20px; margin: 0 0 4px;">Nouveau lead Studio</h1>
+          <p style="color: #c4622a; font-size: 14px; margin: 0;">Parcours ${parcoursLabel}</p>
+        </div>
+        <div style="background: #faf6f1; padding: 24px 32px; border: 1px solid #eee; border-top: none;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <tr><td style="padding: 8px 0; color: #999; width: 120px;">Email</td><td style="padding: 8px 0; font-weight: 600;">${email}</td></tr>
+            ${name ? `<tr><td style="padding: 8px 0; color: #999;">Nom</td><td style="padding: 8px 0;">${name}</td></tr>` : ''}
+            ${phone ? `<tr><td style="padding: 8px 0; color: #999;">Telephone</td><td style="padding: 8px 0;">${phone}</td></tr>` : ''}
+            ${metier ? `<tr><td style="padding: 8px 0; color: #999;">Metier</td><td style="padding: 8px 0;">${metier}</td></tr>` : ''}
+            <tr><td style="padding: 8px 0; color: #999;">Parcours</td><td style="padding: 8px 0; font-weight: 600; color: #c4622a;">${parcoursLabel}</td></tr>
+            <tr><td style="padding: 8px 0; color: #999;">Estimation</td><td style="padding: 8px 0;">${estimated_min || '?'} - ${estimated_max || '?'} EUR HT</td></tr>
+            <tr><td style="padding: 8px 0; color: #999;">Delai</td><td style="padding: 8px 0;">${duration || '-'}</td></tr>
+          </table>
+          ${step1Items.length > 0 ? `<div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee;">
+            <p style="font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px;">Selections etape 1</p>
+            <p style="font-size: 14px; margin: 0;">${step1Items.join(', ')}</p>
+          </div>` : ''}
+          ${step2Items.length > 0 ? `<div style="margin-top: 12px;">
+            <p style="font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px;">Selections etape 2</p>
+            <p style="font-size: 14px; margin: 0;">${step2Items.join(', ')}</p>
+          </div>` : ''}
+        </div>
+        <div style="background: #f5f5f5; padding: 16px 32px; border-radius: 0 0 12px 12px; border: 1px solid #eee; border-top: none;">
+          <p style="font-size: 12px; color: #999; margin: 0;">La Traverse Studio &middot; ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+        </div>
+      </div>
+    `;
+
+    try {
+      await resend.emails.send({
+        from: 'La Traverse Studio <onboarding@resend.dev>',
+        to: ['hello@latraverse.studio'],
+        subject: `Nouveau lead : ${parcoursLabel} — ${email}`,
+        html: emailHtml,
+      });
+      console.log('[LEAD] Email sent for:', email, parcours);
+    } catch (emailErr) {
+      console.error('[LEAD] Email send failed:', emailErr.message);
+    }
+
+    console.log('[LEAD]', lead.created_at, '-', email, '-', parcours, '-', estimated_min + '-' + estimated_max + ' EUR');
+    res.json({ success: true, lead_id: lead.id });
+  } catch (err) {
+    console.error('Lead creation error:', err);
+    res.status(500).json({ error: 'Erreur lors de la sauvegarde' });
+  }
 });
 
 // ===== API — CONTACT FORM =====

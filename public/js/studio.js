@@ -253,9 +253,9 @@
     prevBtn.style.visibility = isFirstStep ? 'hidden' : 'visible';
     nextBtn.style.display = isLastStep ? 'none' : '';
 
-    // Context-aware button text
+    // Hide next button on estimation step (form handles progression)
     if (currentStep === 4 && configSubStep === 3) {
-      nextBtn.innerHTML = 'Valider <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+      nextBtn.style.display = 'none';
     } else {
       nextBtn.innerHTML = 'Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
     }
@@ -474,10 +474,98 @@
     html += '<span class="ob-estimation-time">' + parcours.duration + '</span>';
     html += '</div>';
     html += '</div>';
-    html += '<div class="ob-estimation-note">Premier echange gratuit et sans engagement</div>';
+
+    // Email capture form
+    html += '<div class="ob-lead-form">';
+    html += '<div class="ob-lead-form-title">Recevez votre estimation detaillee</div>';
+    html += '<div class="ob-lead-form-desc">On vous recontacte pour un premier echange gratuit et sans engagement.</div>';
+    html += '<form id="leadForm" class="ob-lead-fields">';
+    html += '<input type="email" id="leadEmail" name="email" placeholder="Votre email *" required class="ob-lead-input" />';
+    html += '<div class="ob-lead-row">';
+    html += '<input type="text" id="leadName" name="name" placeholder="Votre nom (optionnel)" class="ob-lead-input" />';
+    html += '<input type="tel" id="leadPhone" name="phone" placeholder="Telephone (optionnel)" class="ob-lead-input" />';
+    html += '</div>';
+    html += '<button type="submit" class="ob-lead-submit" id="leadSubmitBtn">';
+    html += '<span class="ob-lead-submit-text">Envoyer ma demande</span>';
+    html += '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+    html += '</button>';
+    html += '<div id="leadFormMsg" class="ob-lead-msg"></div>';
+    html += '</form>';
+    html += '</div>';
+
     html += '</div>';
 
     configContent.innerHTML = html;
+
+    // Attach form submission handler
+    var form = document.getElementById('leadForm');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitLeadForm(parcours, priceMin, priceMax);
+      });
+    }
+  }
+
+  function submitLeadForm(parcours, priceMin, priceMax) {
+    var email = document.getElementById('leadEmail').value.trim();
+    var name = document.getElementById('leadName').value.trim();
+    var phone = document.getElementById('leadPhone').value.trim();
+    var submitBtn = document.getElementById('leadSubmitBtn');
+    var msgEl = document.getElementById('leadFormMsg');
+
+    if (!email) {
+      msgEl.textContent = 'Veuillez renseigner votre email.';
+      msgEl.className = 'ob-lead-msg ob-lead-msg-error';
+      return;
+    }
+
+    // Disable button
+    submitBtn.disabled = true;
+    submitBtn.querySelector('.ob-lead-submit-text').textContent = 'Envoi en cours...';
+
+    var payload = {
+      email: email,
+      name: name || null,
+      phone: phone || null,
+      metier: selectedMetier ? metierNames[selectedMetier] : null,
+      parcours: selectedParcours,
+      selections: {
+        step1: Array.from(configSelections.step1),
+        step2: Array.from(configSelections.step2)
+      },
+      estimated_min: priceMin,
+      estimated_max: priceMax,
+      duration: parcours.duration
+    };
+
+    fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.success) {
+        msgEl.textContent = 'Merci ! On vous recontacte tres vite.';
+        msgEl.className = 'ob-lead-msg ob-lead-msg-success';
+        // Auto-advance to step 5 after a short delay
+        setTimeout(function() {
+          goToStep(5);
+        }, 1500);
+      } else {
+        msgEl.textContent = data.error || 'Une erreur est survenue.';
+        msgEl.className = 'ob-lead-msg ob-lead-msg-error';
+        submitBtn.disabled = false;
+        submitBtn.querySelector('.ob-lead-submit-text').textContent = 'Envoyer ma demande';
+      }
+    })
+    .catch(function() {
+      msgEl.textContent = 'Erreur de connexion. Reessayez.';
+      msgEl.className = 'ob-lead-msg ob-lead-msg-error';
+      submitBtn.disabled = false;
+      submitBtn.querySelector('.ob-lead-submit-text').textContent = 'Envoyer ma demande';
+    });
   }
 
   // Config dot click navigation
