@@ -153,7 +153,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <p class="hero__descriptor">Cr&eacute;ation de sites, applications &amp; outils digitaux</p>
     </div>
 
-    <!-- Transformation Scene: chaos → clarity -->
+    <!-- Transformation Scene: chaos → clarity (same zone, overlapping) -->
     <div class="hero__scene" id="heroScene" role="presentation">
       <div class="scene-container">
         <div class="scene-chaos" aria-hidden="true">
@@ -188,11 +188,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="scene-clarity__line">On con&ccedil;oit votre <em>solution num&eacute;rique</em></span>
           <span class="scene-clarity__line scene-clarity__line--sub">Site, application ou plateforme &mdash; <em>sur-mesure, de A &agrave; Z.</em></span>
         </div>
+        <!-- Permanent value prop (appears after animation, IN the same zone) -->
+        <div class="hero__value-prop" id="heroValueProp">
+          <span class="hero__value-line">On accompagne votre travers&eacute;e num&eacute;rique</span>
+          <span class="hero__value-sub">Du premier caf&eacute; au lancement &mdash; site, app ou outil m&eacute;tier, on trace la route ensemble.</span>
+        </div>
       </div>
     </div>
-
-    <!-- Tagline -->
-    <p class="hero__tagline" id="heroTagline">Du premier caf&eacute; au lancement &mdash; on trace la route ensemble</p>
 
     <!-- CTA -->
     <div class="hero__cta-wrap" id="heroCTA">
@@ -657,29 +659,41 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       <div class="equipe__grid">
 
-        <div class="equipe__member reveal-item">
-          <div class="equipe__photo-wrap">
-            <img src="/images/portrait-adrien.jpeg" alt="Adrien, co-fondateur de La Traverse" class="equipe__photo equipe__photo--animate" loading="lazy">
-          </div>
-          <div class="equipe__info">
-            <h3 class="equipe__name equipe__name--animate">Adrien</h3>
-            <span class="equipe__role equipe__role--typein">Co-fondateur &amp; D&eacute;veloppeur</span>
+        <div class="equipe__card reveal-item">
+          <div class="equipe__card-inner">
+            <div class="equipe__avatar-wrap">
+              <img src="/images/portrait-adrien.jpeg" alt="Adrien, co-fondateur de La Traverse" class="equipe__avatar" loading="lazy">
+              <div class="equipe__avatar-ring"></div>
+            </div>
+            <h3 class="equipe__name">Adrien</h3>
+            <span class="equipe__role">Co-fondateur &amp; D&eacute;veloppeur</span>
             <p class="equipe__bio">
               Il construit des sites et des applications avec le soin d'un artisan. Chaque ligne de code est pens&eacute;e pour durer, chaque interface pour simplifier la vie de ceux qui l'utilisent.
             </p>
+            <div class="equipe__tags">
+              <span class="equipe__tag">Frontend</span>
+              <span class="equipe__tag">Backend</span>
+              <span class="equipe__tag">Design UI</span>
+            </div>
           </div>
         </div>
 
-        <div class="equipe__member reveal-item">
-          <div class="equipe__photo-wrap">
-            <img src="/images/portrait-antoine.jpeg" alt="Antoine, co-fondateur de La Traverse" class="equipe__photo equipe__photo--animate" loading="lazy">
-          </div>
-          <div class="equipe__info">
-            <h3 class="equipe__name equipe__name--animate">Antoine</h3>
-            <span class="equipe__role equipe__role--typein">Co-fondateur &amp; D&eacute;veloppeur</span>
+        <div class="equipe__card reveal-item">
+          <div class="equipe__card-inner">
+            <div class="equipe__avatar-wrap">
+              <img src="/images/portrait-antoine.jpeg" alt="Antoine, co-fondateur de La Traverse" class="equipe__avatar" loading="lazy">
+              <div class="equipe__avatar-ring"></div>
+            </div>
+            <h3 class="equipe__name">Antoine</h3>
+            <span class="equipe__role">Co-fondateur &amp; D&eacute;veloppeur</span>
             <p class="equipe__bio">
               Strat&eacute;gie, intelligence artificielle, automatisation. Son objectif&nbsp;: que la technologie se fasse oublier pour que votre m&eacute;tier, lui, brille.
             </p>
+            <div class="equipe__tags">
+              <span class="equipe__tag">Strat&eacute;gie</span>
+              <span class="equipe__tag">IA</span>
+              <span class="equipe__tag">Automatisation</span>
+            </div>
           </div>
         </div>
 

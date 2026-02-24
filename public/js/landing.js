@@ -230,8 +230,10 @@
     var rmDesc = document.querySelector('.hero__descriptor');
     if (rmDesc) { rmDesc.style.opacity = '1'; rmDesc.style.transform = 'none'; }
 
-    /* Show tagline, CTA, reassurance */
-    ['heroTagline', 'heroCTA', 'heroReassurance'].forEach(function(id) {
+    /* Show value prop, CTA, reassurance */
+    var rmValueProp = document.getElementById('heroValueProp');
+    if (rmValueProp) { rmValueProp.classList.add('is-visible'); }
+    ['heroCTA', 'heroReassurance'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) { el.style.opacity = '1'; el.style.transform = 'none'; }
     });
@@ -397,7 +399,6 @@
   var heroBadge = document.getElementById('heroBadge');
   var heroTitle = document.getElementById('heroTitle');
   var traverseAccent = document.querySelector('.hero__title-traverse');
-  var heroTagline = document.getElementById('heroTagline');
   var heroCTAWrap = document.getElementById('heroCTA');
   var heroReassurance = document.getElementById('heroReassurance');
   var chaosContainer = document.querySelector('.scene-chaos');
@@ -498,7 +499,7 @@
     }, 1800);
   }
 
-  function showClarity(callback) {
+  function showClarity() {
     if (chaosContainer) chaosContainer.style.opacity = '0';
 
     clarityLines.forEach(function(line, i) {
@@ -510,20 +511,19 @@
       }, i * 200);
     });
 
+    /* After clarity is shown briefly, fade it out and reveal permanent value prop */
     setTimeout(function() {
-      clarityLines.forEach(function(line, i) {
-        setTimeout(function() {
-          animateValue(500, easeInOutCubic, function(p) {
-            line.style.opacity = 1 - p;
-            line.style.transform = 'translateY(' + (-8 * p) + 'px) scale(' + (1 + 0.02 * p) + ')';
-          });
-        }, i * 100);
+      /* Fade out clarity lines */
+      clarityLines.forEach(function(line) {
+        line.style.transition = 'opacity 0.6s ease';
+        line.style.opacity = '0';
       });
-
+      /* Then show permanent value prop in the same zone */
       setTimeout(function() {
-        if (callback) callback();
-      }, 600);
-    }, 3000);
+        var valueProp = document.getElementById('heroValueProp');
+        if (valueProp) valueProp.classList.add('is-visible');
+      }, 400);
+    }, 2000);
   }
 
   function runTransformationCycle() {
@@ -533,11 +533,9 @@
       showChaosPhrase(currentChaosIndex, function() {
         currentChaosIndex++;
         if (currentChaosIndex >= chaosLines.length) {
+          /* All chaos phrases shown — reveal clarity and STOP (no loop) */
           setTimeout(function() {
-            showClarity(function() {
-              currentChaosIndex = 0;
-              cycleTimeout = setTimeout(runTransformationCycle, 800);
-            });
+            showClarity();
           }, 300);
         } else {
           cycleTimeout = setTimeout(runTransformationCycle, 200);
@@ -552,9 +550,8 @@
   }, 1800);
 
   /* ACT 3: Supporting elements fade in */
-  if (heroTagline) heroFadeIn(heroTagline, 2600, 700, 20);
-  if (heroCTAWrap) heroFadeIn(heroCTAWrap, 3000, 700, 20);
-  if (heroReassurance) heroFadeIn(heroReassurance, 3400, 700, 16);
+  if (heroCTAWrap) heroFadeIn(heroCTAWrap, 2600, 700, 20);
+  if (heroReassurance) heroFadeIn(heroReassurance, 3000, 700, 16);
 
   /* --- CLEANUP on visibility change --- */
   document.addEventListener('visibilitychange', function() {
@@ -890,22 +887,23 @@
   }
 
   /* -------------------------------------------------------
-     8. EQUIPE -- Photo + name + role animations
+     8. EQUIPE -- Card reveal animations
      ------------------------------------------------------- */
 
-  /* Wrap equipe names in inner span for slide-up */
-  var equipeNames = document.querySelectorAll('.equipe__name--animate');
-  for (var en = 0; en < equipeNames.length; en++) {
-    var nameInner = document.createElement('span');
-    nameInner.className = 'equipe__name-inner';
-    nameInner.textContent = equipeNames[en].textContent;
-    equipeNames[en].textContent = '';
-    equipeNames[en].appendChild(nameInner);
-  }
+  /* Card reveal observer -- adds .is-visible to equipe__card elements */
+  var equipeCards = document.querySelectorAll('.equipe__card');
+  var equipeCardObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        equipeCardObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
 
-  /* Photo and name animation observer -- uses reveal-item .is-visible class
-     already handled by itemObserver. CSS transitions key off .equipe__member.is-visible
-     so no extra JS needed for those. */
+  for (var ec = 0; ec < equipeCards.length; ec++) {
+    equipeCardObserver.observe(equipeCards[ec]);
+  }
 
   /* -------------------------------------------------------
      9. EQUIPE QUOTE -- Staggered word reveal
