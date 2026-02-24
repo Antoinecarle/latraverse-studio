@@ -130,15 +130,20 @@ body {
 }
 /* Tighter layout on card steps */
 .ob-step[data-step="2"],
-.ob-step[data-step="3"] { padding-top: 24px; padding-bottom: 12px; }
+.ob-step[data-step="3"],
+.ob-step[data-step="4"] { padding-top: 24px; padding-bottom: 12px; }
 .ob-step[data-step="2"] .ob-welcome,
-.ob-step[data-step="3"] .ob-welcome { margin-bottom: 14px; }
+.ob-step[data-step="3"] .ob-welcome,
+.ob-step[data-step="4"] .ob-welcome { margin-bottom: 14px; }
 .ob-step[data-step="2"] .ob-welcome-overline,
-.ob-step[data-step="3"] .ob-welcome-overline { margin-bottom: 6px; font-size: 10px; }
+.ob-step[data-step="3"] .ob-welcome-overline,
+.ob-step[data-step="4"] .ob-welcome-overline { margin-bottom: 6px; font-size: 10px; }
 .ob-step[data-step="2"] .ob-welcome-title,
-.ob-step[data-step="3"] .ob-welcome-title { font-size: clamp(22px, 3vw, 32px); margin-bottom: 6px; }
+.ob-step[data-step="3"] .ob-welcome-title,
+.ob-step[data-step="4"] .ob-welcome-title { font-size: clamp(22px, 3vw, 32px); margin-bottom: 6px; }
 .ob-step[data-step="2"] .ob-welcome-desc,
-.ob-step[data-step="3"] .ob-welcome-desc { font-size: 13px; line-height: 1.4; }
+.ob-step[data-step="3"] .ob-welcome-desc,
+.ob-step[data-step="4"] .ob-welcome-desc { font-size: 13px; line-height: 1.4; }
 .ob-welcome-overline {
   font-family: 'Space Mono', monospace;
   font-size: 11px;
@@ -324,188 +329,7 @@ body {
   display: block;
 }
 
-/* =============================================
-   NEEDS GRID (Step 3) — showcase-style cards
-   ============================================= */
-.ob-needs-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  max-width: 720px;
-  margin: 0 auto;
-}
-.ob-need-card {
-  border-radius: 14px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  border: 2px solid transparent;
-}
-.ob-need-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.08);
-}
-.ob-need-card.selected {
-  transform: translateY(-4px);
-}
-/* Per-card selection colors */
-.ob-need-card[data-need="site"].selected        { border-color: #8b7355; box-shadow: 0 0 0 3px rgba(139,115,85,0.15), 0 12px 32px rgba(139,115,85,0.12); }
-.ob-need-card[data-need="reservation"].selected { border-color: #2e8b57; box-shadow: 0 0 0 3px rgba(46,139,87,0.15), 0 12px 32px rgba(46,139,87,0.12); }
-.ob-need-card[data-need="assistant"].selected   { border-color: #f0e8dc; box-shadow: 0 0 0 3px rgba(240,232,220,0.2), 0 12px 32px rgba(0,0,0,0.2); }
-.ob-need-card[data-need="app"].selected         { border-color: #6a5acd; box-shadow: 0 0 0 3px rgba(106,90,205,0.15), 0 12px 32px rgba(106,90,205,0.12); }
-.ob-need-card[data-need="auto"].selected        { border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.25), 0 12px 32px rgba(196,98,42,0.2); }
-.ob-need-card[data-need="contenu"].selected     { border-color: #4682b4; box-shadow: 0 0 0 3px rgba(70,130,180,0.15), 0 12px 32px rgba(70,130,180,0.12); }
-/* Unique backgrounds */
-.ob-need-card[data-need="site"]        { background: #faf6f1; }
-.ob-need-card[data-need="reservation"] { background: #eef6f2; }
-.ob-need-card[data-need="assistant"]   { background: #1a1714; color: #f0e8dc; }
-.ob-need-card[data-need="app"]         { background: #f3f1f8; }
-.ob-need-card[data-need="auto"]        { background: var(--copper); color: #fff; }
-.ob-need-card[data-need="contenu"]     { background: #eef2f7; }
-/* Check indicator */
-.ob-need-check {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  border: 2px solid rgba(0,0,0,0.1);
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-}
-.ob-need-card[data-need="assistant"] .ob-need-check,
-.ob-need-card[data-need="auto"] .ob-need-check {
-  border-color: rgba(255,255,255,0.25);
-}
-.ob-need-card.selected .ob-need-check::after {
-  content: '';
-  width: 5px;
-  height: 9px;
-  border: solid #fff;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-  margin-top: -2px;
-}
-/* Per-card check colors */
-.ob-need-card[data-need="site"].selected .ob-need-check        { background: #8b7355; border-color: #8b7355; }
-.ob-need-card[data-need="reservation"].selected .ob-need-check { background: #2e8b57; border-color: #2e8b57; }
-.ob-need-card[data-need="assistant"].selected .ob-need-check   { background: #f0e8dc; border-color: #f0e8dc; }
-.ob-need-card[data-need="assistant"].selected .ob-need-check::after { border-color: #1a1714; }
-.ob-need-card[data-need="app"].selected .ob-need-check         { background: #6a5acd; border-color: #6a5acd; }
-.ob-need-card[data-need="auto"].selected .ob-need-check        { background: #fff; border-color: #fff; }
-.ob-need-card[data-need="auto"].selected .ob-need-check::after { border-color: var(--copper); }
-.ob-need-card[data-need="contenu"].selected .ob-need-check     { background: #4682b4; border-color: #4682b4; }
-/* Icon */
-.ob-need-icon {
-  font-size: 22px;
-}
-.ob-need-icon svg { width: 26px; height: 26px; }
-.ob-need-card[data-need="site"] svg        { stroke: #333; }
-.ob-need-card[data-need="reservation"] svg { stroke: #2e8b57; }
-.ob-need-card[data-need="assistant"] svg   { stroke: #f0e8dc; }
-.ob-need-card[data-need="app"] svg         { stroke: #6a5acd; }
-.ob-need-card[data-need="auto"] svg        { stroke: #fff; }
-.ob-need-card[data-need="contenu"] svg     { stroke: #4682b4; }
-/* Bottom text */
-.ob-need-bottom {}
-.ob-need-name {
-  font-family: 'DM Serif Display', serif;
-  font-size: 14px;
-  color: inherit;
-  display: block;
-  margin-bottom: 3px;
-}
-.ob-need-desc {
-  font-size: 11px;
-  opacity: 0.5;
-  line-height: 1.4;
-  display: block;
-}
-
-/* =============================================
-   SOLUTION CARD (Step 4)
-   ============================================= */
-.ob-solution-card {
-  max-width: 540px;
-  margin: 0 auto;
-  border-radius: 20px;
-  border: none;
-  background: linear-gradient(145deg, #1a1714, #0f0d0a);
-  color: #f0e8dc;
-  overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.15);
-}
-.ob-solution-header {
-  padding: 32px 32px 24px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-.ob-solution-badge {
-  display: inline-block;
-  padding: 6px 14px;
-  border-radius: 20px;
-  background: rgba(196,98,42,0.15);
-  color: var(--copper-light);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  margin-bottom: 14px;
-}
-.ob-solution-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 24px;
-  color: #fff;
-  font-weight: 400;
-}
-.ob-solution-features {
-  padding: 24px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.ob-solution-feature {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-size: 14px;
-  color: rgba(240,232,220,0.8);
-}
-.ob-solution-feature svg {
-  flex-shrink: 0;
-}
-.ob-solution-footer {
-  padding: 20px 32px 28px;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.ob-solution-from {
-  font-size: 11px;
-  color: rgba(240,232,220,0.4);
-  display: block;
-  margin-bottom: 2px;
-}
-.ob-solution-amount {
-  font-family: 'DM Serif Display', serif;
-  font-size: 22px;
-  color: var(--copper-light);
-}
-.ob-solution-note {
-  font-size: 12px;
-  color: rgba(240,232,220,0.4);
-  font-style: italic;
-}
+/* (Old needs grid and solution card styles removed — replaced by parcours + config system) */
 
 /* =============================================
    FINAL CARD (Step 5)
@@ -714,6 +538,370 @@ body {
 }
 
 /* =============================================
+   PARCOURS GRID (Step 3)
+   ============================================= */
+.ob-parcours-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.ob-parcours-card {
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+.ob-parcours-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+}
+.ob-parcours-card.selected {
+  transform: translateY(-4px);
+}
+/* Per-card backgrounds */
+.ob-parcours-card[data-parcours="vitrine"]     { background: #faf6f1; }
+.ob-parcours-card[data-parcours="application"] { background: #f3f1f8; }
+.ob-parcours-card[data-parcours="outil"]       { background: #1a1714; color: #f0e8dc; }
+.ob-parcours-card[data-parcours="ia"]          { background: var(--copper); color: #fff; }
+/* Per-card selection */
+.ob-parcours-card[data-parcours="vitrine"].selected     { border-color: #8b7355; box-shadow: 0 0 0 3px rgba(139,115,85,0.15), 0 16px 40px rgba(139,115,85,0.12); }
+.ob-parcours-card[data-parcours="application"].selected { border-color: #6a5acd; box-shadow: 0 0 0 3px rgba(106,90,205,0.15), 0 16px 40px rgba(106,90,205,0.12); }
+.ob-parcours-card[data-parcours="outil"].selected       { border-color: #f0e8dc; box-shadow: 0 0 0 3px rgba(240,232,220,0.2), 0 16px 40px rgba(0,0,0,0.2); }
+.ob-parcours-card[data-parcours="ia"].selected          { border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.25), 0 16px 40px rgba(196,98,42,0.2); }
+/* Icon colors */
+.ob-parcours-card[data-parcours="vitrine"] svg     { stroke: #8b7355; }
+.ob-parcours-card[data-parcours="application"] svg { stroke: #6a5acd; }
+.ob-parcours-card[data-parcours="outil"] svg       { stroke: #f0e8dc; }
+.ob-parcours-card[data-parcours="ia"] svg          { stroke: #fff; }
+/* Typography */
+.ob-parcours-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.5;
+  display: block;
+}
+.ob-parcours-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  display: block;
+  margin: 2px 0 4px;
+  font-weight: 400;
+}
+.ob-parcours-desc {
+  font-size: 12px;
+  opacity: 0.65;
+  line-height: 1.5;
+  margin: 0;
+}
+.ob-parcours-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  font-size: 11px;
+}
+.ob-parcours-card[data-parcours="outil"] .ob-parcours-meta,
+.ob-parcours-card[data-parcours="ia"] .ob-parcours-meta {
+  border-color: rgba(255,255,255,0.12);
+}
+.ob-parcours-price {
+  font-weight: 600;
+}
+.ob-parcours-duration {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  opacity: 0.5;
+}
+
+/* =============================================
+   CONFIG NAV / STEPPER (Step 4)
+   ============================================= */
+.ob-config-inner {
+  max-width: 760px;
+}
+.ob-config-nav {
+  margin-bottom: 20px;
+  text-align: center;
+}
+.ob-config-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 8px;
+}
+.ob-config-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  border: 2px solid #e8e8e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #bbb;
+  transition: all 0.4s;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.ob-config-dot span {
+  line-height: 1;
+}
+.ob-config-dot.active {
+  background: var(--copper);
+  border-color: var(--copper);
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(196,98,42,0.15);
+}
+.ob-config-dot.done {
+  background: var(--copper);
+  border-color: var(--copper);
+  color: #fff;
+}
+.ob-config-line {
+  width: 48px;
+  height: 2px;
+  background: #eee;
+  transition: background 0.4s;
+  flex-shrink: 0;
+}
+.ob-config-line.done {
+  background: var(--copper);
+}
+.ob-config-labels {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #ccc;
+}
+.ob-config-labels span {
+  transition: all 0.3s;
+}
+.ob-config-labels span.active {
+  color: var(--copper);
+  font-weight: 700;
+}
+
+/* =============================================
+   CONFIG OPTIONS (Step 4 sub-steps 1 & 2)
+   ============================================= */
+.ob-config-content {
+  min-height: 200px;
+}
+.ob-config-welcome {
+  text-align: center;
+  margin-bottom: 18px;
+}
+.ob-config-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(18px, 2.5vw, 26px);
+  font-weight: 400;
+  margin-bottom: 6px;
+  color: #111;
+}
+.ob-config-desc {
+  font-size: 13px;
+  color: #999;
+  max-width: 440px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+.ob-config-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+.ob-config-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid #f0f0f0;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+}
+.ob-config-option:hover {
+  border-color: #ddd;
+  background: #f5f5f5;
+  transform: translateY(-2px);
+}
+.ob-config-option.selected {
+  border-color: var(--copper);
+  background: rgba(196,98,42,0.04);
+}
+.ob-config-option.included {
+  opacity: 0.6;
+  cursor: default;
+}
+.ob-config-option.included:hover {
+  transform: none;
+}
+.ob-config-option-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  border: 2px solid #ddd;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ob-config-option.selected .ob-config-option-check {
+  background: var(--copper);
+  border-color: var(--copper);
+}
+.ob-config-option.selected .ob-config-option-check::after {
+  content: '';
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-top: -2px;
+}
+.ob-config-option-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 13px;
+  display: block;
+  margin-bottom: 2px;
+  color: #111;
+}
+.ob-config-option-desc {
+  font-size: 11px;
+  color: #999;
+  line-height: 1.4;
+  display: block;
+}
+.ob-config-empty {
+  text-align: center;
+  color: #999;
+  padding: 60px 20px;
+  font-size: 14px;
+}
+
+/* =============================================
+   ESTIMATION CARD (Step 4 sub-step 3)
+   ============================================= */
+.ob-estimation-card {
+  max-width: 520px;
+  margin: 0 auto;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #1a1714, #0f0d0a);
+  color: #f0e8dc;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.15);
+}
+.ob-estimation-header {
+  padding: 24px 28px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.ob-estimation-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(196,98,42,0.15);
+  color: var(--copper-light);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+.ob-estimation-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: #fff;
+  font-weight: 400;
+}
+.ob-estimation-features {
+  padding: 18px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ob-estimation-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(240,232,220,0.85);
+}
+.ob-estimation-feature svg {
+  flex-shrink: 0;
+}
+.ob-estimation-included {
+  opacity: 0.5;
+}
+.ob-estimation-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 4px 0;
+}
+.ob-estimation-empty {
+  text-align: center;
+  color: rgba(240,232,220,0.4);
+  padding: 12px 0;
+  font-size: 13px;
+  font-style: italic;
+}
+.ob-estimation-footer {
+  padding: 16px 28px 18px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.ob-estimation-from {
+  font-size: 10px;
+  color: rgba(240,232,220,0.35);
+  display: block;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: 'Space Mono', monospace;
+}
+.ob-estimation-amount {
+  font-family: 'DM Serif Display', serif;
+  font-size: 19px;
+  color: var(--copper-light);
+}
+.ob-estimation-time {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: rgba(240,232,220,0.6);
+}
+.ob-estimation-note {
+  padding: 10px 28px 18px;
+  font-size: 11px;
+  color: rgba(240,232,220,0.3);
+  font-style: italic;
+  text-align: center;
+}
+
+/* =============================================
    RESPONSIVE
    ============================================= */
 @media (max-width: 768px) {
@@ -723,8 +911,11 @@ body {
   .ob-showcase { grid-template-columns: 1fr 1fr; gap: 10px; }
   .ob-metier-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
   .ob-metier-card { padding: 16px; min-height: 110px; }
-  .ob-needs-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .ob-need-card { padding: 16px; min-height: 110px; }
+  .ob-parcours-grid { grid-template-columns: 1fr; gap: 10px; }
+  .ob-parcours-card { padding: 18px; }
+  .ob-config-options { grid-template-columns: 1fr; }
+  .ob-config-labels { gap: 20px; font-size: 9px; }
+  .ob-config-line { width: 32px; }
   .ob-bottom { flex-direction: column; gap: 20px; text-align: center; }
   .ob-contact { text-align: center; }
   .ob-j-line { width: 32px; }
@@ -732,16 +923,17 @@ body {
   .ob-j-labels span { min-width: 40px; }
   .ob-cta-primary,
   .ob-cta-secondary { padding: 12px 24px; font-size: 13px; }
-  .ob-solution-header,
-  .ob-solution-features,
-  .ob-solution-footer { padding-left: 20px; padding-right: 20px; }
-  .ob-solution-footer { flex-direction: column; gap: 8px; text-align: center; }
+  .ob-estimation-header,
+  .ob-estimation-features,
+  .ob-estimation-footer,
+  .ob-estimation-note { padding-left: 20px; padding-right: 20px; }
+  .ob-estimation-footer { flex-direction: column; gap: 10px; align-items: center; text-align: center; }
   .ob-final-card { padding: 32px 20px; }
 }
 @media (max-width: 480px) {
   .ob-showcase { grid-template-columns: 1fr; }
   .ob-metier-grid { grid-template-columns: 1fr 1fr; }
-  .ob-needs-grid { grid-template-columns: 1fr 1fr; }
+  .ob-config-labels { gap: 12px; }
   .ob-step-indicator { display: none; }
   .ob-welcome-title { font-size: 28px; }
 }

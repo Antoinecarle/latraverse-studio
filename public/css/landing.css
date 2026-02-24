@@ -1781,187 +1781,196 @@ button {
 
 
 /* ============================================================
-   REALISATIONS
+   REALISATIONS — Onyx Dark Showcase
    ============================================================ */
-.realisations {
-  border-top: 1px solid var(--color-border);
+.onyx-showcase {
+  /* Warm dark palette — aligned with La Traverse earthy tones */
+  --onyx-bg: #141210;
+  --onyx-surface: rgba(245, 240, 232, 0.04);
+  --onyx-border: rgba(245, 240, 232, 0.07);
+  --onyx-border-strong: rgba(245, 240, 232, 0.14);
+  --onyx-text-heading: #f5f0e8;
+  --onyx-text-body: rgba(245, 240, 232, 0.82);
+  --onyx-text-muted: rgba(245, 240, 232, 0.48);
+  --onyx-text-dim: rgba(245, 240, 232, 0.26);
+  --onyx-accent: var(--color-accent, #c4622a);
+  --onyx-accent-glow: rgba(196, 98, 42, 0.20);
+  --onyx-shadow-md: 0 8px 30px rgba(14, 12, 10, 0.6);
+  --onyx-shadow-lg: 0 14px 42px rgba(10, 8, 6, 0.72);
+  --onyx-curve: cubic-bezier(0.2, 0.9, 0.2, 1);
+  --onyx-radius: 16px;
+
+  background-color: var(--onyx-bg);
+  color: var(--onyx-text-body);
+  padding: clamp(80px, 10vw, 140px) 0;
+  position: relative;
+  overflow: hidden;
 }
 
-.realisations__grid {
+/* Decorative radial glow — copper tint top-left */
+.onyx-showcase__glow {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(600px 400px at 15% 10%, rgba(196, 98, 42, 0.10), rgba(160, 120, 80, 0.03) 40%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Subtle noise texture */
+.onyx-showcase__noise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.onyx-showcase__container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 60px);
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Header --- */
+.onyx-showcase__header {
+  text-align: center;
+  margin-bottom: clamp(40px, 6vw, 72px);
+}
+
+.onyx-showcase__overline {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--onyx-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 16px;
+}
+
+.onyx-showcase__title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4.5vw, 48px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--onyx-text-heading);
+  max-width: 22ch;
+  margin: 0 auto;
+}
+
+/* --- Bento Grid --- */
+.onyx-showcase__grid {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 24px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(16px, 2vw, 24px);
 }
 
-.real-card {
-  padding: 40px;
-  border-radius: 4px;
+/* --- Glass Project Card --- */
+.onyx-card {
+  --card-accent: #c4622a;
+  background: var(--onyx-surface);
+  border: 1px solid var(--onyx-border);
+  border-radius: var(--onyx-radius);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: var(--onyx-shadow-md);
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  min-height: 240px;
-  transition: transform 0.4s ease;
-}
-
-.real-card:hover {
-  transform: translateY(-4px);
-}
-
-.real-card--featured {
-  grid-row: span 2;
-  min-height: 480px;
-  padding: 48px;
-}
-
-.real-card--cream {
-  background-color: var(--color-bg-cream);
-}
-
-.real-card--dark {
-  background-color: var(--color-bg-dark);
-  color: var(--color-text-inverse);
-}
-
-.real-card--dark .real-card__tag {
-  color: rgba(250, 250, 248, 0.6);
-  border-color: rgba(250, 250, 248, 0.2);
-}
-
-.real-card--dark .real-card__desc {
-  color: rgba(250, 250, 248, 0.7);
-}
-
-.real-card--dark .real-card__type {
-  color: rgba(250, 250, 248, 0.4);
-  border-color: rgba(250, 250, 248, 0.15);
-}
-
-.real-card--copper {
-  background-color: var(--color-accent);
-  color: var(--color-text-inverse);
-}
-
-.real-card--copper .real-card__tag {
-  color: rgba(255, 255, 255, 0.7);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.real-card--copper .real-card__desc {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.real-card--copper .real-card__type {
-  color: rgba(255, 255, 255, 0.5);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.real-card--light {
-  background-color: #e8eef2;
-}
-
-/* Dynamic dark background cards */
-.real-card--on-dark .real-card__tag {
-  color: rgba(255, 255, 255, 0.65);
-  border-color: rgba(255, 255, 255, 0.25);
-}
-.real-card--on-dark .real-card__title {
-  color: #fff;
-}
-.real-card--on-dark .real-card__desc {
-  color: rgba(255, 255, 255, 0.75);
-}
-.real-card--on-dark .real-card__type {
-  color: rgba(255, 255, 255, 0.45);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-.real-card--on-dark .real-card__thumbnail {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.real-card__tag {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--color-text-tertiary);
-  margin-bottom: 12px;
-  padding: 4px 8px;
-  border: 1px solid var(--color-border);
-  display: inline-block;
-  align-self: flex-start;
-  border-radius: 2px;
-}
-
-.real-card__title {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(24px, 3vw, 32px);
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  margin-bottom: 12px;
-}
-
-.real-card__desc {
-  font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.65;
-  color: var(--color-text-secondary);
-  margin-bottom: 20px;
-}
-
-.real-card__type {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--color-text-tertiary);
-  border-top: 1px solid var(--color-border);
-  padding-top: 14px;
-  margin-top: auto;
-}
-
-/* --- Thumbnail preview in cards --- */
-.real-card__thumbnail {
-  position: relative;
-  border-radius: 6px;
   overflow: hidden;
-  margin-bottom: 20px;
-  aspect-ratio: 16 / 10;
-  background: rgba(0,0,0,0.04);
+  text-decoration: none;
+  color: var(--onyx-text-body);
+  position: relative;
+  transition: transform 280ms var(--onyx-curve),
+              box-shadow 280ms var(--onyx-curve),
+              border-color 280ms var(--onyx-curve);
 }
-.real-card__thumbnail img {
+
+.onyx-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--onyx-border-strong);
+  box-shadow: 0 0 40px -10px var(--onyx-accent-glow), var(--onyx-shadow-lg);
+}
+
+/* Dynamic brand-color glow on hover */
+.onyx-card:hover {
+  border-color: color-mix(in srgb, var(--card-accent) 30%, transparent);
+  box-shadow: 0 0 50px -12px color-mix(in srgb, var(--card-accent) 20%, transparent),
+              var(--onyx-shadow-lg);
+}
+
+.onyx-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--onyx-bg), 0 0 0 5px var(--onyx-accent);
+}
+
+/* Grid spanning — 2-col base grid */
+.onyx-card[data-span="2x1"] { grid-column: span 2; }
+.onyx-card[data-span="1x1"] { grid-column: span 1; }
+
+/* --- Card Image / Screenshot --- */
+.onyx-card__img {
+  width: 100%;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.onyx-card[data-span="2x1"] .onyx-card__img { aspect-ratio: 2.4 / 1; }
+.onyx-card[data-span="1x1"] .onyx-card__img { aspect-ratio: 1.4 / 1; }
+
+.onyx-card__img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: top center;
   display: block;
-  transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+  transition: transform 500ms var(--onyx-curve);
 }
-.real-card:hover .real-card__thumbnail img {
-  transform: scale(1.04);
+
+.onyx-card:hover .onyx-card__img img {
+  transform: scale(1.05);
 }
-.real-card__thumbnail-overlay {
+
+.onyx-card__img--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 10;
+}
+
+/* Overlay on image */
+.onyx-card__img-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(26, 26, 26, 0);
+  background: rgba(20, 18, 16, 0);
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
   padding: 14px;
-  transition: background 0.3s ease;
+  transition: background 0.35s ease;
 }
-.real-card:hover .real-card__thumbnail-overlay {
-  background: rgba(26, 26, 26, 0.25);
+
+.onyx-card:hover .onyx-card__img-overlay {
+  background: rgba(20, 18, 16, 0.40);
 }
-.real-card__view-label {
+
+.onyx-card__view {
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 600;
   color: #fff;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  padding: 6px 14px;
+  background: rgba(20, 18, 16, 0.70);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 7px 16px;
   border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1969,81 +1978,162 @@ button {
   transform: translateY(8px);
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
-.real-card:hover .real-card__view-label {
+
+.onyx-card:hover .onyx-card__view {
   opacity: 1;
   transform: translateY(0);
 }
-/* Dark card thumbnail adjustments */
-.real-card--dark .real-card__thumbnail,
-.real-card--copper .real-card__thumbnail {
-  background: rgba(255,255,255,0.08);
-}
-.real-card--dark .real-card__thumbnail-overlay,
-.real-card--copper .real-card__thumbnail-overlay {}
 
-/* --- Early adopter (no portfolio yet) --- */
-.realisations__early {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 60px 40px;
-  background: var(--color-bg-alt);
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
+/* --- Card Body --- */
+.onyx-card__body {
+  padding: clamp(16px, 2vw, 24px);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
-.realisations__early-icon {
-  margin-bottom: 24px;
+.onyx-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
-.realisations__early-title {
-  font-family: var(--font-serif);
-  font-size: clamp(24px, 3vw, 32px);
-  margin-bottom: 16px;
-  color: var(--color-text);
+.onyx-card__name {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 1.8vw, 1.375rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--onyx-text-heading);
+  margin: 0;
 }
 
-.realisations__early-desc {
+.onyx-card__industry {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--onyx-text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--onyx-border);
+  padding: 3px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.onyx-card__desc {
   font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.7;
-  color: var(--color-text-secondary);
-  max-width: 500px;
-  margin: 0 auto 32px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--onyx-text-muted);
+  margin: 0;
+  flex-grow: 1;
 }
 
-.realisations__early-desc strong {
-  color: var(--color-accent);
-  font-weight: 600;
+/* Services tags */
+.onyx-card__services {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--onyx-border);
 }
 
-.realisations__early-perks {
+.onyx-card__service-tag {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+  color: var(--onyx-text-dim);
+  border: 1px solid var(--onyx-border);
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: transparent;
+  transition: color 200ms ease, border-color 200ms ease;
+}
+
+.onyx-card:hover .onyx-card__service-tag {
+  color: var(--onyx-text-muted);
+  border-color: var(--onyx-border-strong);
+}
+
+.onyx-card__service-tag--more {
+  color: var(--onyx-accent);
+  border-color: rgba(196, 98, 42, 0.2);
+}
+
+/* --- Entrance animations (works with existing JS observer) --- */
+.onyx-card.reveal-item {
+  opacity: 0;
+  transform: translateY(24px) scale(0.97);
+  transition: opacity 0.7s var(--onyx-curve),
+              transform 0.7s var(--onyx-curve);
+}
+
+.onyx-card.reveal-item.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* --- Early adopter empty state --- */
+.onyx-card--empty {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.onyx-showcase__early-perks {
   display: flex;
   justify-content: center;
   gap: 24px;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
   flex-wrap: wrap;
 }
 
-.realisations__early-perk {
+.onyx-showcase__perk {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-text);
+  color: var(--onyx-text-body);
 }
 
-.realisations__early-perk svg {
-  color: var(--color-accent);
-  flex-shrink: 0;
+.onyx-showcase__cta {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--onyx-bg);
+  background: var(--onyx-accent);
+  padding: 12px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 200ms ease, transform 200ms var(--onyx-curve);
 }
 
-@media (max-width: 480px) {
-  .realisations__early {
-    padding: 40px 24px;
+.onyx-showcase__cta:hover {
+  background: #dc7b45;
+  transform: translateY(-2px);
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .onyx-showcase__grid {
+    grid-template-columns: 1fr;
   }
-  .realisations__early-perks {
+  .onyx-card[data-span="2x1"],
+  .onyx-card[data-span="1x1"] {
+    grid-column: span 1;
+  }
+  .onyx-card .onyx-card__img {
+    aspect-ratio: 16 / 10 !important;
+  }
+  .onyx-showcase__early-perks {
     flex-direction: column;
     align-items: center;
     gap: 12px;
@@ -2542,14 +2632,6 @@ button {
     grid-row: span 1;
   }
 
-  .realisations__grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .real-card--featured {
-    grid-row: span 1;
-    min-height: 280px;
-  }
 }
 
 
@@ -2594,14 +2676,6 @@ button {
 
   .services__grid {
     grid-template-columns: 1fr;
-  }
-
-  .realisations__grid {
-    grid-template-columns: 1fr;
-  }
-
-  .real-card--featured {
-    min-height: 240px;
   }
 
   .equipe__grid {
@@ -2692,10 +2766,6 @@ button {
     padding: 28px;
   }
 
-  .real-card {
-    padding: 28px;
-    min-height: 200px;
-  }
 
   .methode__timeline::before {
     display: none;
@@ -2957,44 +3027,7 @@ button {
   width: 100%;
 }
 
-/* ---- REALISATION CARDS: Scale reveal ---- */
-.real-card {
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.5s ease;
-  overflow: hidden;
-  position: relative;
-}
-
-.real-card.reveal-item {
-  transform: scale(0.95) translateY(20px);
-  opacity: 0;
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.real-card.reveal-item.is-visible {
-  transform: scale(1) translateY(0);
-  opacity: 1;
-}
-
-.real-card:hover {
-  transform: scale(1) translateY(-4px);
-}
-
-/* ---- REAL-CARD: Gradient overlay on hover ---- */
-.real-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(196, 98, 42, 0.08) 0%, rgba(196, 98, 42, 0) 60%);
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-}
-
-.real-card:hover::after {
-  opacity: 1;
-}
+/* ---- REALISATION CARDS: (now handled by .onyx-card in Onyx Showcase) ---- */
 
 /* ---- EQUIPE: Card reveal animation ---- */
 .equipe__card .equipe__card-inner {
@@ -3147,11 +3180,7 @@ button {
   transform: translateY(-4px);
 }
 
-/* ---- REAL CARD TAG: typewriter effect via JS ---- */
-.real-card__tag[data-typewriter-card] {
-  overflow: hidden;
-  display: inline-block;
-}
+/* ---- (real-card tag typewriter removed — now using onyx-card) ---- */
 
 /* ============================================================
    MARQUEE (replaces dark ticker)
@@ -3671,32 +3700,11 @@ button {
   background-position: -200% 0;
 }
 
-/* Real card shimmer — overrides the existing ::after gradient overlay */
-.real-card::after {
-  background: linear-gradient(
-    105deg,
-    rgba(196, 98, 42, 0.04) 0%,
-    rgba(196, 98, 42, 0) 50%,
-    rgba(255, 255, 255, 0.05) 70%,
-    transparent 85%
-  );
-  background-size: 200% 100%;
-  background-position: 200% 0;
-  transition: background-position 0.7s ease, opacity 0.5s ease;
-  opacity: 0;
-}
-
-.real-card:hover::after {
-  background-position: -200% 0;
-  opacity: 1;
-}
-
-
 /* ============================================================
    STAGGER ENTRANCE — improved cubic bezier for cards
    ============================================================ */
 .services__grid .reveal-item,
-.realisations__grid .reveal-item {
+.onyx-showcase__grid .reveal-item {
   transition-timing-function: cubic-bezier(0.2, 0.9, 0.2, 1);
   transition-duration: 0.75s;
 }
@@ -4144,7 +4152,7 @@ button {
   .manifesto__word,
   .reveal-item--from-left,
   .reveal-item--from-right,
-  .real-card.reveal-item,
+  .onyx-card.reveal-item,
   .equipe__card .equipe__card-inner,
   .equipe__quote-text .quote-word,
   .methode__timeline-line,
