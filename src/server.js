@@ -4,9 +4,16 @@ const path = require('path');
 const multer = require('multer');
 const clientsDb = require('./db/clients');
 const leadsDb = require('./db/leads');
-const { Resend } = require('resend');
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+let resend = null;
+try {
+  const { Resend } = require('resend');
+  if (process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+} catch (e) {
+  console.warn('[WARN] Resend not available:', e.message);
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
