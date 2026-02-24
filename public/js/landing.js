@@ -687,26 +687,6 @@
     sectionObserver.observe(revealSections[k]);
   }
 
-  /* Floating reaction bubbles */
-  var bubbleObserver = new IntersectionObserver(
-    function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          var bubbles = entry.target.querySelectorAll('.float-bubble');
-          for (var b = 0; b < bubbles.length; b++) {
-            bubbles[b].classList.add('is-visible');
-          }
-          bubbleObserver.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.3 }
-  );
-  var floatingGroups = document.querySelectorAll('.floating-reactions');
-  for (var fg = 0; fg < floatingGroups.length; fg++) {
-    bubbleObserver.observe(floatingGroups[fg]);
-  }
-
   /* Item-level with stagger */
   var itemObserver = new IntersectionObserver(
     function (entries) {
