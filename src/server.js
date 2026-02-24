@@ -6,7 +6,7 @@ const clientsDb = require('./db/clients');
 const leadsDb = require('./db/leads');
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -186,16 +186,20 @@ app.post('/api/leads', async (req, res) => {
       </div>
     `;
 
-    try {
-      await resend.emails.send({
-        from: 'La Traverse Studio <onboarding@resend.dev>',
-        to: ['hello@latraverse.studio'],
-        subject: `Nouveau lead : ${parcoursLabel} — ${email}`,
-        html: emailHtml,
-      });
-      console.log('[LEAD] Email sent for:', email, parcours);
-    } catch (emailErr) {
-      console.error('[LEAD] Email send failed:', emailErr.message);
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: 'La Traverse Studio <onboarding@resend.dev>',
+          to: ['hello@latraverse.studio'],
+          subject: `Nouveau lead : ${parcoursLabel} — ${email}`,
+          html: emailHtml,
+        });
+        console.log('[LEAD] Email sent for:', email, parcours);
+      } catch (emailErr) {
+        console.error('[LEAD] Email send failed:', emailErr.message);
+      }
+    } else {
+      console.warn('[LEAD] Resend not configured — skipping email notification');
     }
 
     console.log('[LEAD]', lead.created_at, '-', email, '-', parcours, '-', estimated_min + '-' + estimated_max + ' EUR');
