@@ -787,6 +787,134 @@ button {
   letter-spacing: 0.02em;
 }
 
+/* --- Floating Reaction Bubbles --- */
+.floating-reactions {
+  position: relative;
+  width: 100%;
+  max-width: var(--wide-max);
+  margin: 0 auto;
+  height: 120px;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.float-bubble {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px 10px 10px;
+  background: rgba(30, 28, 26, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(196, 98, 42, 0.15);
+  border-radius: 999px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.float-bubble.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.float-bubble__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.float-bubble__text {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.01em;
+}
+
+.float-bubble__emoji {
+  font-size: 16px;
+  flex-shrink: 0;
+  display: none;
+}
+
+/* Positions & rotations for each bubble */
+.float-bubble--1 { left: 5%; top: 10px; transform: translateY(20px) rotate(-2deg); }
+.float-bubble--1.is-visible { transform: translateY(0) rotate(-2deg); }
+
+.float-bubble--2 { right: 8%; top: 0; transform: translateY(20px) rotate(1.5deg); }
+.float-bubble--2.is-visible { transform: translateY(0) rotate(1.5deg); }
+
+.float-bubble--3 { left: 15%; top: 64px; transform: translateY(20px) rotate(1deg); }
+.float-bubble--3.is-visible { transform: translateY(0) rotate(1deg); }
+
+.float-bubble--4 { right: 5%; top: 10px; transform: translateY(20px) rotate(-1.5deg); }
+.float-bubble--4.is-visible { transform: translateY(0) rotate(-1.5deg); }
+
+.float-bubble--5 { left: 8%; top: 50px; transform: translateY(20px) rotate(2deg); }
+.float-bubble--5.is-visible { transform: translateY(0) rotate(2deg); }
+
+.float-bubble--6 { left: 3%; top: 5px; transform: translateY(20px) rotate(1.5deg); }
+.float-bubble--6.is-visible { transform: translateY(0) rotate(1.5deg); }
+
+.float-bubble--7 { right: 5%; top: 15px; transform: translateY(20px) rotate(-2.5deg); }
+.float-bubble--7.is-visible { transform: translateY(0) rotate(-2.5deg); }
+
+.float-bubble--8 { left: 20%; top: 70px; transform: translateY(20px) rotate(-1deg); }
+.float-bubble--8.is-visible { transform: translateY(0) rotate(-1deg); }
+
+/* Stagger delays */
+.float-bubble--1 { transition-delay: 0s; }
+.float-bubble--2 { transition-delay: 0.15s; }
+.float-bubble--3 { transition-delay: 0.3s; }
+.float-bubble--4 { transition-delay: 0s; }
+.float-bubble--5 { transition-delay: 0.2s; }
+.float-bubble--6 { transition-delay: 0s; }
+.float-bubble--7 { transition-delay: 0.15s; }
+.float-bubble--8 { transition-delay: 0.3s; }
+
+/* Gentle floating animation */
+@keyframes floatBubble {
+  0%, 100% { transform: translateY(0) rotate(var(--rot, -2deg)); }
+  50% { transform: translateY(-6px) rotate(var(--rot, -2deg)); }
+}
+
+.float-bubble--1.is-visible { --rot: -2deg; animation: floatBubble 4s ease-in-out 1s infinite; }
+.float-bubble--2.is-visible { --rot: 1.5deg; animation: floatBubble 4.5s ease-in-out 1.2s infinite; }
+.float-bubble--3.is-visible { --rot: 1deg; animation: floatBubble 5s ease-in-out 0.8s infinite; }
+.float-bubble--4.is-visible { --rot: -1.5deg; animation: floatBubble 4.2s ease-in-out 1s infinite; }
+.float-bubble--5.is-visible { --rot: 2deg; animation: floatBubble 4.8s ease-in-out 0.6s infinite; }
+.float-bubble--6.is-visible { --rot: 1.5deg; animation: floatBubble 4.3s ease-in-out 0.9s infinite; }
+.float-bubble--7.is-visible { --rot: -2.5deg; animation: floatBubble 5.2s ease-in-out 1.1s infinite; }
+.float-bubble--8.is-visible { --rot: -1deg; animation: floatBubble 4.6s ease-in-out 0.7s infinite; }
+
+/* Responsive: hide on small screens, adjust on tablet */
+@media (max-width: 768px) {
+  .floating-reactions { display: none; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .floating-reactions { height: 100px; }
+  .float-bubble { padding: 8px 14px 8px 8px; }
+  .float-bubble__avatar { width: 28px; height: 28px; font-size: 11px; }
+  .float-bubble__text { font-size: 12px; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .float-bubble { animation: none !important; }
+}
+
 /* --- Tagline --- */
 .hero__tagline {
   position: relative;
