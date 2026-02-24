@@ -715,6 +715,12 @@ button {
   color: var(--color-accent);
 }
 
+.scene-clarity__line--sub {
+  font-size: clamp(15px, 2vw, 22px);
+  color: rgba(255,255,255,0.65);
+  margin-top: 4px;
+}
+
 /* --- Tagline --- */
 .hero__tagline {
   position: relative;

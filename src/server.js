@@ -84,6 +84,46 @@ app.post('/admin/clients/:id/delete', async (req, res) => {
   res.redirect('/admin');
 });
 
+// ===== API — CONTACT FORM =====
+
+const fs = require('fs');
+const CONTACTS_FILE = path.join(__dirname, '..', 'data', 'contacts.json');
+
+app.post('/api/contact', (req, res) => {
+  const { name, email, metier, message } = req.body;
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: 'Champs requis manquants' });
+  }
+
+  const entry = {
+    id: Date.now().toString(36),
+    name,
+    email,
+    metier: metier || '',
+    message,
+    date: new Date().toISOString()
+  };
+
+  // Stocker le message localement
+  try {
+    const dir = path.dirname(CONTACTS_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+    let contacts = [];
+    if (fs.existsSync(CONTACTS_FILE)) {
+      contacts = JSON.parse(fs.readFileSync(CONTACTS_FILE, 'utf-8'));
+    }
+    contacts.push(entry);
+    fs.writeFileSync(CONTACTS_FILE, JSON.stringify(contacts, null, 2));
+  } catch (err) {
+    console.error('Erreur stockage contact:', err.message);
+  }
+
+  console.log('[CONTACT]', entry.date, '-', name, '<' + email + '>', '-', metier || '(pas de metier)', '-', message.substring(0, 80));
+
+  res.json({ success: true, message: 'Message bien recu' });
+});
+
 // ===== API — AI AUTO-FILL =====
 
 app.post('/api/ai/analyze-url', async (req, res) => {

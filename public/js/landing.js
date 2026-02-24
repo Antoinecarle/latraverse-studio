@@ -140,7 +140,18 @@
         submitBtn.disabled = true;
         submitBtn.textContent = 'Envoi en cours...';
       }
-      setTimeout(function () {
+
+      var formData = new FormData(contactForm);
+      var payload = {};
+      formData.forEach(function(value, key) { payload[key] = value; });
+
+      fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
         contactForm.reset();
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -152,7 +163,22 @@
             formSuccess.classList.remove('is-visible');
           }, 5000);
         }
-      }, 800);
+      })
+      .catch(function() {
+        /* En cas d'erreur reseau, ouvrir le client mail en fallback */
+        var subject = encodeURIComponent('Contact depuis latraverse.studio');
+        var body = encodeURIComponent(
+          'Nom: ' + (payload.name || '') + '\n' +
+          'Email: ' + (payload.email || '') + '\n' +
+          'Metier: ' + (payload.metier || '') + '\n\n' +
+          (payload.message || '')
+        );
+        window.location.href = 'mailto:hello@latraverse.studio?subject=' + subject + '&body=' + body;
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Envoyer <span class="btn__arrow">&rarr;</span>';
+        }
+      });
     });
   }
 
