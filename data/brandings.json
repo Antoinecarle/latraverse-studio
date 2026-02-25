@@ -1,0 +1,104 @@
+[
+  {
+    "id": "1e69b72a-eb32-41b7-b659-fd508dfe85a2",
+    "name": "Promo Ete 2026",
+    "state": {
+      "format": {
+        "w": 1080,
+        "h": 1080,
+        "label": "Post"
+      },
+      "template": "minimal",
+      "headline": "Studio digital",
+      "subline": "Marseille",
+      "body": "Sites, apps et outils sur-mesure pour artisans, commercants et independants.",
+      "cta": "latraverse.studio",
+      "bgColor": "#1a1714",
+      "textColor": "#f0e8dc",
+      "accentColor": "#c4622a",
+      "showLogo": true,
+      "showBorder": true,
+      "showGrain": false,
+      "showVignette": false,
+      "bgImage": null,
+      "bgOpacity": 70,
+      "bgBlur": 0,
+      "gradient": {
+        "enabled": false,
+        "angle": 135,
+        "start": "#c4622a",
+        "end": "#1a1714"
+      },
+      "typoHeadline": {
+        "font": "'Playfair Display', serif",
+        "size": 48,
+        "weight": "700",
+        "align": "left",
+        "case": "none",
+        "lh": 110,
+        "ls": 0
+      },
+      "typoBody": {
+        "font": "'Libre Baskerville', serif",
+        "size": 15,
+        "weight": "400"
+      },
+      "fxShadow": 0,
+      "fxGlow": 0,
+      "fxOutline": false
+    },
+    "created_at": "2026-02-25T15:57:31.415Z",
+    "updated_at": "2026-02-25T15:58:38.819Z"
+  },
+  {
+    "id": "b874fba0-e5c9-49bb-81c1-f8e95bbe9d27",
+    "name": "Sans titre",
+    "state": {
+      "format": {
+        "w": 1080,
+        "h": 1080,
+        "label": "Post"
+      },
+      "template": "bold",
+      "headline": "Studio digital",
+      "subline": "Marseille",
+      "body": "Sites, apps et outils sur-mesure pour artisans, commercants et independants.",
+      "cta": "latraverse.studio",
+      "bgColor": "#0a0a0a",
+      "textColor": "#f0e8dc",
+      "accentColor": "#c4622a",
+      "showLogo": true,
+      "showBorder": true,
+      "showGrain": false,
+      "showVignette": false,
+      "bgImage": null,
+      "bgOpacity": 70,
+      "bgBlur": 0,
+      "gradient": {
+        "enabled": false,
+        "angle": 135,
+        "start": "#c4622a",
+        "end": "#1a1714"
+      },
+      "typoHeadline": {
+        "font": "'Playfair Display', serif",
+        "size": 48,
+        "weight": "700",
+        "align": "left",
+        "case": "none",
+        "lh": 110,
+        "ls": 0
+      },
+      "typoBody": {
+        "font": "'Libre Baskerville', serif",
+        "size": 15,
+        "weight": "400"
+      },
+      "fxShadow": 0,
+      "fxGlow": 0,
+      "fxOutline": false
+    },
+    "created_at": "2026-02-25T15:55:04.201Z",
+    "updated_at": "2026-02-25T15:57:31.405Z"
+  }
+]

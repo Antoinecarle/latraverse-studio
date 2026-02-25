@@ -56,6 +56,231 @@
 
   let state = getDefaultState();
 
+  // ============ PUB PERSISTENCE ============
+  let currentPubId = null;
+  let autoSaveTimer = null;
+  let isSaving = false;
+  const AUTOSAVE_DELAY = 1200;
+
+  const pubNameInput = document.getElementById('pub-name');
+  const pubToggle = document.getElementById('pub-toggle');
+  const pubDropdown = document.getElementById('pub-dropdown');
+  const pubList = document.getElementById('pub-list');
+  const pubEmpty = document.getElementById('pub-empty');
+  const saveIndicator = document.getElementById('save-indicator');
+  const btnNewPub = document.getElementById('btn-new-pub');
+
+  function showSaveStatus(status) {
+    if (!saveIndicator) return;
+    saveIndicator.className = 'save-indicator ' + status;
+    if (status === 'saving') saveIndicator.textContent = 'Sauvegarde...';
+    else if (status === 'saved') saveIndicator.textContent = 'OK';
+    else if (status === 'error') saveIndicator.textContent = 'Erreur';
+    else saveIndicator.textContent = '';
+    if (status === 'saved') {
+      setTimeout(() => { if (saveIndicator.classList.contains('saved')) saveIndicator.textContent = ''; }, 2000);
+    }
+  }
+
+  async function uploadBgIfDataUrl() {
+    if (!state.bgImage || !state.bgImage.startsWith('data:')) return;
+    try {
+      const match = state.bgImage.match(/^data:(image\/\w+);base64,(.+)$/);
+      if (!match) return;
+      const res = await fetch('/api/branding/upload-base64', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mimeType: match[1], data: match[2] }),
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        state.bgImage = data.url;
+        canvasBgImage.style.backgroundImage = 'url(' + data.url + ')';
+      }
+    } catch (e) { /* ignore upload errors during auto-save */ }
+  }
+
+  async function autoSave() {
+    if (!currentPubId || isSaving) return;
+    isSaving = true;
+    showSaveStatus('saving');
+    try {
+      await uploadBgIfDataUrl();
+      const stateToSave = JSON.parse(JSON.stringify(state));
+      delete stateToSave.zoom;
+      delete stateToSave.gridVisible;
+      await fetch('/api/brandings/' + currentPubId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state: stateToSave, name: pubNameInput ? pubNameInput.value : undefined }),
+      });
+      showSaveStatus('saved');
+    } catch (e) {
+      showSaveStatus('error');
+    }
+    isSaving = false;
+  }
+
+  function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(autoSave, AUTOSAVE_DELAY);
+  }
+
+  async function createNewPub(name) {
+    try {
+      const res = await fetch('/api/brandings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name || 'Sans titre', state: getDefaultState() }),
+      });
+      const pub = await res.json();
+      currentPubId = pub.id;
+      localStorage.setItem('branding_last_pub', pub.id);
+      state = getDefaultState();
+      historyPaused = true;
+      restoreFromState();
+      historyPaused = false;
+      history = [JSON.parse(JSON.stringify(state))];
+      historyIndex = 0;
+      updateUndoRedoButtons();
+      if (pubNameInput) pubNameInput.value = pub.name;
+      loadPubList();
+      return pub;
+    } catch (e) {
+      console.error('Create pub error:', e);
+    }
+  }
+
+  async function loadPub(id) {
+    try {
+      const res = await fetch('/api/brandings/' + id);
+      if (!res.ok) return false;
+      const pub = await res.json();
+      currentPubId = pub.id;
+      localStorage.setItem('branding_last_pub', pub.id);
+      state = Object.assign(getDefaultState(), pub.state || {});
+      historyPaused = true;
+      restoreFromState();
+      historyPaused = false;
+      history = [JSON.parse(JSON.stringify(state))];
+      historyIndex = 0;
+      updateUndoRedoButtons();
+      if (pubNameInput) pubNameInput.value = pub.name || 'Sans titre';
+      return true;
+    } catch (e) {
+      console.error('Load pub error:', e);
+      return false;
+    }
+  }
+
+  async function deletePub(id) {
+    try {
+      await fetch('/api/brandings/' + id, { method: 'DELETE' });
+      if (currentPubId === id) {
+        currentPubId = null;
+        const list = await (await fetch('/api/brandings')).json();
+        if (list.brandings && list.brandings.length > 0) {
+          await loadPub(list.brandings[0].id);
+        } else {
+          await createNewPub();
+        }
+      }
+      loadPubList();
+    } catch (e) {
+      console.error('Delete pub error:', e);
+    }
+  }
+
+  async function loadPubList() {
+    try {
+      const res = await fetch('/api/brandings');
+      const data = await res.json();
+      const items = data.brandings || [];
+      if (items.length === 0) {
+        if (pubList) pubList.innerHTML = '';
+        if (pubEmpty) pubEmpty.style.display = '';
+        return;
+      }
+      if (pubEmpty) pubEmpty.style.display = 'none';
+      if (pubList) {
+        pubList.innerHTML = items.map(b => {
+          const isActive = b.id === currentPubId;
+          const date = new Date(b.updated_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+          return '<div class="pub-item' + (isActive ? ' active' : '') + '" data-id="' + b.id + '">' +
+            '<div class="pub-item__info">' +
+              '<div class="pub-item__name">' + (b.name || 'Sans titre') + '</div>' +
+              '<div class="pub-item__meta">' + (b.template || 'minimal') + ' &middot; ' + (b.format || 'Post') + ' &middot; ' + date + '</div>' +
+            '</div>' +
+            (isActive ? '' : '<button class="pub-item__delete" data-id="' + b.id + '" title="Supprimer">&times;</button>') +
+          '</div>';
+        }).join('');
+        pubList.querySelectorAll('.pub-item').forEach(item => {
+          item.addEventListener('click', (e) => {
+            if (e.target.closest('.pub-item__delete')) return;
+            const id = item.dataset.id;
+            if (id !== currentPubId) {
+              autoSave().then(() => loadPub(id).then(() => {
+                loadPubList();
+                closePubDropdown();
+              }));
+            } else {
+              closePubDropdown();
+            }
+          });
+        });
+        pubList.querySelectorAll('.pub-item__delete').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm('Supprimer cette pub ?')) deletePub(btn.dataset.id);
+          });
+        });
+      }
+    } catch (e) {
+      console.error('Load pub list error:', e);
+    }
+  }
+
+  function closePubDropdown() {
+    if (pubDropdown) pubDropdown.classList.remove('open');
+    if (pubToggle) pubToggle.classList.remove('open');
+  }
+
+  // Pub name input — auto-save on change
+  if (pubNameInput) {
+    let nameTimer;
+    pubNameInput.addEventListener('input', () => {
+      clearTimeout(nameTimer);
+      nameTimer = setTimeout(scheduleAutoSave, 600);
+    });
+  }
+
+  // Toggle dropdown
+  if (pubToggle) pubToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = pubDropdown.classList.contains('open');
+    if (isOpen) {
+      closePubDropdown();
+    } else {
+      loadPubList();
+      pubDropdown.classList.add('open');
+      pubToggle.classList.add('open');
+    }
+  });
+
+  // Close dropdown on outside click
+  document.addEventListener('click', (e) => {
+    if (pubDropdown && !pubDropdown.contains(e.target) && !pubToggle.contains(e.target)) {
+      closePubDropdown();
+    }
+  });
+
+  // New pub button
+  if (btnNewPub) btnNewPub.addEventListener('click', async () => {
+    await autoSave();
+    await createNewPub();
+    closePubDropdown();
+  });
+
   // ============ HISTORY (Undo/Redo) ============
   let history = [JSON.parse(JSON.stringify(state))];
   let historyIndex = 0;
@@ -69,6 +294,7 @@
     if (history.length > MAX_HISTORY) history.shift();
     historyIndex = history.length - 1;
     updateUndoRedoButtons();
+    scheduleAutoSave();
   }
 
   function undo() {
@@ -603,6 +829,7 @@
 
   // ============ RESET ============
   document.getElementById('btn-reset').addEventListener('click', () => {
+    if (!confirm('Reinitialiser le design ? Les modifications seront perdues.')) return;
     state = getDefaultState();
     historyPaused = true;
     restoreFromState();
@@ -1136,13 +1363,45 @@
   }
 
   // ============ INIT ============
+  async function initPubs() {
+    const lastId = localStorage.getItem('branding_last_pub');
+    let loaded = false;
+    if (lastId) {
+      loaded = await loadPub(lastId);
+    }
+    if (!loaded) {
+      try {
+        const res = await fetch('/api/brandings');
+        const data = await res.json();
+        if (data.brandings && data.brandings.length > 0) {
+          loaded = await loadPub(data.brandings[0].id);
+        }
+      } catch (e) {}
+    }
+    if (!loaded) {
+      await createNewPub();
+    }
+  }
+
   updateCanvas();
   updateUndoRedoButtons();
+  initPubs();
 
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => updateCanvas(), 100);
+  });
+
+  // Save before leaving
+  window.addEventListener('beforeunload', () => {
+    if (currentPubId) {
+      const stateToSave = JSON.parse(JSON.stringify(state));
+      delete stateToSave.zoom;
+      delete stateToSave.gridVisible;
+      const body = JSON.stringify({ state: stateToSave, name: pubNameInput ? pubNameInput.value : undefined });
+      navigator.sendBeacon('/api/brandings/' + currentPubId, new Blob([body], { type: 'application/json' }));
+    }
   });
 
 })();

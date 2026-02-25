@@ -23,6 +23,26 @@
       <span class="topbar__title">Studio</span>
       <span class="topbar__badge">Pro</span>
     </div>
+    <div class="topbar__pub-selector">
+      <div class="pub-current" id="pub-current">
+        <input type="text" id="pub-name" class="pub-name-input" value="Sans titre" placeholder="Nom de la pub..." spellcheck="false">
+        <button class="pub-toggle" id="pub-toggle" title="Mes pubs">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5l4 4 4-4"/></svg>
+        </button>
+      </div>
+      <span class="save-indicator" id="save-indicator"></span>
+      <div class="pub-dropdown" id="pub-dropdown">
+        <div class="pub-dropdown__header">
+          <span>Mes pubs</span>
+          <button class="pub-dropdown__new" id="btn-new-pub" title="Nouvelle pub">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
+            Nouvelle
+          </button>
+        </div>
+        <div class="pub-dropdown__list" id="pub-list"></div>
+        <div class="pub-dropdown__empty" id="pub-empty">Aucune pub sauvegardee</div>
+      </div>
+    </div>
   </div>
 
   <div class="topbar__center">
@@ -34,6 +54,7 @@
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 7H6a4 4 0 000 8h3"/><path d="M10 4l3 3-3 3"/></svg>
       </button>
     </div>
+    <div class="topbar__sep"></div>
     <div class="topbar__zoom">
       <button class="topbar-btn" id="btn-zoom-out" title="Zoom -">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="7" x2="11" y2="7"/></svg>

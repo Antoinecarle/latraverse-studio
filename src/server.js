@@ -5,6 +5,7 @@ const multer = require('multer');
 const clientsDb = require('./db/clients');
 const leadsDb = require('./db/leads');
 const diagnosticsDb = require('./db/diagnostics');
+const brandingsDb = require('./db/brandings');
 
 let resend = null;
 try {
@@ -772,6 +773,59 @@ app.delete('/api/branding/images/:filename', (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Erreur lors de la suppression' });
   }
+});
+
+// ===== API — BRANDING DESIGNS (PUBS) =====
+
+// Upload a base64 bgImage and return a server URL
+app.post('/api/branding/upload-base64', (req, res) => {
+  const { data, mimeType } = req.body;
+  if (!data) return res.status(400).json({ error: 'Donnees manquantes' });
+  try {
+    const ext = (mimeType || 'image/png').includes('jpeg') ? '.jpg' : (mimeType || '').includes('webp') ? '.webp' : '.png';
+    const filename = 'bg-' + Date.now() + ext;
+    const filePath = path.join(BRANDING_DIR, filename);
+    fs.writeFileSync(filePath, Buffer.from(data, 'base64'));
+    res.json({ success: true, url: '/uploads/branding/' + filename });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur upload' });
+  }
+});
+
+// List all saved pubs
+app.get('/api/brandings', (req, res) => {
+  res.json({ brandings: brandingsDb.getAllBrandings() });
+});
+
+// Get a single pub
+app.get('/api/brandings/:id', (req, res) => {
+  const pub = brandingsDb.getBrandingById(req.params.id);
+  if (!pub) return res.status(404).json({ error: 'Pub introuvable' });
+  res.json(pub);
+});
+
+// Create a new pub
+app.post('/api/brandings', (req, res) => {
+  const pub = brandingsDb.createBranding(req.body);
+  res.json(pub);
+});
+
+// Update (auto-save) — PUT and POST both accepted (POST for sendBeacon)
+app.put('/api/brandings/:id', (req, res) => {
+  const updated = brandingsDb.updateBranding(req.params.id, req.body);
+  if (!updated) return res.status(404).json({ error: 'Pub introuvable' });
+  res.json(updated);
+});
+app.post('/api/brandings/:id', (req, res) => {
+  const updated = brandingsDb.updateBranding(req.params.id, req.body);
+  if (!updated) return res.status(404).json({ error: 'Pub introuvable' });
+  res.json(updated);
+});
+
+// Delete a pub
+app.delete('/api/brandings/:id', (req, res) => {
+  brandingsDb.deleteBranding(req.params.id);
+  res.json({ success: true });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
