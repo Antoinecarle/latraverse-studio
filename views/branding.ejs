@@ -397,6 +397,26 @@
         <div class="image-gallery" id="image-gallery"></div>
         <p class="gallery-hint" id="gallery-hint">Uploadez des images pour les utiliser</p>
       </section>
+
+      <section class="panel">
+        <h3 class="panel__title">Generation IA</h3>
+        <div class="field">
+          <label>Prompt</label>
+          <textarea id="ai-prompt" rows="3" placeholder="Decrivez l'image souhaitee..."></textarea>
+        </div>
+        <button class="btn--ai" id="btn-generate-ai">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v3M8 12v3M1 8h3M12 8h3M3 3l2 2M11 11l2 2M3 13l2-2M11 5l2-2"/></svg>
+          <span class="btn-ai-text">Generer l'image</span>
+        </button>
+        <div class="ai-error" id="ai-error" style="display:none"></div>
+        <div class="ai-result" id="ai-result" style="display:none">
+          <img id="ai-result-img" src="" alt="Image generee">
+          <div class="ai-result__actions">
+            <button class="btn btn--primary btn--sm" id="btn-ai-bg">Utiliser en fond</button>
+            <button class="btn btn--ghost btn--sm" id="btn-ai-save">Sauvegarder</button>
+          </div>
+        </div>
+      </section>
     </div>
   </aside>
 
@@ -410,6 +430,7 @@
         <div class="canvas__bgimage" id="canvas-bgimage"></div>
         <div class="canvas__vignette" id="canvas-vignette"></div>
         <div class="canvas__decorations" id="canvas-decorations"></div>
+        <div class="canvas__glass-panel" id="canvas-glass-panel"></div>
         <div class="canvas__content">
           <div class="canvas__logo" id="canvas-logo">
             <svg viewBox="0 0 40 40" width="28" height="28" fill="none">
