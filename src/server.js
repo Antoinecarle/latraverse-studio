@@ -649,8 +649,8 @@ app.post('/api/capture-screenshot', async (req, res) => {
 
 // ===== API — BRANDING IMAGE GENERATION (Gemini) =====
 
-const GEMINI_API_KEY = 'AIzaSyBu9gEWvohlb84z9f8v7R2l5NHgJSZ4fCc';
-const GEMINI_MODEL = 'gemini-2.0-flash-exp';
+const GEMINI_API_KEY = process.env.GOOGLE_AI_API_KEY;
+const GEMINI_MODEL = 'gemini-2.5-flash-image';
 const GEMINI_IMAGE_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
 app.post('/api/branding/generate-image', async (req, res) => {
