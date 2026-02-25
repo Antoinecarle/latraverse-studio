@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ override: true });
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
@@ -210,20 +210,26 @@ app.post('/admin/leads/:id/delete', async (req, res) => {
 
 // Admin — view diagnostic detail
 app.get('/admin/diagnostic/:id', async (req, res) => {
-  const diagnostic = await diagnosticsDb.getDiagnosticById(req.params.id);
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.redirect('/admin');
+  const diagnostic = await diagnosticsDb.getDiagnosticById(id);
   if (!diagnostic) return res.redirect('/admin');
   res.render('admin/diagnostic/view', { diagnostic });
 });
 
 // Admin — update diagnostic status
 app.post('/admin/diagnostic/:id/status', async (req, res) => {
-  await diagnosticsDb.updateDiagnosticStatus(req.params.id, req.body.status);
-  res.redirect('/admin/diagnostic/' + req.params.id);
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.redirect('/admin');
+  await diagnosticsDb.updateDiagnosticStatus(id, req.body.status);
+  res.redirect('/admin/diagnostic/' + id);
 });
 
 // Admin — delete diagnostic
 app.post('/admin/diagnostic/:id/delete', async (req, res) => {
-  await diagnosticsDb.deleteDiagnostic(req.params.id);
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.redirect('/admin');
+  await diagnosticsDb.deleteDiagnostic(id);
   res.redirect('/admin');
 });
 
