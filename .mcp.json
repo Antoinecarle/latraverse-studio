@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "antoine-orchestrator": {
+      "type": "sse",
+      "url": "https://guru-api-production.up.railway.app/mcp/antoine-orchestrator/sse?key=gru_9ae984d88f8946f8b5e47bd1e878cbb334d8434d8ae8c9d5ba41376f2f4ef8e5"
+    }
+  }
+}

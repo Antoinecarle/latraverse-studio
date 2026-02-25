@@ -21,8 +21,10 @@ const PORT = process.env.PORT || 3000;
 
 // Uploads directory
 const UPLOADS_DIR = path.join(__dirname, '..', 'public', 'uploads');
+const BRANDING_DIR = path.join(UPLOADS_DIR, 'branding');
 const fs = require('fs');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+if (!fs.existsSync(BRANDING_DIR)) fs.mkdirSync(BRANDING_DIR, { recursive: true });
 
 // Multer config for screenshot uploads
 const upload = multer({
@@ -98,6 +100,11 @@ app.get('/confidentialite', (req, res) => {
 // Page 5 — Diagnostic client (public onboarding form)
 app.get('/diagnostic', (req, res) => {
   res.render('diagnostic');
+});
+
+// Page 6 — Branding Studio (visual design tool)
+app.get('/branding', (req, res) => {
+  res.render('branding');
 });
 
 // ===== API — DIAGNOSTIC =====
@@ -637,6 +644,127 @@ app.post('/api/capture-screenshot', async (req, res) => {
   } catch (err) {
     console.error('Screenshot capture error:', err.message);
     res.status(500).json({ error: 'Erreur lors de la capture', message: err.message });
+  }
+});
+
+// ===== API — BRANDING IMAGE GENERATION (Gemini) =====
+
+const GEMINI_API_KEY = 'AIzaSyBu9gEWvohlb84z9f8v7R2l5NHgJSZ4fCc';
+const GEMINI_MODEL = 'gemini-2.0-flash-exp';
+const GEMINI_IMAGE_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+app.post('/api/branding/generate-image', async (req, res) => {
+  const { prompt, aspectRatio } = req.body;
+  if (!prompt) return res.status(400).json({ error: 'Prompt requis' });
+
+  try {
+    console.log('[GEMINI] Generating image:', prompt);
+
+    const geminiRes = await fetch(GEMINI_IMAGE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseModalities: ['IMAGE', 'TEXT'],
+        },
+      }),
+    });
+
+    const data = await geminiRes.json();
+
+    if (!geminiRes.ok) {
+      console.error('[GEMINI] API error:', JSON.stringify(data));
+      return res.status(500).json({ error: 'Erreur API Gemini', details: data });
+    }
+
+    // Extract base64 image from response
+    const candidates = data.candidates;
+    if (!candidates || !candidates[0] || !candidates[0].content || !candidates[0].content.parts) {
+      return res.status(500).json({ error: 'Reponse Gemini invalide', details: data });
+    }
+
+    const parts = candidates[0].content.parts;
+    const imagePart = parts.find(p => p.inlineData);
+
+    if (!imagePart) {
+      return res.status(500).json({ error: 'Aucune image dans la reponse Gemini' });
+    }
+
+    const { mimeType, data: base64Data } = imagePart.inlineData;
+    const ext = mimeType === 'image/jpeg' ? '.jpg' : mimeType === 'image/webp' ? '.webp' : '.png';
+    const filename = 'gemini-' + Date.now() + ext;
+    const filePath = path.join(BRANDING_DIR, filename);
+
+    // Decode and save
+    fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+
+    const url = '/uploads/branding/' + filename;
+    console.log('[GEMINI] Image saved:', filename);
+    res.json({ success: true, url, filename });
+  } catch (err) {
+    console.error('[GEMINI] Generation error:', err);
+    res.status(500).json({ error: 'Erreur lors de la generation', message: err.message });
+  }
+});
+
+// ===== API — BRANDING IMAGES =====
+
+const brandingUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, BRANDING_DIR),
+    filename: (req, file, cb) => {
+      const ext = path.extname(file.originalname) || '.png';
+      const name = file.originalname.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 40);
+      cb(null, name + '-' + Date.now() + ext);
+    }
+  }),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = /\.(jpg|jpeg|png|webp|gif|svg)$/i;
+    if (allowed.test(path.extname(file.originalname))) return cb(null, true);
+    cb(new Error('Format image non supporte'));
+  }
+});
+
+// Upload branding image
+app.post('/api/branding/upload', brandingUpload.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Aucun fichier envoye' });
+  const url = '/uploads/branding/' + req.file.filename;
+  res.json({ success: true, url, filename: req.file.filename });
+});
+
+// List branding images
+app.get('/api/branding/images', (req, res) => {
+  try {
+    const files = fs.readdirSync(BRANDING_DIR)
+      .filter(f => /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(f))
+      .map(f => {
+        const stat = fs.statSync(path.join(BRANDING_DIR, f));
+        return {
+          filename: f,
+          url: '/uploads/branding/' + f,
+          size: stat.size,
+          created: stat.mtime.toISOString(),
+        };
+      })
+      .sort((a, b) => new Date(b.created) - new Date(a.created));
+    res.json({ images: files });
+  } catch (err) {
+    res.json({ images: [] });
+  }
+});
+
+// Delete branding image
+app.delete('/api/branding/images/:filename', (req, res) => {
+  const filename = req.params.filename.replace(/[^a-zA-Z0-9_.\-]/g, '');
+  const filePath = path.join(BRANDING_DIR, filename);
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Image introuvable' });
+  try {
+    fs.unlinkSync(filePath);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur lors de la suppression' });
   }
 });
 
