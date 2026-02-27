@@ -81,6 +81,7 @@
       opacityBody: 100,
       opacityCta: 100,
       headlineRotation: 0,
+      headlineDecoration: 'none',
       zoom: 100,
       gridVisible: false,
       stickers: [],
@@ -1434,6 +1435,50 @@
     canvasHeadline.style.transformOrigin = 'center center';
   }
 
+  // Headline decoration
+  document.querySelectorAll('.hdeco-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.hdeco-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.headlineDecoration = btn.dataset.deco;
+      applyHeadlineDecoration();
+      pushHistory();
+    });
+  });
+
+  function applyHeadlineDecoration() {
+    if (!canvasHeadline) return;
+    var deco = state.headlineDecoration || 'none';
+    var accent = state.accentColor || '#c4622a';
+    canvasHeadline.style.textDecoration = '';
+    canvasHeadline.style.textDecorationColor = '';
+    canvasHeadline.style.textDecorationStyle = '';
+    canvasHeadline.style.textUnderlineOffset = '';
+    canvasHeadline.style.borderBottom = '';
+    canvasHeadline.style.paddingBottom = '';
+    canvasHeadline.setAttribute('data-headline-deco', deco);
+    switch (deco) {
+      case 'underline':
+        canvasHeadline.style.textDecoration = 'underline';
+        canvasHeadline.style.textDecorationColor = accent;
+        canvasHeadline.style.textUnderlineOffset = '6px';
+        break;
+      case 'bar':
+        canvasHeadline.style.borderBottom = '4px solid ' + accent;
+        canvasHeadline.style.paddingBottom = '8px';
+        break;
+      case 'double':
+        canvasHeadline.style.textDecoration = 'underline';
+        canvasHeadline.style.textDecorationColor = accent;
+        canvasHeadline.style.textDecorationStyle = 'double';
+        canvasHeadline.style.textUnderlineOffset = '6px';
+        break;
+      case 'highlight':
+        canvasHeadline.style.setProperty('--deco-accent', accent);
+        break;
+    }
+  }
+
   document.getElementById('opt-grain').addEventListener('change', e => {
     state.showGrain = e.target.checked;
     canvasGrain.classList.toggle('visible', state.showGrain);
@@ -1720,25 +1765,57 @@
     if (exportQualityVal) exportQualityVal.textContent = exportQuality;
   });
 
+  /** Temporarily resize canvas to native resolution for crisp export.
+   *  Instead of capturing at ~500px and upscaling (blurry), we blow the
+   *  canvas up to the real target size so html2canvas renders text, SVG
+   *  and CSS effects at full resolution. */
+  function prepareCanvasForExport(targetW) {
+    var prevTransform = canvasWrapper.style.transform;
+    canvasWrapper.style.transform = '';
+    canvas.classList.add('exporting');
+    deselectStickers();
+
+    // Snapshot current pixel dimensions (set by updateCanvas)
+    var prevCanvasW = canvas.offsetWidth;
+    var prevCanvasH = canvas.offsetHeight;
+
+    // Resize canvas to native resolution
+    var nativeW = targetW;
+    var nativeH = Math.round(nativeW * (state.format.h / state.format.w));
+    canvas.style.width = nativeW + 'px';
+    canvas.style.height = nativeH + 'px';
+    canvasWrapper.style.width = nativeW + 'px';
+    canvasWrapper.style.height = nativeH + 'px';
+
+    // Re-apply typography at native scale so fonts are crisp
+    applyTypography(nativeW / 540);
+
+    return {
+      restore: function() {
+        // Restore exact previous display dimensions
+        canvas.style.width = prevCanvasW + 'px';
+        canvas.style.height = prevCanvasH + 'px';
+        canvasWrapper.style.width = prevCanvasW + 'px';
+        canvasWrapper.style.height = prevCanvasH + 'px';
+        canvasWrapper.style.transform = prevTransform;
+        canvas.classList.remove('exporting');
+        applyTypography(prevCanvasW / 540);
+      }
+    };
+  }
+
   function exportCanvas() {
-    const exportW = state.format.w * exportScaleMultiplier;
-    const currentW = canvas.offsetWidth;
-    const scale = exportW / currentW;
+    var exportW = state.format.w * exportScaleMultiplier;
 
     exportOverlay.classList.add('visible');
     if (exportDropdown) exportDropdown.style.display = 'none';
 
-    // Temporarily remove zoom for export
-    const prevTransform = canvasWrapper.style.transform;
-    canvasWrapper.style.transform = '';
-
-    // Hide sticker selection UI during export
-    canvas.classList.add('exporting');
-    deselectStickers();
+    // Resize canvas to native export resolution for crisp rendering
+    var snapshot = prepareCanvasForExport(exportW);
 
     setTimeout(() => {
       html2canvas(canvas, {
-        scale: scale,
+        scale: 1,
         width: canvas.offsetWidth,
         height: canvas.offsetHeight,
         useCORS: true,
@@ -1756,16 +1833,14 @@
         }
         link.click();
         exportOverlay.classList.remove('visible');
-        canvasWrapper.style.transform = prevTransform;
-        canvas.classList.remove('exporting');
+        snapshot.restore();
       }).catch(err => {
         console.error('Export error:', err);
         alert('Erreur lors de l\'export.');
         exportOverlay.classList.remove('visible');
-        canvasWrapper.style.transform = prevTransform;
-        canvas.classList.remove('exporting');
+        snapshot.restore();
       });
-    }, 100);
+    }, 200);
   }
 
   document.getElementById('btn-export').addEventListener('click', function() {
@@ -1780,21 +1855,17 @@
   var btnCopyClipboard = document.getElementById('btn-copy-clipboard');
   if (btnCopyClipboard) btnCopyClipboard.addEventListener('click', function() {
     var exportW = state.format.w * exportScaleMultiplier;
-    var currentW = canvas.offsetWidth;
-    var scale = exportW / currentW;
-
-    var prevTransform = canvasWrapper.style.transform;
-    canvasWrapper.style.transform = '';
-    canvas.classList.add('exporting');
-    deselectStickers();
 
     var btn = btnCopyClipboard;
     var origText = btn.innerHTML;
     btn.disabled = true;
 
+    // Resize canvas to native resolution for crisp copy
+    var snapshot = prepareCanvasForExport(exportW);
+
     setTimeout(function() {
       html2canvas(canvas, {
-        scale: scale,
+        scale: 1,
         width: canvas.offsetWidth,
         height: canvas.offsetHeight,
         useCORS: true,
@@ -1822,15 +1893,13 @@
             btn.disabled = false;
           }
         }, 'image/png');
-        canvasWrapper.style.transform = prevTransform;
-        canvas.classList.remove('exporting');
+        snapshot.restore();
       }).catch(function(err) {
         console.error('Copy error:', err);
-        canvasWrapper.style.transform = prevTransform;
-        canvas.classList.remove('exporting');
+        snapshot.restore();
         btn.disabled = false;
       });
-    }, 100);
+    }, 200);
   });
 
   // ============ AI IMAGE GENERATION ============
@@ -2045,6 +2114,7 @@
     applyCanvasPadding();
     applyElementOpacities();
     applyHeadlineRotation();
+    applyHeadlineDecoration();
     applyDecorations();
     renderStickers();
     applyZoom();
@@ -2883,6 +2953,9 @@
 
     // Headline rotation
     if (headlineRotSlider) { headlineRotSlider.value = state.headlineRotation || 0; if (headlineRotVal) headlineRotVal.textContent = (state.headlineRotation || 0) + '\u00b0'; }
+
+    // Headline decoration
+    document.querySelectorAll('.hdeco-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.deco === (state.headlineDecoration || 'none')); });
 
     // Stickers — restore counter to avoid ID conflicts
     if (state.stickers && state.stickers.length > 0) {
@@ -5136,18 +5209,15 @@
     if (progressWrap) progressWrap.style.display = 'block';
     if (progressBar) progressBar.style.width = '0%';
 
-    // Prepare canvas for export
-    var prevTransform = canvasWrapper.style.transform;
-    canvasWrapper.style.transform = '';
-    canvas.classList.add('exporting');
-    deselectStickers();
+    // Resize canvas to native resolution for crisp frames
+    var snapshot = prepareCanvasForExport(state.format.w);
 
     // Inject hover simulation CSS
     injectHoverSimulation();
 
     try {
       // Wait a beat for layout/CSS to settle
-      await new Promise(function(r) { setTimeout(r, 150); });
+      await new Promise(function(r) { setTimeout(r, 250); });
 
       // Capture frames
       var frames = await captureFrames(totalFrames, fps, function(done, total) {
@@ -5186,8 +5256,7 @@
       // Cleanup
       removeHoverSimulation();
       toggleHoverClass(false);
-      canvasWrapper.style.transform = prevTransform;
-      canvas.classList.remove('exporting');
+      snapshot.restore();
       exportOverlay.classList.remove('visible');
       if (progressWrap) progressWrap.style.display = 'none';
       if (progressBar) progressBar.style.width = '0%';

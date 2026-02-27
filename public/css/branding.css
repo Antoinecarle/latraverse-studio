@@ -3769,6 +3769,29 @@ input[type="range"]::-webkit-slider-thumb {
 .padding-preset:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
 .padding-preset.active { border-color: var(--accent); background: rgba(196,98,42,0.12); color: var(--accent); }
 
+/* ── Headline Decoration Buttons ── */
+.headline-deco-btns { display: flex; gap: 5px; }
+.hdeco-btn {
+  width: 34px; height: 28px; border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
+  color: var(--text-muted); font-size: 12px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.hdeco-btn:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+.hdeco-btn.active { border-color: var(--accent); background: rgba(196,98,42,0.12); color: var(--accent); }
+.hdeco-prev { display: inline-block; line-height: 1; }
+.hdeco-prev--underline { text-decoration: underline; text-underline-offset: 3px; }
+.hdeco-prev--bar { border-bottom: 2px solid currentColor; padding-bottom: 2px; }
+.hdeco-prev--double { text-decoration: underline double; text-underline-offset: 3px; }
+.hdeco-prev--highlight { background: rgba(196,98,42,0.25); padding: 0 3px; border-radius: 2px; }
+
+/* Canvas headline highlight decoration — uses box-shadow for compatibility with gradient text */
+.canvas__headline[data-headline-deco="highlight"] {
+  box-shadow: inset 0 -0.4em 0 0 var(--deco-accent, rgba(196,98,42,0.3));
+  padding: 0 0.15em;
+}
+
 /* ── Border Style Buttons ── */
 .border-style-btns { display: flex; gap: 6px; flex-wrap: wrap; }
 .border-style-btn {
