@@ -88,6 +88,9 @@
       bgPatternScale: 20,
       bgPatternColor: '',
       ctaStyle: 'text',
+      ctaRadius: -1,
+      ctaPadV: 5,
+      ctaPadH: 12,
       canvasPadding: 10,
       contentGap: 0,
       headlineMaxW: 100,
@@ -852,10 +855,43 @@
       document.querySelectorAll('.cta-style-btn').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
       state.ctaStyle = btn.dataset.style;
+      // Show/hide CTA shape controls
+      var ctaShapeCtrl = document.getElementById('cta-shape-controls');
+      if (ctaShapeCtrl) ctaShapeCtrl.style.display = (state.ctaStyle !== 'text') ? '' : 'none';
       pushHistory();
       updateCanvas();
     });
   });
+
+  // CTA radius
+  var ctaRadiusSlider = document.getElementById('cta-radius');
+  var ctaRadiusVal = document.getElementById('cta-radius-val');
+  if (ctaRadiusSlider) ctaRadiusSlider.addEventListener('input', function() {
+    state.ctaRadius = parseInt(ctaRadiusSlider.value);
+    if (ctaRadiusVal) ctaRadiusVal.textContent = ctaRadiusSlider.value;
+    applyCtaStyle();
+  });
+  if (ctaRadiusSlider) ctaRadiusSlider.addEventListener('change', function() { pushHistory(); });
+
+  // CTA padding vertical
+  var ctaPadVSlider = document.getElementById('cta-pad-v');
+  var ctaPadVVal = document.getElementById('cta-pad-v-val');
+  if (ctaPadVSlider) ctaPadVSlider.addEventListener('input', function() {
+    state.ctaPadV = parseInt(ctaPadVSlider.value);
+    if (ctaPadVVal) ctaPadVVal.textContent = (state.ctaPadV / 10).toFixed(1);
+    applyCtaStyle();
+  });
+  if (ctaPadVSlider) ctaPadVSlider.addEventListener('change', function() { pushHistory(); });
+
+  // CTA padding horizontal
+  var ctaPadHSlider = document.getElementById('cta-pad-h');
+  var ctaPadHVal = document.getElementById('cta-pad-h-val');
+  if (ctaPadHSlider) ctaPadHSlider.addEventListener('input', function() {
+    state.ctaPadH = parseInt(ctaPadHSlider.value);
+    if (ctaPadHVal) ctaPadHVal.textContent = (state.ctaPadH / 10).toFixed(1);
+    applyCtaStyle();
+  });
+  if (ctaPadHSlider) ctaPadHSlider.addEventListener('change', function() { pushHistory(); });
 
   function applyCtaStyle() {
     if (!canvasCta) return;
@@ -878,6 +914,22 @@
       canvasCta.style.background = '';
       canvasCta.style.color = state.ctaTextColor || '';
       canvasCta.style.borderColor = '';
+    }
+    // Custom CTA radius (-1 = use CSS default)
+    if (state.ctaRadius >= 0 && state.ctaStyle !== 'text') {
+      canvasCta.style.borderRadius = state.ctaRadius + 'px';
+    } else if (state.ctaStyle === 'pill') {
+      canvasCta.style.borderRadius = '999px';
+    } else {
+      canvasCta.style.borderRadius = '';
+    }
+    // Custom CTA padding
+    if (state.ctaStyle !== 'text') {
+      var pv = (state.ctaPadV != null ? state.ctaPadV : 5) / 10;
+      var ph = (state.ctaPadH != null ? state.ctaPadH : 12) / 10;
+      canvasCta.style.padding = pv + 'em ' + ph + 'em';
+    } else {
+      canvasCta.style.padding = '';
     }
   }
 
@@ -3591,6 +3643,11 @@
 
     // CTA style
     document.querySelectorAll('.cta-style-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.style === (state.ctaStyle || 'text')); });
+    var ctaShapeCtrl = document.getElementById('cta-shape-controls');
+    if (ctaShapeCtrl) ctaShapeCtrl.style.display = (state.ctaStyle !== 'text') ? '' : 'none';
+    if (ctaRadiusSlider) { ctaRadiusSlider.value = state.ctaRadius >= 0 ? state.ctaRadius : 6; if (ctaRadiusVal) ctaRadiusVal.textContent = state.ctaRadius >= 0 ? state.ctaRadius : 6; }
+    if (ctaPadVSlider) { ctaPadVSlider.value = state.ctaPadV != null ? state.ctaPadV : 5; if (ctaPadVVal) ctaPadVVal.textContent = ((state.ctaPadV != null ? state.ctaPadV : 5) / 10).toFixed(1); }
+    if (ctaPadHSlider) { ctaPadHSlider.value = state.ctaPadH != null ? state.ctaPadH : 12; if (ctaPadHVal) ctaPadHVal.textContent = ((state.ctaPadH != null ? state.ctaPadH : 12) / 10).toFixed(1); }
 
     // Custom element colors
     if (headlineColorInput) headlineColorInput.value = state.headlineColor || state.textColor || '#ffffff';
