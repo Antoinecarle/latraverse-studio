@@ -96,7 +96,9 @@
       canvasPadding: 10,
       contentGap: 0,
       headlineMaxW: 100,
+      sublineMaxW: 100,
       bodyMaxW: 100,
+      decoOpacity: 100,
       logoColor: '',
       opacitySubline: 100,
       opacityBody: 100,
@@ -1973,6 +1975,26 @@
   });
   if (bodyMaxWSlider) bodyMaxWSlider.addEventListener('change', function() { pushHistory(); });
 
+  // Subline max width
+  var sublineMaxWSlider = document.getElementById('subline-max-w');
+  var sublineMaxWVal = document.getElementById('subline-max-w-val');
+  if (sublineMaxWSlider) sublineMaxWSlider.addEventListener('input', function() {
+    state.sublineMaxW = parseInt(sublineMaxWSlider.value);
+    if (sublineMaxWVal) sublineMaxWVal.textContent = sublineMaxWSlider.value;
+    applySublineMaxW();
+  });
+  if (sublineMaxWSlider) sublineMaxWSlider.addEventListener('change', function() { pushHistory(); });
+
+  // Decoration opacity
+  var decoOpacitySlider = document.getElementById('deco-opacity');
+  var decoOpacityVal = document.getElementById('deco-opacity-val');
+  if (decoOpacitySlider) decoOpacitySlider.addEventListener('input', function() {
+    state.decoOpacity = parseInt(decoOpacitySlider.value);
+    if (decoOpacityVal) decoOpacityVal.textContent = decoOpacitySlider.value;
+    applyDecoOpacity();
+  });
+  if (decoOpacitySlider) decoOpacitySlider.addEventListener('change', function() { pushHistory(); });
+
   // Logo color
   var logoColorInput = document.getElementById('logo-color');
   var logoColorReset = document.getElementById('logo-color-reset');
@@ -2000,10 +2022,22 @@
     canvasHeadline.style.maxWidth = pct < 100 ? pct + '%' : '';
   }
 
+  function applySublineMaxW() {
+    if (!canvasSubline) return;
+    var pct = state.sublineMaxW != null ? state.sublineMaxW : 100;
+    canvasSubline.style.maxWidth = pct < 100 ? pct + '%' : '';
+  }
+
   function applyBodyMaxW() {
     if (!canvasBody) return;
     var pct = state.bodyMaxW != null ? state.bodyMaxW : 100;
     canvasBody.style.maxWidth = pct < 100 ? pct + '%' : '';
+  }
+
+  function applyDecoOpacity() {
+    if (!canvasDecorations) return;
+    var op = (state.decoOpacity != null ? state.decoOpacity : 100) / 100;
+    canvasDecorations.style.opacity = op < 1 ? op : '';
   }
 
   function applyLogoColor() {
@@ -2834,6 +2868,7 @@
     applyLogoScale();
     applyCanvasPadding();
     applyHeadlineMaxW();
+    applySublineMaxW();
     applyBodyMaxW();
     applyLogoColor();
     applyContentAlign();
@@ -2842,6 +2877,7 @@
     applyHeadlineRotation();
     applyHeadlineDecoration();
     applyDecorations();
+    applyDecoOpacity();
     renderStickers();
     fitCanvasToViewport();
   }
@@ -3777,6 +3813,8 @@
     if (contentGapSlider) { contentGapSlider.value = state.contentGap || 0; if (contentGapVal) contentGapVal.textContent = state.contentGap || 0; }
     if (headlineMaxWSlider) { headlineMaxWSlider.value = state.headlineMaxW != null ? state.headlineMaxW : 100; if (headlineMaxWVal) headlineMaxWVal.textContent = state.headlineMaxW != null ? state.headlineMaxW : 100; }
     if (bodyMaxWSlider) { bodyMaxWSlider.value = state.bodyMaxW != null ? state.bodyMaxW : 100; if (bodyMaxWVal) bodyMaxWVal.textContent = state.bodyMaxW != null ? state.bodyMaxW : 100; }
+    if (sublineMaxWSlider) { sublineMaxWSlider.value = state.sublineMaxW != null ? state.sublineMaxW : 100; if (sublineMaxWVal) sublineMaxWVal.textContent = state.sublineMaxW != null ? state.sublineMaxW : 100; }
+    if (decoOpacitySlider) { decoOpacitySlider.value = state.decoOpacity != null ? state.decoOpacity : 100; if (decoOpacityVal) decoOpacityVal.textContent = state.decoOpacity != null ? state.decoOpacity : 100; }
     if (logoColorInput) logoColorInput.value = state.logoColor || state.textColor || '#ffffff';
 
     // Element opacities
