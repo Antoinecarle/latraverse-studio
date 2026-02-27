@@ -10,6 +10,7 @@
 
   // ============ STATE ============
   let voiceMode = false;
+  let voiceConnecting = false;    // true while startVoiceMode() is in progress — prevents double sessions
   let isProcessing = false;
   let isSpeaking = false;
   let chatOpen = false;
@@ -33,6 +34,10 @@
   // ============ REALTIME VOICE MODE ============
 
   async function startVoiceMode() {
+    // Prevent double sessions — if already connecting or connected, bail out
+    if (voiceMode || voiceConnecting) return;
+    voiceConnecting = true;
+
     // Open panel if closed
     if (!chatOpen) {
       agentPanel.classList.add('open');
@@ -149,6 +154,7 @@
       await realtimeClient.startAudioCapture(stream);
 
       voiceMode = true;
+      voiceConnecting = false;
       agentBtn.classList.remove('thinking');
       agentBtn.classList.add('voice-active', 'listening');
       agentMic.classList.add('voice-active');
@@ -156,6 +162,7 @@
 
     } catch (err) {
       console.error('[Agent] Failed to start voice mode:', err);
+      voiceConnecting = false;
       agentBtn.classList.remove('thinking');
       if (err.name === 'NotAllowedError') {
         addMessage('assistant', 'Micro refuse. Autorise le micro dans ton navigateur.');

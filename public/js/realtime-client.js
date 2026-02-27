@@ -14,6 +14,8 @@ class RealtimeClient {
     this._isPlaying = false;
     this._currentSource = null;
     this._nextPlaybackTime = 0;
+    this._interrupted = false;       // true when user interrupted — ignore old audio deltas
+    this._currentResponseId = null;  // track which response is active
 
     // Callbacks
     this.onSessionCreated = options.onSessionCreated || null;
@@ -262,19 +264,24 @@ class RealtimeClient {
         break;
 
       case 'response.created':
+        // New response started — accept audio from this response
+        this._currentResponseId = data.response ? data.response.id : null;
+        this._interrupted = false;
         if (this.onResponseCreated) this.onResponseCreated(data);
         break;
 
       case 'response.audio.delta':
-        // Stream audio chunk for playback
-        if (data.delta) {
+        // Stream audio chunk for playback — but IGNORE if we're interrupted
+        // (old response audio still arriving after user started speaking)
+        if (data.delta && !this._interrupted) {
           this.playAudio(data.delta);
           if (this.onAudioDelta) this.onAudioDelta(data);
         }
         break;
 
       case 'response.audio_transcript.delta':
-        if (this.onTranscriptDelta) this.onTranscriptDelta(data.delta);
+        // Ignore transcript deltas from cancelled/interrupted responses
+        if (this.onTranscriptDelta && !this._interrupted) this.onTranscriptDelta(data.delta);
         break;
 
       case 'conversation.item.input_audio_transcription.completed':
@@ -284,8 +291,11 @@ class RealtimeClient {
         break;
 
       case 'input_audio_buffer.speech_started':
-        // User started speaking — stop any AI audio playing
+        // User started speaking — stop AI audio and cancel the ongoing response
+        this._interrupted = true;
         this.stopPlayback();
+        // Tell OpenAI to cancel the current response so it stops generating audio
+        this._send({ type: 'response.cancel' });
         if (this.onSpeechStarted) this.onSpeechStarted();
         break;
 
