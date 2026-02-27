@@ -1,6 +1,7 @@
 require('dotenv').config({ override: true });
 const express = require('express');
 const path = require('path');
+const https = require('https');
 const multer = require('multer');
 const clientsDb = require('./db/clients');
 const leadsDb = require('./db/leads');
@@ -1789,6 +1790,33 @@ app.post('/api/agent/chat', async (req, res) => {
   }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`La Traverse running at http://0.0.0.0:${PORT}`);
-});
+// HTTPS (required for microphone/SpeechRecognition) + HTTP redirect
+const http = require('http');
+const sslDir = path.join(__dirname, '..', 'ssl');
+const sslKey = path.join(sslDir, 'key.pem');
+const sslCert = path.join(sslDir, 'cert.pem');
+const HTTPS_PORT = parseInt(PORT);
+const HTTP_PORT = HTTPS_PORT + 1; // HTTP on 3006 redirects to HTTPS on 3005
+
+if (fs.existsSync(sslKey) && fs.existsSync(sslCert)) {
+  const sslOptions = {
+    key: fs.readFileSync(sslKey),
+    cert: fs.readFileSync(sslCert),
+  };
+  // Main HTTPS server
+  https.createServer(sslOptions, app).listen(HTTPS_PORT, '0.0.0.0', () => {
+    console.log(`La Traverse HTTPS at https://0.0.0.0:${HTTPS_PORT}`);
+  });
+  // HTTP server redirects to HTTPS
+  http.createServer((req, res) => {
+    const host = (req.headers.host || '').replace(':' + HTTP_PORT, ':' + HTTPS_PORT);
+    res.writeHead(301, { Location: 'https://' + host + req.url });
+    res.end();
+  }).listen(HTTP_PORT, '0.0.0.0', () => {
+    console.log(`La Traverse HTTP redirect at http://0.0.0.0:${HTTP_PORT} → HTTPS`);
+  });
+} else {
+  app.listen(HTTPS_PORT, '0.0.0.0', () => {
+    console.log(`La Traverse running at http://0.0.0.0:${HTTPS_PORT} (no SSL — mic won't work)`);
+  });
+}
