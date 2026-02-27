@@ -98,7 +98,9 @@
       headlineMaxW: 100,
       sublineMaxW: 100,
       bodyMaxW: 100,
+      ctaMaxW: 100,
       decoOpacity: 100,
+      bgImageScale: 100,
       logoColor: '',
       opacitySubline: 100,
       opacityBody: 100,
@@ -1985,6 +1987,16 @@
   });
   if (sublineMaxWSlider) sublineMaxWSlider.addEventListener('change', function() { pushHistory(); });
 
+  // CTA max width
+  var ctaMaxWSlider = document.getElementById('cta-max-w');
+  var ctaMaxWVal = document.getElementById('cta-max-w-val');
+  if (ctaMaxWSlider) ctaMaxWSlider.addEventListener('input', function() {
+    state.ctaMaxW = parseInt(ctaMaxWSlider.value);
+    if (ctaMaxWVal) ctaMaxWVal.textContent = ctaMaxWSlider.value;
+    applyCtaMaxW();
+  });
+  if (ctaMaxWSlider) ctaMaxWSlider.addEventListener('change', function() { pushHistory(); });
+
   // Decoration opacity
   var decoOpacitySlider = document.getElementById('deco-opacity');
   var decoOpacityVal = document.getElementById('deco-opacity-val');
@@ -2032,6 +2044,12 @@
     if (!canvasBody) return;
     var pct = state.bodyMaxW != null ? state.bodyMaxW : 100;
     canvasBody.style.maxWidth = pct < 100 ? pct + '%' : '';
+  }
+
+  function applyCtaMaxW() {
+    if (!canvasCta) return;
+    var pct = state.ctaMaxW != null ? state.ctaMaxW : 100;
+    canvasCta.style.maxWidth = pct < 100 ? pct + '%' : '';
   }
 
   function applyDecoOpacity() {
@@ -2369,6 +2387,16 @@
     });
   });
 
+  // BG image scale
+  var bgImageScaleSlider = document.getElementById('bg-image-scale');
+  var bgImageScaleVal = document.getElementById('bg-image-scale-val');
+  if (bgImageScaleSlider) bgImageScaleSlider.addEventListener('input', function() {
+    state.bgImageScale = parseInt(bgImageScaleSlider.value);
+    if (bgImageScaleVal) bgImageScaleVal.textContent = bgImageScaleSlider.value;
+    applyBgImage();
+  });
+  if (bgImageScaleSlider) bgImageScaleSlider.addEventListener('change', function() { pushHistory(); });
+
   function applyBgImage() {
     canvasBgImage.style.setProperty('--overlay-opacity', state.bgOpacity / 100);
     var filters = [];
@@ -2377,7 +2405,10 @@
     if (state.bgContrast !== 100) filters.push('contrast(' + (state.bgContrast / 100) + ')');
     if (state.bgSaturation !== 100) filters.push('saturate(' + (state.bgSaturation / 100) + ')');
     canvasBgImage.style.filter = filters.length ? filters.join(' ') : '';
-    canvasBgImage.style.transform = state.bgBlur > 0 ? 'scale(1.05)' : '';
+    var bgScale = (state.bgImageScale || 100) / 100;
+    var blurScale = state.bgBlur > 0 ? 1.05 : 1;
+    var totalScale = bgScale * blurScale;
+    canvasBgImage.style.transform = totalScale !== 1 ? 'scale(' + totalScale + ')' : '';
     canvasBgImage.style.backgroundSize = state.bgSize || 'cover';
     canvasBgImage.style.backgroundPosition = state.bgPosition || 'center';
   }
@@ -2870,6 +2901,7 @@
     applyHeadlineMaxW();
     applySublineMaxW();
     applyBodyMaxW();
+    applyCtaMaxW();
     applyLogoColor();
     applyContentAlign();
     applyBgOverlay();
@@ -3814,7 +3846,9 @@
     if (headlineMaxWSlider) { headlineMaxWSlider.value = state.headlineMaxW != null ? state.headlineMaxW : 100; if (headlineMaxWVal) headlineMaxWVal.textContent = state.headlineMaxW != null ? state.headlineMaxW : 100; }
     if (bodyMaxWSlider) { bodyMaxWSlider.value = state.bodyMaxW != null ? state.bodyMaxW : 100; if (bodyMaxWVal) bodyMaxWVal.textContent = state.bodyMaxW != null ? state.bodyMaxW : 100; }
     if (sublineMaxWSlider) { sublineMaxWSlider.value = state.sublineMaxW != null ? state.sublineMaxW : 100; if (sublineMaxWVal) sublineMaxWVal.textContent = state.sublineMaxW != null ? state.sublineMaxW : 100; }
+    if (ctaMaxWSlider) { ctaMaxWSlider.value = state.ctaMaxW != null ? state.ctaMaxW : 100; if (ctaMaxWVal) ctaMaxWVal.textContent = state.ctaMaxW != null ? state.ctaMaxW : 100; }
     if (decoOpacitySlider) { decoOpacitySlider.value = state.decoOpacity != null ? state.decoOpacity : 100; if (decoOpacityVal) decoOpacityVal.textContent = state.decoOpacity != null ? state.decoOpacity : 100; }
+    if (bgImageScaleSlider) { bgImageScaleSlider.value = state.bgImageScale || 100; if (bgImageScaleVal) bgImageScaleVal.textContent = state.bgImageScale || 100; }
     if (logoColorInput) logoColorInput.value = state.logoColor || state.textColor || '#ffffff';
 
     // Element opacities
