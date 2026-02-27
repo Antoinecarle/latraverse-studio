@@ -62,6 +62,8 @@
       borderColor: '',
       borderOffset: 12,
       logoScale: 100,
+      logoOpacity: 100,
+      borderOpacity: 100,
       showGrain: false,
       grainOpacity: 100,
       showVignette: false,
@@ -1921,6 +1923,39 @@
     canvasLogo.style.transformOrigin = 'top left';
   }
 
+  // Logo opacity
+  var logoOpacitySlider = document.getElementById('logo-opacity');
+  var logoOpacityVal = document.getElementById('logo-opacity-val');
+  if (logoOpacitySlider) logoOpacitySlider.addEventListener('input', function() {
+    state.logoOpacity = parseInt(logoOpacitySlider.value);
+    if (logoOpacityVal) logoOpacityVal.textContent = logoOpacitySlider.value;
+    applyLogoOpacity();
+  });
+  if (logoOpacitySlider) logoOpacitySlider.addEventListener('change', function() { pushHistory(); });
+
+  function applyLogoOpacity() {
+    if (!canvasLogo) return;
+    var op = (state.logoOpacity != null ? state.logoOpacity : 100) / 100;
+    canvasLogo.style.opacity = op < 1 ? op : '';
+  }
+
+  // Border opacity
+  var borderOpacitySlider = document.getElementById('border-opacity');
+  var borderOpacityVal = document.getElementById('border-opacity-val');
+  if (borderOpacitySlider) borderOpacitySlider.addEventListener('input', function() {
+    state.borderOpacity = parseInt(borderOpacitySlider.value);
+    if (borderOpacityVal) borderOpacityVal.textContent = borderOpacitySlider.value;
+    applyBorderOpacity();
+  });
+  if (borderOpacitySlider) borderOpacitySlider.addEventListener('change', function() { pushHistory(); });
+
+  function applyBorderOpacity() {
+    if (!canvasBorder) return;
+    if (!state.showBorder) return;
+    var op = (state.borderOpacity != null ? state.borderOpacity : 100) / 100;
+    canvasBorder.style.opacity = op < 1 ? op : '';
+  }
+
   // Canvas padding
   var canvasPaddingSlider = document.getElementById('canvas-padding');
   var canvasPaddingVal = document.getElementById('canvas-padding-val');
@@ -2938,7 +2973,9 @@
     applyBgImage();
     applyPattern();
     applyBorderStyle();
+    applyBorderOpacity();
     applyLogoScale();
+    applyLogoOpacity();
     applyCanvasPadding();
     applyHeadlineMaxW();
     applySublineMaxW();
@@ -3878,8 +3915,12 @@
     if (borderColorInput) borderColorInput.value = state.borderColor || state.accentColor || '#c4622a';
     if (borderOffsetSlider) { borderOffsetSlider.value = state.borderOffset != null ? state.borderOffset : 12; if (borderOffsetVal) borderOffsetVal.textContent = state.borderOffset != null ? state.borderOffset : 12; }
 
-    // Logo scale
+    // Logo scale + opacity
     if (logoScaleSlider) { logoScaleSlider.value = state.logoScale || 100; if (logoScaleVal) logoScaleVal.textContent = state.logoScale || 100; }
+    if (logoOpacitySlider) { logoOpacitySlider.value = state.logoOpacity != null ? state.logoOpacity : 100; if (logoOpacityVal) logoOpacityVal.textContent = state.logoOpacity != null ? state.logoOpacity : 100; }
+
+    // Border opacity
+    if (borderOpacitySlider) { borderOpacitySlider.value = state.borderOpacity != null ? state.borderOpacity : 100; if (borderOpacityVal) borderOpacityVal.textContent = state.borderOpacity != null ? state.borderOpacity : 100; }
 
     // Canvas padding
     var padVal = state.canvasPadding || 10;
