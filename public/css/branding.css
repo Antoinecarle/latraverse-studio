@@ -562,6 +562,38 @@ body {
   box-shadow: 0 0 0 1px rgba(196,98,42,0.2);
 }
 
+/* Template preview tooltip */
+.tmpl-preview {
+  position: fixed;
+  z-index: 900;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity .18s, transform .18s;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.5));
+}
+.tmpl-preview.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+.tmpl-preview__thumb {
+  width: 160px;
+  height: 160px;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.tmpl-preview__label {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 6px;
+  font-family: var(--font-sans);
+  text-transform: capitalize;
+}
+
 /* Template thumbnails (use dynamic vars from JS) */
 .tmpl {
   --ta: var(--tmpl-accent, #c4622a);

@@ -66,6 +66,10 @@
       fxShadow: 0,
       fxGlow: 0,
       fxOutline: false,
+      fxGradientText: false,
+      fxGradientStart: '#c4622a',
+      fxGradientEnd: '#e8a87c',
+      fxGradientAngle: 135,
       zoom: 100,
       gridVisible: false,
       stickers: [],
@@ -562,6 +566,50 @@
     });
   });
 
+  // ============ TEMPLATE PREVIEW TOOLTIP ============
+  (function() {
+    var preview = document.getElementById('tmpl-preview');
+    var previewThumb = document.getElementById('tmpl-preview-thumb');
+    var previewLabel = document.getElementById('tmpl-preview-label');
+    if (!preview || !previewThumb) return;
+
+    var hideTimeout = null;
+
+    document.querySelectorAll('.template-btn').forEach(function(btn) {
+      btn.addEventListener('mouseenter', function(e) {
+        clearTimeout(hideTimeout);
+        var tmplName = btn.dataset.template;
+        // Clone the thumbnail into the preview at bigger size
+        var tmplEl = btn.querySelector('.tmpl');
+        if (!tmplEl) return;
+        var clone = tmplEl.cloneNode(true);
+        clone.style.width = '160px';
+        clone.style.height = '160px';
+        previewThumb.innerHTML = '';
+        previewThumb.appendChild(clone);
+        if (previewLabel) previewLabel.textContent = tmplName;
+
+        // Position to the right of the button
+        var rect = btn.getBoundingClientRect();
+        var left = rect.right + 12;
+        var top = rect.top + rect.height / 2 - 90;
+        // Keep within viewport
+        if (left + 180 > window.innerWidth) left = rect.left - 180;
+        if (top < 8) top = 8;
+        if (top + 190 > window.innerHeight) top = window.innerHeight - 200;
+        preview.style.left = left + 'px';
+        preview.style.top = top + 'px';
+        preview.classList.add('visible');
+      });
+
+      btn.addEventListener('mouseleave', function() {
+        hideTimeout = setTimeout(function() {
+          preview.classList.remove('visible');
+        }, 100);
+      });
+    });
+  })();
+
   // ============ TEXT INPUTS ============
   function setupTextInput(inputId, stateKey, canvasEl) {
     const input = document.getElementById(inputId);
@@ -771,6 +819,72 @@
     document.querySelectorAll('.color-presets[data-target="' + target + '"] .color-dot').forEach(d => d.classList.remove('active'));
   }
 
+  // ============ RANDOM PALETTE ============
+  var btnRandomPalette = document.getElementById('btn-random-palette');
+  if (btnRandomPalette) btnRandomPalette.addEventListener('click', function() {
+    // Generate harmonious palette using HSL
+    var baseHue = Math.floor(Math.random() * 360);
+    var isDark = Math.random() > 0.25; // 75% dark themes
+
+    var bg, text, accent, accent2;
+    if (isDark) {
+      var bgL = 5 + Math.floor(Math.random() * 10);
+      var bgS = 10 + Math.floor(Math.random() * 30);
+      bg = hslToHex(baseHue + Math.floor(Math.random() * 40) - 20, bgS, bgL);
+      text = hslToHex(baseHue + Math.floor(Math.random() * 30), 10 + Math.floor(Math.random() * 20), 88 + Math.floor(Math.random() * 10));
+      accent = hslToHex((baseHue + 150 + Math.floor(Math.random() * 60)) % 360, 60 + Math.floor(Math.random() * 30), 50 + Math.floor(Math.random() * 15));
+      accent2 = hslToHex((baseHue + 180 + Math.floor(Math.random() * 80)) % 360, 50 + Math.floor(Math.random() * 30), 55 + Math.floor(Math.random() * 20));
+    } else {
+      bg = hslToHex(baseHue + Math.floor(Math.random() * 20), 5 + Math.floor(Math.random() * 15), 95 + Math.floor(Math.random() * 4));
+      text = hslToHex(baseHue, 15 + Math.floor(Math.random() * 20), 10 + Math.floor(Math.random() * 10));
+      accent = hslToHex((baseHue + 150 + Math.floor(Math.random() * 60)) % 360, 60 + Math.floor(Math.random() * 30), 40 + Math.floor(Math.random() * 15));
+      accent2 = hslToHex((baseHue + 180 + Math.floor(Math.random() * 80)) % 360, 50 + Math.floor(Math.random() * 25), 45 + Math.floor(Math.random() * 20));
+    }
+
+    state.bgColor = bg;
+    state.textColor = text;
+    state.accentColor = accent;
+    state.accentColor2 = accent2;
+    state.stylePack = null;
+
+    document.getElementById('color-bg').value = bg;
+    document.getElementById('color-text').value = text;
+    document.getElementById('color-accent').value = accent;
+    var a2Input = document.getElementById('color-accent2');
+    if (a2Input) a2Input.value = accent2;
+
+    clearPresetActive('bg');
+    clearPresetActive('text');
+    clearPresetActive('accent');
+    clearPresetActive('accent2');
+
+    // Deselect style pack buttons
+    document.querySelectorAll('.style-pack-btn').forEach(function(b) { b.classList.remove('active'); });
+
+    pushHistory();
+    updateCanvas();
+  });
+
+  function hslToHex(h, s, l) {
+    h = ((h % 360) + 360) % 360;
+    s = Math.max(0, Math.min(100, s)) / 100;
+    l = Math.max(0, Math.min(100, l)) / 100;
+    var c = (1 - Math.abs(2 * l - 1)) * s;
+    var x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    var m = l - c / 2;
+    var r = 0, g = 0, b = 0;
+    if (h < 60) { r = c; g = x; }
+    else if (h < 120) { r = x; g = c; }
+    else if (h < 180) { g = c; b = x; }
+    else if (h < 240) { g = x; b = c; }
+    else if (h < 300) { r = x; b = c; }
+    else { r = c; b = x; }
+    r = Math.round((r + m) * 255);
+    g = Math.round((g + m) * 255);
+    b = Math.round((b + m) * 255);
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  }
+
   // ============ GRADIENT ============
   const optGradient = document.getElementById('opt-gradient');
   const gradientControls = document.getElementById('gradient-controls');
@@ -806,7 +920,7 @@
   if (gradientEnd) gradientEnd.addEventListener('change', () => pushHistory());
 
   // Gradient presets
-  document.querySelectorAll('.gradient-preset').forEach(btn => {
+  document.querySelectorAll('.gradient-presets:not(.gradient-presets--text) .gradient-preset').forEach(btn => {
     btn.addEventListener('click', () => {
       state.gradient.start = btn.dataset.start;
       state.gradient.end = btn.dataset.end;
@@ -848,6 +962,56 @@
     state.fxOutline = fxOutline.checked;
     pushHistory();
     applyEffects();
+  });
+
+  // ============ GRADIENT TEXT ============
+  var fxGradientText = document.getElementById('fx-gradient-text');
+  var gradientTextControls = document.getElementById('gradient-text-controls');
+  var fxGradientStart = document.getElementById('fx-gradient-start');
+  var fxGradientEnd = document.getElementById('fx-gradient-end');
+  var fxGradientAngle = document.getElementById('fx-gradient-angle');
+  var fxGradientAngleVal = document.getElementById('fx-gradient-angle-val');
+
+  if (fxGradientText) fxGradientText.addEventListener('change', function() {
+    state.fxGradientText = fxGradientText.checked;
+    if (gradientTextControls) gradientTextControls.style.display = state.fxGradientText ? '' : 'none';
+    pushHistory();
+    applyEffects();
+  });
+
+  if (fxGradientStart) fxGradientStart.addEventListener('input', function() {
+    state.fxGradientStart = fxGradientStart.value;
+    applyEffects();
+  });
+  if (fxGradientStart) fxGradientStart.addEventListener('change', function() { pushHistory(); });
+
+  if (fxGradientEnd) fxGradientEnd.addEventListener('input', function() {
+    state.fxGradientEnd = fxGradientEnd.value;
+    applyEffects();
+  });
+  if (fxGradientEnd) fxGradientEnd.addEventListener('change', function() { pushHistory(); });
+
+  if (fxGradientAngle) fxGradientAngle.addEventListener('input', function() {
+    state.fxGradientAngle = parseInt(fxGradientAngle.value);
+    if (fxGradientAngleVal) fxGradientAngleVal.textContent = fxGradientAngle.value;
+    applyEffects();
+  });
+  if (fxGradientAngle) fxGradientAngle.addEventListener('change', function() { pushHistory(); });
+
+  // Gradient text presets
+  document.querySelectorAll('.gradient-presets--text .gradient-preset').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var gs = btn.getAttribute('data-gstart');
+      var ge = btn.getAttribute('data-gend');
+      if (gs && ge) {
+        state.fxGradientStart = gs;
+        state.fxGradientEnd = ge;
+        if (fxGradientStart) fxGradientStart.value = gs;
+        if (fxGradientEnd) fxGradientEnd.value = ge;
+        pushHistory();
+        applyEffects();
+      }
+    });
   });
 
   // ============ OPTIONS ============
@@ -1606,6 +1770,19 @@
       canvasHeadline.style.webkitTextStroke = '';
     }
 
+    // Gradient text
+    if (state.fxGradientText) {
+      canvasHeadline.style.background = 'linear-gradient(' + state.fxGradientAngle + 'deg, ' + state.fxGradientStart + ', ' + state.fxGradientEnd + ')';
+      canvasHeadline.style.webkitBackgroundClip = 'text';
+      canvasHeadline.style.webkitTextFillColor = 'transparent';
+      canvasHeadline.style.backgroundClip = 'text';
+    } else {
+      canvasHeadline.style.background = '';
+      canvasHeadline.style.webkitBackgroundClip = '';
+      canvasHeadline.style.webkitTextFillColor = '';
+      canvasHeadline.style.backgroundClip = '';
+    }
+
     // Re-apply free layout (handles get stripped by textContent assignment above)
     reapplyFreeLayout();
   }
@@ -2214,6 +2391,15 @@
     if (fxShadow) { fxShadow.value = state.fxShadow; if (fxShadowVal) fxShadowVal.textContent = state.fxShadow; }
     if (fxGlow) { fxGlow.value = state.fxGlow; if (fxGlowVal) fxGlowVal.textContent = state.fxGlow; }
     if (fxOutline) fxOutline.checked = state.fxOutline;
+
+    // Gradient text
+    if (fxGradientText) {
+      fxGradientText.checked = state.fxGradientText;
+      if (gradientTextControls) gradientTextControls.style.display = state.fxGradientText ? '' : 'none';
+    }
+    if (fxGradientStart) fxGradientStart.value = state.fxGradientStart;
+    if (fxGradientEnd) fxGradientEnd.value = state.fxGradientEnd;
+    if (fxGradientAngle) { fxGradientAngle.value = state.fxGradientAngle; if (fxGradientAngleVal) fxGradientAngleVal.textContent = state.fxGradientAngle; }
 
     // Options
     document.getElementById('opt-logo').checked = state.showLogo;

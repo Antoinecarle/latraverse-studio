@@ -448,6 +448,10 @@
           </div>
           <input type="color" id="color-accent2" value="#e8a87c" class="color-input">
         </div>
+        <button class="btn btn--ghost btn--sm btn--full" id="btn-random-palette" style="margin-top:8px">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="vertical-align:-2px;margin-right:4px"><path d="M1 4V1h3"/><path d="M13 10v3h-3"/><path d="M13 1 1 13"/></svg>
+          Palette aleatoire
+        </button>
         </div>
       </section>
 
@@ -499,6 +503,32 @@
         <div class="field field--check">
           <input type="checkbox" id="fx-outline">
           <label for="fx-outline">Contour texte (stroke)</label>
+        </div>
+        <div class="field field--check">
+          <input type="checkbox" id="fx-gradient-text">
+          <label for="fx-gradient-text">Texte en gradient</label>
+        </div>
+        <div id="gradient-text-controls" style="display:none">
+          <div class="color-row">
+            <label>Debut</label>
+            <input type="color" id="fx-gradient-start" value="#c4622a" class="color-input color-input--lg">
+          </div>
+          <div class="color-row">
+            <label>Fin</label>
+            <input type="color" id="fx-gradient-end" value="#e8a87c" class="color-input color-input--lg">
+          </div>
+          <div class="field">
+            <label>Angle <span id="fx-gradient-angle-val">135</span>deg</label>
+            <input type="range" id="fx-gradient-angle" min="0" max="360" value="135">
+          </div>
+          <div class="gradient-presets gradient-presets--text">
+            <button class="gradient-preset" data-gstart="#c4622a" data-gend="#e8a87c" style="background:linear-gradient(135deg,#c4622a,#e8a87c)"></button>
+            <button class="gradient-preset" data-gstart="#667eea" data-gend="#764ba2" style="background:linear-gradient(135deg,#667eea,#764ba2)"></button>
+            <button class="gradient-preset" data-gstart="#f093fb" data-gend="#f5576c" style="background:linear-gradient(135deg,#f093fb,#f5576c)"></button>
+            <button class="gradient-preset" data-gstart="#4facfe" data-gend="#00f2fe" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"></button>
+            <button class="gradient-preset" data-gstart="#ff6b6b" data-gend="#feca57" style="background:linear-gradient(135deg,#ff6b6b,#feca57)"></button>
+            <button class="gradient-preset" data-gstart="#ffffff" data-gend="#a0a0a0" style="background:linear-gradient(135deg,#ffffff,#a0a0a0)"></button>
+          </div>
         </div>
         </div>
       </section>
@@ -1042,6 +1072,12 @@
       <div class="ai-ideas-grid" id="ai-ideas-grid" style="display:none"></div>
     </div>
   </div>
+</div>
+
+<!-- Template preview tooltip -->
+<div class="tmpl-preview" id="tmpl-preview">
+  <div class="tmpl-preview__thumb" id="tmpl-preview-thumb"></div>
+  <div class="tmpl-preview__label" id="tmpl-preview-label"></div>
 </div>
 
 <!-- CREATIVE AGENT -->
