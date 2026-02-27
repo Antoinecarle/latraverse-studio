@@ -1893,7 +1893,7 @@ wss.on('connection', (clientWs) => {
                 input_audio_format: 'pcm16',
                 output_audio_format: 'pcm16',
                 input_audio_transcription: {
-                  model: 'gpt-4o-mini-transcription',
+                  model: 'gpt-4o-mini-transcribe',
                 },
                 turn_detection: {
                   type: 'server_vad',
