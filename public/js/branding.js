@@ -115,6 +115,7 @@
       contentAlign: 'start',
       bgOverlayColor: '#000000',
       bgOverlayOpacity: 0,
+      bgOverlayMode: 'solid',
       showSubline: true,
       showBody: true,
       showCta: true,
@@ -2374,11 +2375,32 @@
   });
   if (bgOverlayOpacityInput) bgOverlayOpacityInput.addEventListener('change', function() { pushHistory(); });
 
+  // Overlay mode buttons
+  document.querySelectorAll('.overlay-mode-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.overlay-mode-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.bgOverlayMode = btn.dataset.mode;
+      applyBgOverlay();
+      pushHistory();
+    });
+  });
+
   function applyBgOverlay() {
     if (!canvasBgOverlay) return;
     var op = (state.bgOverlayOpacity || 0) / 100;
     if (op > 0) {
-      canvasBgOverlay.style.background = state.bgOverlayColor || '#000000';
+      var col = state.bgOverlayColor || '#000000';
+      var mode = state.bgOverlayMode || 'solid';
+      if (mode === 'top') {
+        canvasBgOverlay.style.background = 'linear-gradient(to bottom, ' + col + ', transparent)';
+      } else if (mode === 'bottom') {
+        canvasBgOverlay.style.background = 'linear-gradient(to top, ' + col + ', transparent)';
+      } else if (mode === 'radial') {
+        canvasBgOverlay.style.background = 'radial-gradient(circle at center, transparent 20%, ' + col + ' 100%)';
+      } else {
+        canvasBgOverlay.style.background = col;
+      }
       canvasBgOverlay.style.opacity = op;
     } else {
       canvasBgOverlay.style.opacity = '0';
@@ -3902,6 +3924,7 @@
     // BG overlay
     if (bgOverlayColorInput) bgOverlayColorInput.value = state.bgOverlayColor || '#000000';
     if (bgOverlayOpacityInput) { bgOverlayOpacityInput.value = state.bgOverlayOpacity || 0; if (bgOverlayOpacityVal) bgOverlayOpacityVal.textContent = state.bgOverlayOpacity || 0; }
+    document.querySelectorAll('.overlay-mode-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.mode === (state.bgOverlayMode || 'solid')); });
 
     // Element visibility toggles
     if (toggleSubline) toggleSubline.checked = state.showSubline !== false;
