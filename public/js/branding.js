@@ -66,7 +66,7 @@
       typoHeadline: { font: "'Playfair Display', serif", size: 48, weight: '700', align: 'left', case: 'none', lh: 110, ls: 0 },
       typoSubline: { size: 14, weight: '400', ls: 0, case: 'none' },
       typoBody: { font: "'Libre Baskerville', serif", size: 15, weight: '400', align: 'left', lh: 160 },
-      typoCta: { size: 12, weight: '500' },
+      typoCta: { size: 12, weight: '500', ls: 0 },
       fxShadow: 0,
       fxGlow: 0,
       fxOutline: false,
@@ -94,7 +94,9 @@
       showSubline: true,
       showBody: true,
       showCta: true,
+      headlineColor: '',
       sublineColor: '',
+      bodyColor: '',
       ctaBgColor: '',
       ctaTextColor: '',
       sublineStyle: 'text',
@@ -1071,6 +1073,43 @@
     applyCtaStyle();
     pushHistory();
   });
+
+  var headlineColorInput = document.getElementById('headline-color');
+  var headlineColorReset = document.getElementById('headline-color-reset');
+  if (headlineColorInput) headlineColorInput.addEventListener('input', function() {
+    state.headlineColor = headlineColorInput.value;
+    applyTypography();
+  });
+  if (headlineColorInput) headlineColorInput.addEventListener('change', function() { pushHistory(); });
+  if (headlineColorReset) headlineColorReset.addEventListener('click', function() {
+    state.headlineColor = '';
+    if (headlineColorInput) headlineColorInput.value = state.textColor || '#ffffff';
+    applyTypography();
+    pushHistory();
+  });
+
+  var bodyColorInput = document.getElementById('body-color');
+  var bodyColorReset = document.getElementById('body-color-reset');
+  if (bodyColorInput) bodyColorInput.addEventListener('input', function() {
+    state.bodyColor = bodyColorInput.value;
+    applyTypography();
+  });
+  if (bodyColorInput) bodyColorInput.addEventListener('change', function() { pushHistory(); });
+  if (bodyColorReset) bodyColorReset.addEventListener('click', function() {
+    state.bodyColor = '';
+    if (bodyColorInput) bodyColorInput.value = state.textColor || '#ffffff';
+    applyTypography();
+    pushHistory();
+  });
+
+  var typoCtaLs = document.getElementById('typo-cta-ls');
+  var typoCtaLsVal = document.getElementById('typo-cta-ls-val');
+  if (typoCtaLs) typoCtaLs.addEventListener('input', function() {
+    state.typoCta.ls = parseInt(typoCtaLs.value);
+    if (typoCtaLsVal) typoCtaLsVal.textContent = typoCtaLs.value;
+    applyTypography();
+  });
+  if (typoCtaLs) typoCtaLs.addEventListener('change', function() { pushHistory(); });
 
   // ============ COLORS ============
   function setupColorPresets() {
@@ -2545,6 +2584,8 @@
     canvasHeadline.style.textTransform = state.typoHeadline.case === 'none' ? '' : state.typoHeadline.case;
     canvasHeadline.style.lineHeight = (state.typoHeadline.lh / 100);
     canvasHeadline.style.letterSpacing = state.typoHeadline.ls + 'px';
+    if (state.headlineColor) canvasHeadline.style.color = state.headlineColor;
+    else canvasHeadline.style.color = '';
 
     // Auto-fit headline: limit to max 2 lines by shrinking font if needed
     const desiredHeadlinePx = state.typoHeadline.size * fs;
@@ -2571,6 +2612,8 @@
     canvasBody.style.fontSize = (state.typoBody.size * fs * shrinkRatio) + 'px';
     canvasBody.style.fontWeight = state.typoBody.weight;
     canvasBody.style.lineHeight = (state.typoBody.lh || 160) / 100;
+    if (state.bodyColor) canvasBody.style.color = state.bodyColor;
+    else canvasBody.style.color = '';
     if (state.typoBody.align && !centeredTemplates.includes(state.template)) {
       canvasBody.style.textAlign = state.typoBody.align;
     }
@@ -2583,10 +2626,11 @@
     var subCase = (state.typoSubline && state.typoSubline.case) || 'none';
     canvasSubline.style.textTransform = subCase === 'none' ? '' : subCase;
 
-    // CTA — customizable size, weight
+    // CTA — customizable size, weight, letter-spacing
     var ctaSize = (state.typoCta && state.typoCta.size) || 12;
     canvasCta.style.fontSize = (ctaSize * fs * shrinkRatio) + 'px';
     canvasCta.style.fontWeight = (state.typoCta && state.typoCta.weight) || '500';
+    canvasCta.style.letterSpacing = ((state.typoCta && state.typoCta.ls) || 0) + 'px';
 
     // Logo scale
     const logoSpan = canvasLogo.querySelector('span');
@@ -3252,9 +3296,15 @@
     document.querySelectorAll('.cta-style-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.style === (state.ctaStyle || 'text')); });
 
     // Custom element colors
+    if (headlineColorInput) headlineColorInput.value = state.headlineColor || state.textColor || '#ffffff';
     if (sublineColorInput) sublineColorInput.value = state.sublineColor || state.textColor || '#ffffff';
+    if (bodyColorInput) bodyColorInput.value = state.bodyColor || state.textColor || '#ffffff';
     if (ctaBgColorInput) ctaBgColorInput.value = state.ctaBgColor || state.accentColor || '#c4622a';
     if (ctaTextColorInput) ctaTextColorInput.value = state.ctaTextColor || '#ffffff';
+
+    // CTA letter spacing
+    var ctaLs = (state.typoCta && state.typoCta.ls) || 0;
+    if (typoCtaLs) { typoCtaLs.value = ctaLs; if (typoCtaLsVal) typoCtaLsVal.textContent = ctaLs; }
 
     // Colors
     document.getElementById('color-bg').value = state.bgColor;
