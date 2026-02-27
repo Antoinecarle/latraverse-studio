@@ -118,9 +118,6 @@
       addMessage('assistant', 'La reconnaissance vocale n\'est pas supportee par ce navigateur. Utilise Chrome.');
       return;
     }
-    voiceMode = true;
-    agentBtn.classList.add('voice-active');
-    agentMic.classList.add('voice-active');
 
     // Open panel if closed
     if (!chatOpen) {
@@ -130,7 +127,23 @@
       loadConversation();
     }
 
-    startListening();
+    // IMPORTANT: Request mic permission FIRST via getUserMedia
+    // This triggers Chrome's permission popup. SpeechRecognition alone doesn't always do it.
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(function (stream) {
+        // Permission granted — stop the stream (we don't need it, SpeechRecognition handles audio)
+        stream.getTracks().forEach(function (t) { t.stop(); });
+
+        voiceMode = true;
+        agentBtn.classList.add('voice-active');
+        agentMic.classList.add('voice-active');
+        startListening();
+      })
+      .catch(function (err) {
+        console.error('[Agent] Mic permission denied:', err);
+        addMessage('assistant', 'Micro refuse. Autorise le micro dans ton navigateur (icone cadenas en haut a gauche).');
+        setStatus('Micro refuse');
+      });
   }
 
   function stopVoiceMode() {
