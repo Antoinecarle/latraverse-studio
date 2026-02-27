@@ -91,6 +91,8 @@
       canvasPadding: 10,
       contentGap: 0,
       headlineMaxW: 100,
+      bodyMaxW: 100,
+      logoColor: '',
       opacitySubline: 100,
       opacityBody: 100,
       opacityCta: 100,
@@ -1907,6 +1909,31 @@
   });
   if (headlineMaxWSlider) headlineMaxWSlider.addEventListener('change', function() { pushHistory(); });
 
+  // Body max width
+  var bodyMaxWSlider = document.getElementById('body-max-w');
+  var bodyMaxWVal = document.getElementById('body-max-w-val');
+  if (bodyMaxWSlider) bodyMaxWSlider.addEventListener('input', function() {
+    state.bodyMaxW = parseInt(bodyMaxWSlider.value);
+    if (bodyMaxWVal) bodyMaxWVal.textContent = bodyMaxWSlider.value;
+    applyBodyMaxW();
+  });
+  if (bodyMaxWSlider) bodyMaxWSlider.addEventListener('change', function() { pushHistory(); });
+
+  // Logo color
+  var logoColorInput = document.getElementById('logo-color');
+  var logoColorReset = document.getElementById('logo-color-reset');
+  if (logoColorInput) logoColorInput.addEventListener('input', function() {
+    state.logoColor = logoColorInput.value;
+    applyLogoColor();
+  });
+  if (logoColorInput) logoColorInput.addEventListener('change', function() { pushHistory(); });
+  if (logoColorReset) logoColorReset.addEventListener('click', function() {
+    state.logoColor = '';
+    if (logoColorInput) logoColorInput.value = state.textColor || '#ffffff';
+    applyLogoColor();
+    pushHistory();
+  });
+
   function applyCanvasPadding() {
     if (!canvasContent) return;
     canvasContent.style.padding = (state.canvasPadding || 10) + '%';
@@ -1917,6 +1944,17 @@
     if (!canvasHeadline) return;
     var pct = state.headlineMaxW != null ? state.headlineMaxW : 100;
     canvasHeadline.style.maxWidth = pct < 100 ? pct + '%' : '';
+  }
+
+  function applyBodyMaxW() {
+    if (!canvasBody) return;
+    var pct = state.bodyMaxW != null ? state.bodyMaxW : 100;
+    canvasBody.style.maxWidth = pct < 100 ? pct + '%' : '';
+  }
+
+  function applyLogoColor() {
+    if (!canvasLogo) return;
+    canvasLogo.style.color = state.logoColor || '';
   }
 
   function applyContentAlign() {
@@ -2703,6 +2741,8 @@
     applyLogoScale();
     applyCanvasPadding();
     applyHeadlineMaxW();
+    applyBodyMaxW();
+    applyLogoColor();
     applyContentAlign();
     applyBgOverlay();
     applyElementOpacities();
@@ -3632,6 +3672,8 @@
     document.querySelectorAll('.padding-preset').forEach(function(b) { b.classList.toggle('active', parseInt(b.dataset.pad) === padVal); });
     if (contentGapSlider) { contentGapSlider.value = state.contentGap || 0; if (contentGapVal) contentGapVal.textContent = state.contentGap || 0; }
     if (headlineMaxWSlider) { headlineMaxWSlider.value = state.headlineMaxW != null ? state.headlineMaxW : 100; if (headlineMaxWVal) headlineMaxWVal.textContent = state.headlineMaxW != null ? state.headlineMaxW : 100; }
+    if (bodyMaxWSlider) { bodyMaxWSlider.value = state.bodyMaxW != null ? state.bodyMaxW : 100; if (bodyMaxWVal) bodyMaxWVal.textContent = state.bodyMaxW != null ? state.bodyMaxW : 100; }
+    if (logoColorInput) logoColorInput.value = state.logoColor || state.textColor || '#ffffff';
 
     // Element opacities
     opSliders.forEach(function(cfg) {
