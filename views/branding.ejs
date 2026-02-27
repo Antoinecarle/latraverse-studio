@@ -352,9 +352,19 @@
             <option value="'Space Mono', monospace">Space Mono</option>
           </select>
         </div>
+        <div class="field">
+          <label>Taille rapide</label>
+          <div class="hsize-btns">
+            <button class="hsize-btn" data-size="28">S</button>
+            <button class="hsize-btn" data-size="36">M</button>
+            <button class="hsize-btn active" data-size="48">L</button>
+            <button class="hsize-btn" data-size="64">XL</button>
+            <button class="hsize-btn" data-size="80">2XL</button>
+          </div>
+        </div>
         <div class="field-row">
           <div class="field field--half">
-            <label>Taille</label>
+            <label>Taille fine</label>
             <div class="range-with-val">
               <input type="range" id="typo-headline-size" min="16" max="120" value="48">
               <span class="range-val" id="typo-headline-size-val">48</span>
@@ -545,6 +555,14 @@
             <button class="color-reset-btn" id="body-color-reset" title="Reset">×</button>
           </div>
         </div>
+        <div class="field">
+          <label>Casse</label>
+          <div class="case-btns" data-target="body">
+            <button class="body-case-btn active" data-case="none" title="Normal">Aa</button>
+            <button class="body-case-btn" data-case="uppercase" title="Majuscules">AA</button>
+            <button class="body-case-btn" data-case="lowercase" title="Minuscules">aa</button>
+          </div>
+        </div>
         </div>
       </section>
 
@@ -574,6 +592,14 @@
         <div class="field">
           <label>Espacement <span class="range-val" id="typo-cta-ls-val">0</span></label>
           <input type="range" id="typo-cta-ls" min="-2" max="15" value="0" step="1">
+        </div>
+        <div class="field">
+          <label>Casse</label>
+          <div class="case-btns" data-target="cta">
+            <button class="cta-case-btn active" data-case="none" title="Normal">Aa</button>
+            <button class="cta-case-btn" data-case="uppercase" title="Majuscules">AA</button>
+            <button class="cta-case-btn" data-case="lowercase" title="Minuscules">aa</button>
+          </div>
         </div>
         <div class="field-row">
           <div class="field field--half">

@@ -36,6 +36,12 @@
     if (_applyFreeLayoutFn) _applyFreeLayoutFn();
   }
 
+  // Forward reference for text offsets (defined later)
+  var _applyTextOffsetsFn = null;
+  function reapplyTextOffsets() {
+    if (_applyTextOffsetsFn) _applyTextOffsetsFn();
+  }
+
   // ============ DEFAULT STATE ============
   function getDefaultState() {
     return {
@@ -65,8 +71,8 @@
       gradient: { enabled: false, angle: 135, start: '#c4622a', end: '#1a1714' },
       typoHeadline: { font: "'Playfair Display', serif", size: 48, weight: '700', align: 'left', case: 'none', lh: 110, ls: 0 },
       typoSubline: { size: 14, weight: '400', ls: 0, case: 'none' },
-      typoBody: { font: "'Libre Baskerville', serif", size: 15, weight: '400', align: 'left', lh: 160 },
-      typoCta: { size: 12, weight: '500', ls: 0 },
+      typoBody: { font: "'Libre Baskerville', serif", size: 15, weight: '400', align: 'left', lh: 160, case: 'none' },
+      typoCta: { size: 12, weight: '500', ls: 0, case: 'none' },
       fxShadow: 0,
       fxGlow: 0,
       fxOutline: false,
@@ -105,6 +111,13 @@
       zoom: 100,
       gridVisible: false,
       stickers: [],
+      textOffsets: {
+        headline: { x: 0, y: 0 },
+        subline:  { x: 0, y: 0 },
+        body:     { x: 0, y: 0 },
+        cta:      { x: 0, y: 0 },
+        logo:     { x: 0, y: 0 }
+      },
       freeLayout: false,
       textPositions: {
         logo:     { x: 10, y: 5 },
@@ -723,6 +736,105 @@
     el.addEventListener('blur', function() { canvasWrapper.classList.remove('editing-text'); });
   });
 
+  // ============ TEXT DRAG (move text elements by dragging) ============
+  function setupTextDrag(el, key) {
+    if (!el) return;
+    el.addEventListener('mousedown', function(e) {
+      // Don't drag if already focused (editing text)
+      if (document.activeElement === el) return;
+      // Don't drag from drag handle (free-layout mode)
+      if (e.target.closest('.text-drag-handle')) return;
+      // Don't drag in free-layout mode (uses its own system)
+      if (state.freeLayout) return;
+
+      var startX = e.clientX;
+      var startY = e.clientY;
+      var isDragging = false;
+
+      // Get current scale for accurate pixel conversion
+      var totalScale = (state._fitScale || 1) * (state.zoom / 100);
+
+      // Initialize offsets
+      if (!state.textOffsets) state.textOffsets = {};
+      if (!state.textOffsets[key]) state.textOffsets[key] = { x: 0, y: 0 };
+      var origX = state.textOffsets[key].x;
+      var origY = state.textOffsets[key].y;
+
+      function onMove(ev) {
+        var dx = (ev.clientX - startX) / totalScale;
+        var dy = (ev.clientY - startY) / totalScale;
+
+        if (!isDragging && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
+          isDragging = true;
+          // Prevent text selection / editing
+          ev.preventDefault();
+          el.blur();
+          window.getSelection().removeAllRanges();
+          el.classList.add('text-dragging');
+          canvas.classList.add('has-text-drag');
+        }
+
+        if (isDragging) {
+          ev.preventDefault();
+          state.textOffsets[key].x = origX + dx;
+          state.textOffsets[key].y = origY + dy;
+          el.style.position = 'relative';
+          el.style.left = state.textOffsets[key].x + 'px';
+          el.style.top = state.textOffsets[key].y + 'px';
+        }
+      }
+
+      function onUp() {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        el.classList.remove('text-dragging');
+        canvas.classList.remove('has-text-drag');
+        if (isDragging) {
+          pushHistory();
+          scheduleAutoSave();
+        }
+      }
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  }
+
+  // Apply saved text offsets (called from updateCanvas/restoreState)
+  function applyTextOffsets() {
+    if (state.freeLayout) return; // free-layout uses its own positioning
+    var elements = {
+      headline: canvasHeadline,
+      subline:  canvasSubline,
+      body:     canvasBody,
+      cta:      canvasCta,
+      logo:     canvasLogo
+    };
+    Object.keys(elements).forEach(function(key) {
+      var el = elements[key];
+      if (!el) return;
+      var off = state.textOffsets && state.textOffsets[key];
+      if (off && (off.x !== 0 || off.y !== 0)) {
+        el.style.position = 'relative';
+        el.style.left = off.x + 'px';
+        el.style.top = off.y + 'px';
+      } else {
+        el.style.position = '';
+        el.style.left = '';
+        el.style.top = '';
+      }
+    });
+  }
+
+  // Expose for updateCanvas
+  _applyTextOffsetsFn = applyTextOffsets;
+
+  setupTextDrag(canvasHeadline, 'headline');
+  setupTextDrag(canvasSubline, 'subline');
+  setupTextDrag(canvasBody, 'body');
+  setupTextDrag(canvasCta, 'cta');
+  setupTextDrag(canvasLogo, 'logo');
+
   // ============ CTA STYLE ============
   document.querySelectorAll('.cta-style-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
@@ -885,6 +997,7 @@
   if (typoHeadlineSize) typoHeadlineSize.addEventListener('input', () => {
     state.typoHeadline.size = parseInt(typoHeadlineSize.value);
     if (typoHeadlineSizeVal) typoHeadlineSizeVal.textContent = typoHeadlineSize.value;
+    document.querySelectorAll('.hsize-btn').forEach(function(b) { b.classList.toggle('active', parseInt(b.dataset.size) === state.typoHeadline.size); });
     applyTypography();
   });
   if (typoHeadlineSize) typoHeadlineSize.addEventListener('change', () => pushHistory());
@@ -1031,6 +1144,44 @@
     applyTypography();
   });
   if (typoBodyLh) typoBodyLh.addEventListener('change', function() { pushHistory(); });
+
+  // Body case buttons
+  document.querySelectorAll('.body-case-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.body-case-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.typoBody.case = btn.dataset.case;
+      pushHistory();
+      applyTypography();
+    });
+  });
+
+  // CTA case buttons
+  document.querySelectorAll('.cta-case-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.cta-case-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.typoCta.case = btn.dataset.case;
+      pushHistory();
+      applyTypography();
+    });
+  });
+
+  // Headline size presets
+  document.querySelectorAll('.hsize-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.hsize-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var size = parseInt(btn.dataset.size);
+      state.typoHeadline.size = size;
+      var typoHeadlineSize = document.getElementById('typo-headline-size');
+      var typoHeadlineSizeVal = document.getElementById('typo-headline-size-val');
+      if (typoHeadlineSize) typoHeadlineSize.value = size;
+      if (typoHeadlineSizeVal) typoHeadlineSizeVal.textContent = size;
+      pushHistory();
+      applyTypography();
+    });
+  });
 
   // ============ CUSTOM ELEMENT COLORS ============
   var sublineColorInput = document.getElementById('subline-color');
@@ -2614,6 +2765,8 @@
     canvasBody.style.lineHeight = (state.typoBody.lh || 160) / 100;
     if (state.bodyColor) canvasBody.style.color = state.bodyColor;
     else canvasBody.style.color = '';
+    var bodyCase = (state.typoBody && state.typoBody.case) || 'none';
+    canvasBody.style.textTransform = bodyCase === 'none' ? '' : bodyCase;
     if (state.typoBody.align && !centeredTemplates.includes(state.template)) {
       canvasBody.style.textAlign = state.typoBody.align;
     }
@@ -2631,6 +2784,8 @@
     canvasCta.style.fontSize = (ctaSize * fs * shrinkRatio) + 'px';
     canvasCta.style.fontWeight = (state.typoCta && state.typoCta.weight) || '500';
     canvasCta.style.letterSpacing = ((state.typoCta && state.typoCta.ls) || 0) + 'px';
+    var ctaCase = (state.typoCta && state.typoCta.case) || 'none';
+    canvasCta.style.textTransform = ctaCase === 'none' ? '' : ctaCase;
 
     // Logo scale
     const logoSpan = canvasLogo.querySelector('span');
@@ -2692,6 +2847,8 @@
 
     // Re-apply free layout (handles get stripped by textContent assignment above)
     reapplyFreeLayout();
+    // Re-apply text drag offsets
+    reapplyTextOffsets();
   }
 
   // ============ APPLY DECORATIONS (per template) ============
@@ -3305,6 +3462,12 @@
     // CTA letter spacing
     var ctaLs = (state.typoCta && state.typoCta.ls) || 0;
     if (typoCtaLs) { typoCtaLs.value = ctaLs; if (typoCtaLsVal) typoCtaLsVal.textContent = ctaLs; }
+
+    // Body case
+    document.querySelectorAll('.body-case-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.case === ((state.typoBody && state.typoBody.case) || 'none')); });
+
+    // CTA case
+    document.querySelectorAll('.cta-case-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.case === ((state.typoCta && state.typoCta.case) || 'none')); });
 
     // Colors
     document.getElementById('color-bg').value = state.bgColor;

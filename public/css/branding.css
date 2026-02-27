@@ -986,6 +986,29 @@ body {
 }
 .subline-case-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
 .subline-case-btn.active { border-color: var(--accent); color: var(--accent); }
+.body-case-btn, .cta-case-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 30px;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--bg-panel); color: var(--text-dim);
+  font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.body-case-btn:hover, .cta-case-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+.body-case-btn.active, .cta-case-btn.active { border-color: var(--accent); color: var(--accent); }
+
+/* Headline size presets */
+.hsize-btns { display: flex; gap: 4px; }
+.hsize-btn {
+  flex: 1; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--bg-panel); color: var(--text-dim);
+  font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.hsize-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+.hsize-btn.active { border-color: var(--accent); color: var(--accent); }
 
 /* Color field row (inline color picker with label and reset) */
 .color-field-row { display: flex; align-items: center; gap: 6px; }
@@ -1395,6 +1418,19 @@ input[type="range"]::-webkit-slider-thumb {
   transition: all .2s;
 }
 .canvas__cta:focus { outline: 1px dashed rgba(196,98,42,0.4); outline-offset: 4px; }
+
+/* ---- TEXT DRAG ---- */
+.canvas__headline,
+.canvas__subline,
+.canvas__body,
+.canvas__cta,
+.canvas__logo { cursor: grab; }
+.canvas__headline:focus,
+.canvas__subline:focus,
+.canvas__body:focus,
+.canvas__cta:focus { cursor: text; }
+.text-dragging { cursor: grabbing !important; user-select: none !important; -webkit-user-select: none !important; opacity: 0.85; }
+.canvas.has-text-drag { cursor: grabbing; }
 
 /* ---- TEMPLATE VARIANTS ---- */
 
