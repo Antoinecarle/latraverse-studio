@@ -82,6 +82,12 @@
       opacityCta: 100,
       headlineRotation: 0,
       headlineDecoration: 'none',
+      textShadowX: 0,
+      textShadowY: 2,
+      textShadowColor: '#000000',
+      contentAlign: 'start',
+      bgOverlayColor: '#000000',
+      bgOverlayOpacity: 0,
       zoom: 100,
       gridVisible: false,
       stickers: [],
@@ -1211,9 +1217,38 @@
   if (fxShadow) fxShadow.addEventListener('input', () => {
     state.fxShadow = parseInt(fxShadow.value);
     if (fxShadowVal) fxShadowVal.textContent = fxShadow.value;
+    var sfCtrl = document.getElementById('shadow-fine-controls');
+    if (sfCtrl) sfCtrl.style.display = state.fxShadow > 0 ? '' : 'none';
     applyEffects();
   });
   if (fxShadow) fxShadow.addEventListener('change', () => pushHistory());
+
+  // Shadow fine controls (X, Y, color)
+  var shadowXSlider = document.getElementById('shadow-x');
+  var shadowYSlider = document.getElementById('shadow-y');
+  var shadowXVal = document.getElementById('shadow-x-val');
+  var shadowYVal = document.getElementById('shadow-y-val');
+  var shadowColorInput = document.getElementById('shadow-color');
+
+  if (shadowXSlider) shadowXSlider.addEventListener('input', function() {
+    state.textShadowX = parseInt(shadowXSlider.value);
+    if (shadowXVal) shadowXVal.textContent = shadowXSlider.value;
+    applyEffects();
+  });
+  if (shadowXSlider) shadowXSlider.addEventListener('change', function() { pushHistory(); });
+
+  if (shadowYSlider) shadowYSlider.addEventListener('input', function() {
+    state.textShadowY = parseInt(shadowYSlider.value);
+    if (shadowYVal) shadowYVal.textContent = shadowYSlider.value;
+    applyEffects();
+  });
+  if (shadowYSlider) shadowYSlider.addEventListener('change', function() { pushHistory(); });
+
+  if (shadowColorInput) shadowColorInput.addEventListener('input', function() {
+    state.textShadowColor = shadowColorInput.value;
+    applyEffects();
+  });
+  if (shadowColorInput) shadowColorInput.addEventListener('change', function() { pushHistory(); });
 
   if (fxGlow) fxGlow.addEventListener('input', () => {
     state.fxGlow = parseInt(fxGlow.value);
@@ -1390,6 +1425,12 @@
     canvasContent.style.padding = (state.canvasPadding || 10) + '%';
   }
 
+  function applyContentAlign() {
+    if (!canvasContent) return;
+    var align = state.contentAlign || 'start';
+    canvasContent.style.justifyContent = align === 'start' ? 'flex-start' : align === 'center' ? 'center' : 'flex-end';
+  }
+
   // Element opacity controls
   var opSliders = [
     { id: 'opacity-subline', valId: 'opacity-subline-val', key: 'opacitySubline', el: canvasSubline },
@@ -1489,6 +1530,17 @@
     state.showVignette = e.target.checked;
     canvasVignette.classList.toggle('visible', state.showVignette);
     pushHistory();
+  });
+
+  // ============ VERTICAL CONTENT ALIGNMENT ============
+  document.querySelectorAll('.valign-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.valign-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.contentAlign = btn.dataset.valign;
+      applyContentAlign();
+      pushHistory();
+    });
   });
 
   // ============ BACKGROUND IMAGE ============
@@ -1607,6 +1659,36 @@
     applyBgImage();
   });
   if (inputSaturation) inputSaturation.addEventListener('change', () => pushHistory());
+
+  // BG Overlay controls
+  var bgOverlayColorInput = document.getElementById('bg-overlay-color');
+  var bgOverlayOpacityInput = document.getElementById('bg-overlay-opacity');
+  var bgOverlayOpacityVal = document.getElementById('bg-overlay-opacity-val');
+  var canvasBgOverlay = document.getElementById('canvas-bg-overlay');
+
+  if (bgOverlayColorInput) bgOverlayColorInput.addEventListener('input', function() {
+    state.bgOverlayColor = bgOverlayColorInput.value;
+    applyBgOverlay();
+  });
+  if (bgOverlayColorInput) bgOverlayColorInput.addEventListener('change', function() { pushHistory(); });
+
+  if (bgOverlayOpacityInput) bgOverlayOpacityInput.addEventListener('input', function() {
+    state.bgOverlayOpacity = parseInt(bgOverlayOpacityInput.value);
+    if (bgOverlayOpacityVal) bgOverlayOpacityVal.textContent = state.bgOverlayOpacity;
+    applyBgOverlay();
+  });
+  if (bgOverlayOpacityInput) bgOverlayOpacityInput.addEventListener('change', function() { pushHistory(); });
+
+  function applyBgOverlay() {
+    if (!canvasBgOverlay) return;
+    var op = (state.bgOverlayOpacity || 0) / 100;
+    if (op > 0) {
+      canvasBgOverlay.style.background = state.bgOverlayColor || '#000000';
+      canvasBgOverlay.style.opacity = op;
+    } else {
+      canvasBgOverlay.style.opacity = '0';
+    }
+  }
 
   function applyBgImage() {
     canvasBgImage.style.setProperty('--overlay-opacity', state.bgOpacity / 100);
@@ -1773,6 +1855,7 @@
     var prevTransform = canvasWrapper.style.transform;
     canvasWrapper.style.transform = '';
     canvas.classList.add('exporting');
+    canvasWrapper.style.overflow = 'hidden';
     deselectStickers();
 
     // Snapshot current pixel dimensions (set by updateCanvas)
@@ -1788,7 +1871,8 @@
     canvasWrapper.style.height = nativeH + 'px';
 
     // Re-apply typography at native scale so fonts are crisp
-    applyTypography(nativeW / 540);
+    var exportFontScale = Math.max(nativeW, nativeH) / 540;
+    applyTypography(exportFontScale);
 
     return {
       restore: function() {
@@ -1798,8 +1882,9 @@
         canvasWrapper.style.width = prevCanvasW + 'px';
         canvasWrapper.style.height = prevCanvasH + 'px';
         canvasWrapper.style.transform = prevTransform;
+        canvasWrapper.style.overflow = '';
         canvas.classList.remove('exporting');
-        applyTypography(prevCanvasW / 540);
+        applyTypography(Math.max(prevCanvasW, prevCanvasH) / 540);
       }
     };
   }
@@ -2079,8 +2164,8 @@
 
     if (infoFormat) infoFormat.textContent = state.format.label + ' \u2014 ' + state.format.w + ' \u00d7 ' + state.format.h;
 
-    // Scale font sizes
-    const fontScale = displayW / 540;
+    // Scale font sizes — use the larger display dimension vs 540 so portrait formats don't shrink text
+    const fontScale = Math.max(displayW, displayH) / 540;
 
     // Update text
     canvasHeadline.textContent = state.headline;
@@ -2112,6 +2197,8 @@
     applyBorderStyle();
     applyLogoScale();
     applyCanvasPadding();
+    applyContentAlign();
+    applyBgOverlay();
     applyElementOpacities();
     applyHeadlineRotation();
     applyHeadlineDecoration();
@@ -2179,7 +2266,7 @@
 
   // ============ APPLY TYPOGRAPHY ============
   function applyTypography(fontScale) {
-    const s = fontScale || (canvas.offsetWidth / 540);
+    const s = fontScale || (Math.max(canvas.offsetWidth, canvas.offsetHeight) / 540);
     const fs = Math.max(0.5, Math.min(s, 1.5));
 
     // Content alignment for some templates (set BEFORE measuring)
@@ -2257,7 +2344,10 @@
     if (state.template !== 'neon') {
       // Only apply manual shadow if not neon
       if (state.fxShadow > 0) {
-        shadows.push('0 ' + (state.fxShadow / 2) + 'px ' + state.fxShadow + 'px rgba(0,0,0,0.5)');
+        var sx = state.textShadowX || 0;
+        var sy = state.textShadowY != null ? state.textShadowY : 2;
+        var scolor = state.textShadowColor || '#000000';
+        shadows.push(sx + 'px ' + sy + 'px ' + state.fxShadow + 'px ' + scolor + '80');
       }
       if (state.fxGlow > 0) {
         shadows.push('0 0 ' + state.fxGlow + 'px ' + state.accentColor);
@@ -2956,6 +3046,20 @@
 
     // Headline decoration
     document.querySelectorAll('.hdeco-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.deco === (state.headlineDecoration || 'none')); });
+
+    // Shadow fine controls
+    var sfCtrl = document.getElementById('shadow-fine-controls');
+    if (sfCtrl) sfCtrl.style.display = state.fxShadow > 0 ? '' : 'none';
+    if (shadowXSlider) { shadowXSlider.value = state.textShadowX || 0; if (shadowXVal) shadowXVal.textContent = state.textShadowX || 0; }
+    if (shadowYSlider) { shadowYSlider.value = state.textShadowY != null ? state.textShadowY : 2; if (shadowYVal) shadowYVal.textContent = state.textShadowY != null ? state.textShadowY : 2; }
+    if (shadowColorInput) shadowColorInput.value = state.textShadowColor || '#000000';
+
+    // Vertical content alignment
+    document.querySelectorAll('.valign-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.valign === (state.contentAlign || 'start')); });
+
+    // BG overlay
+    if (bgOverlayColorInput) bgOverlayColorInput.value = state.bgOverlayColor || '#000000';
+    if (bgOverlayOpacityInput) { bgOverlayOpacityInput.value = state.bgOverlayOpacity || 0; if (bgOverlayOpacityVal) bgOverlayOpacityVal.textContent = state.bgOverlayOpacity || 0; }
 
     // Stickers — restore counter to avoid ID conflicts
     if (state.stickers && state.stickers.length > 0) {
@@ -3808,9 +3912,9 @@
     scheduleAutoSave();
   });
 
-  // Click on canvas area (not on sticker) deselects
-  canvas.addEventListener('mousedown', function(e) {
-    if (!e.target.closest('.sticker-item') && !e.target.closest('.canvas__content')) {
+  // Click on canvas area or outside (not on sticker) deselects
+  canvasArea.addEventListener('mousedown', function(e) {
+    if (!e.target.closest('.sticker-item') && !e.target.closest('.sticker-inline-toolbar')) {
       deselectStickers();
     }
   });

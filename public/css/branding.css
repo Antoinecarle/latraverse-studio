@@ -1176,13 +1176,13 @@ input[type="range"]::-webkit-slider-thumb {
 .canvas-wrapper {
   box-shadow: 0 8px 40px rgba(0,0,0,0.5);
   border-radius: 4px;
-  overflow: hidden;
+  overflow: visible;
   transition: width .3s, height .3s, transform .15s;
 }
 
 .canvas {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2386,7 +2386,8 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .placed-sticker-row__delete:hover { color: #e53e3e; background: rgba(229,62,62,0.1); }
 
-/* Hide handles during export */
+/* Hide handles during export + clip overflow */
+.canvas.exporting { overflow: hidden !important; border-radius: 4px; }
 .canvas.exporting .sticker-handle,
 .canvas.exporting .sticker-handle--rotate,
 .canvas.exporting .sticker-delete,
@@ -3809,6 +3810,30 @@ input[type="range"]::-webkit-slider-thumb {
 .bstyle-prev--double { border: 2px double currentColor; outline: 1px solid currentColor; outline-offset: 2px; }
 .bstyle-prev--dashed { border: 1.5px dashed currentColor; }
 .bstyle-prev--inset { border: 1px solid currentColor; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.06), inset 0 0 0 3px currentColor; }
+
+/* ── Vertical Align Buttons ── */
+.valign-btns { display: flex; gap: 5px; }
+.valign-btn {
+  width: 34px; height: 28px; border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
+  color: var(--text-muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.valign-btn:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+.valign-btn.active { border-color: var(--accent); background: rgba(196,98,42,0.12); color: var(--accent); }
+
+/* ── Shadow Fine Controls ── */
+#shadow-fine-controls { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); }
+
+/* ── BG Overlay ── */
+.canvas__bg-overlay {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  opacity: 0; transition: opacity .2s;
+}
+
+/* ── Field Separator ── */
+.field-sep { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 0; }
 
 /* ── Canvas Pattern Overlay ── */
 .canvas__pattern { position: absolute; inset: 0; z-index: 3; pointer-events: none; }

@@ -623,6 +623,22 @@
           <label>Ombre du titre <span id="fx-shadow-val">0</span></label>
           <input type="range" id="fx-shadow" min="0" max="30" value="0">
         </div>
+        <div id="shadow-fine-controls" style="display:none">
+          <div class="field-row">
+            <div class="field field--half">
+              <label>Decalage X <span id="shadow-x-val">0</span></label>
+              <input type="range" id="shadow-x" min="-20" max="20" value="0" step="1">
+            </div>
+            <div class="field field--half">
+              <label>Decalage Y <span id="shadow-y-val">2</span></label>
+              <input type="range" id="shadow-y" min="-20" max="20" value="2" step="1">
+            </div>
+          </div>
+          <div class="color-row">
+            <label>Couleur ombre</label>
+            <input type="color" id="shadow-color" value="#000000" class="color-input color-input--lg">
+          </div>
+        </div>
         <div class="field">
           <label>Glow accent <span id="fx-glow-val">0</span></label>
           <input type="range" id="fx-glow" min="0" max="40" value="0">
@@ -663,6 +679,20 @@
       <section class="panel panel--collapsible">
         <h3 class="panel__title panel__title--toggle" data-collapsed="true">Options <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
         <div class="panel__body">
+        <div class="field">
+          <label>Alignement vertical</label>
+          <div class="valign-btns" id="valign-btns">
+            <button class="valign-btn active" data-valign="start" title="Haut">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="12" height="12" rx="1.5" stroke-opacity="0.3"/><line x1="4" y1="3.5" x2="10" y2="3.5"/><line x1="4" y1="6" x2="8" y2="6"/></svg>
+            </button>
+            <button class="valign-btn" data-valign="center" title="Centre">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="12" height="12" rx="1.5" stroke-opacity="0.3"/><line x1="4" y1="5.5" x2="10" y2="5.5"/><line x1="4" y1="8" x2="8" y2="8"/></svg>
+            </button>
+            <button class="valign-btn" data-valign="end" title="Bas">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="12" height="12" rx="1.5" stroke-opacity="0.3"/><line x1="4" y1="8.5" x2="10" y2="8.5"/><line x1="4" y1="11" x2="8" y2="11"/></svg>
+            </button>
+          </div>
+        </div>
         <div class="field field--check">
           <input type="checkbox" id="opt-logo" checked>
           <label for="opt-logo">Logo La Traverse</label>
@@ -886,6 +916,15 @@
             <label>Saturation <span id="saturation-val">100</span>%</label>
             <input type="range" id="input-saturation" min="0" max="200" value="100">
           </div>
+          <div class="field-sep"></div>
+          <div class="color-row">
+            <label>Teinte overlay</label>
+            <input type="color" id="bg-overlay-color" value="#000000" class="color-input color-input--lg">
+          </div>
+          <div class="field">
+            <label>Opacite teinte <span id="bg-overlay-opacity-val">0</span>%</label>
+            <input type="range" id="bg-overlay-opacity" min="0" max="80" value="0" step="1">
+          </div>
         </div>
         </div>
       </section>
@@ -1038,6 +1077,7 @@
         <div class="canvas__grain" id="canvas-grain"></div>
         <div class="canvas__border" id="canvas-border"></div>
         <div class="canvas__bgimage" id="canvas-bgimage"></div>
+        <div class="canvas__bg-overlay" id="canvas-bg-overlay"></div>
         <div class="canvas__vignette" id="canvas-vignette"></div>
         <div class="canvas__pattern" id="canvas-pattern"></div>
         <div class="canvas__decorations" id="canvas-decorations"></div>
