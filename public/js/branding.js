@@ -76,6 +76,7 @@
       bgPatternOpacity: 15,
       bgPatternScale: 20,
       ctaStyle: 'text',
+      canvasPadding: 10,
       zoom: 100,
       gridVisible: false,
       stickers: [],
@@ -1350,6 +1351,40 @@
     canvasLogo.style.transformOrigin = 'top left';
   }
 
+  // Canvas padding
+  var canvasPaddingSlider = document.getElementById('canvas-padding');
+  var canvasPaddingVal = document.getElementById('canvas-padding-val');
+  var canvasContent = document.querySelector('.canvas__content');
+
+  document.querySelectorAll('.padding-preset').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.padding-preset').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var val = parseInt(btn.dataset.pad);
+      state.canvasPadding = val;
+      if (canvasPaddingSlider) canvasPaddingSlider.value = val;
+      if (canvasPaddingVal) canvasPaddingVal.textContent = val + '%';
+      applyCanvasPadding();
+      pushHistory();
+    });
+  });
+
+  if (canvasPaddingSlider) canvasPaddingSlider.addEventListener('input', function() {
+    state.canvasPadding = parseInt(canvasPaddingSlider.value);
+    if (canvasPaddingVal) canvasPaddingVal.textContent = canvasPaddingSlider.value + '%';
+    // Update preset active state
+    document.querySelectorAll('.padding-preset').forEach(function(b) {
+      b.classList.toggle('active', parseInt(b.dataset.pad) === state.canvasPadding);
+    });
+    applyCanvasPadding();
+  });
+  if (canvasPaddingSlider) canvasPaddingSlider.addEventListener('change', function() { pushHistory(); });
+
+  function applyCanvasPadding() {
+    if (!canvasContent) return;
+    canvasContent.style.padding = (state.canvasPadding || 10) + '%';
+  }
+
   document.getElementById('opt-grain').addEventListener('change', e => {
     state.showGrain = e.target.checked;
     canvasGrain.classList.toggle('visible', state.showGrain);
@@ -1958,6 +1993,7 @@
     applyPattern();
     applyBorderStyle();
     applyLogoScale();
+    applyCanvasPadding();
     applyDecorations();
     renderStickers();
     applyZoom();
@@ -2779,6 +2815,11 @@
 
     // Logo scale
     if (logoScaleSlider) { logoScaleSlider.value = state.logoScale || 100; if (logoScaleVal) logoScaleVal.textContent = state.logoScale || 100; }
+
+    // Canvas padding
+    var padVal = state.canvasPadding || 10;
+    if (canvasPaddingSlider) { canvasPaddingSlider.value = padVal; if (canvasPaddingVal) canvasPaddingVal.textContent = padVal + '%'; }
+    document.querySelectorAll('.padding-preset').forEach(function(b) { b.classList.toggle('active', parseInt(b.dataset.pad) === padVal); });
 
     // Stickers — restore counter to avoid ID conflicts
     if (state.stickers && state.stickers.length > 0) {

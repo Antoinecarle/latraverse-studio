@@ -3758,6 +3758,17 @@ input[type="range"]::-webkit-slider-thumb {
   font-family: inherit; font-weight: 600; letter-spacing: 0.04em;
 }
 
+/* ── Padding Presets ── */
+.padding-presets { display: flex; gap: 4px; }
+.padding-preset {
+  flex: 1; height: 28px; border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
+  color: var(--text-muted); font-size: 10px; font-weight: 600; font-family: var(--font-mono);
+  cursor: pointer; transition: all .15s;
+}
+.padding-preset:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+.padding-preset.active { border-color: var(--accent); background: rgba(196,98,42,0.12); color: var(--accent); }
+
 /* ── Border Style Buttons ── */
 .border-style-btns { display: flex; gap: 6px; flex-wrap: wrap; }
 .border-style-btn {
