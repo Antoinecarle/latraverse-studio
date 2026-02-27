@@ -221,6 +221,29 @@
     }
   }
 
+  async function duplicatePub(id) {
+    try {
+      const res = await fetch('/api/brandings/' + id);
+      if (!res.ok) return;
+      const pub = await res.json();
+      var dupState = JSON.parse(JSON.stringify(pub.state || {}));
+      var dupName = (pub.name || 'Sans titre') + ' (copie)';
+      var createRes = await fetch('/api/brandings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state: dupState, name: dupName }),
+      });
+      if (createRes.ok) {
+        var newPub = await createRes.json();
+        await autoSave();
+        await loadPub(newPub.id);
+        loadPubList();
+      }
+    } catch (e) {
+      console.error('Duplicate pub error:', e);
+    }
+  }
+
   async function loadPubList() {
     try {
       const res = await fetch('/api/brandings');
@@ -241,12 +264,15 @@
               '<div class="pub-item__name">' + (b.name || 'Sans titre') + '</div>' +
               '<div class="pub-item__meta">' + (b.template || 'minimal') + ' &middot; ' + (b.format || 'Post') + ' &middot; ' + date + '</div>' +
             '</div>' +
-            (isActive ? '' : '<button class="pub-item__delete" data-id="' + b.id + '" title="Supprimer">&times;</button>') +
+            '<div class="pub-item__actions">' +
+              '<button class="pub-item__dup" data-id="' + b.id + '" title="Dupliquer"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="8" height="8" rx="1"/><path d="M3 3V2a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1"/></svg></button>' +
+              (isActive ? '' : '<button class="pub-item__delete" data-id="' + b.id + '" title="Supprimer">&times;</button>') +
+            '</div>' +
           '</div>';
         }).join('');
         pubList.querySelectorAll('.pub-item').forEach(item => {
           item.addEventListener('click', (e) => {
-            if (e.target.closest('.pub-item__delete')) return;
+            if (e.target.closest('.pub-item__delete') || e.target.closest('.pub-item__dup')) return;
             const id = item.dataset.id;
             if (id !== currentPubId) {
               autoSave().then(() => loadPub(id).then(() => {
@@ -262,6 +288,12 @@
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (confirm('Supprimer cette pub ?')) deletePub(btn.dataset.id);
+          });
+        });
+        pubList.querySelectorAll('.pub-item__dup').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            duplicatePub(btn.dataset.id);
           });
         });
       }
@@ -2474,6 +2506,12 @@
   });
   if (shortcutsOverlay) shortcutsOverlay.addEventListener('click', function(e) {
     if (e.target === shortcutsOverlay) shortcutsOverlay.classList.remove('visible');
+  });
+
+  // Shortcuts help button in canvas info bar
+  var btnShortcutsHelp = document.getElementById('btn-shortcuts-help');
+  if (btnShortcutsHelp) btnShortcutsHelp.addEventListener('click', function() {
+    if (shortcutsOverlay) shortcutsOverlay.classList.toggle('visible');
   });
 
   // ============ HELPER ============
