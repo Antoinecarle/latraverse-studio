@@ -68,38 +68,23 @@ class RealtimeClient {
   }
 
   /**
-   * Send session.update with tools, instructions, and voice config
+   * Send init message with design state — server relay configures session
    */
-  configureSession(tools, instructions) {
-    // Convert tools from Responses API format to Realtime API format
-    const realtimeTools = tools.map(t => ({
-      type: 'function',
-      name: t.name,
-      description: t.description,
-      parameters: t.parameters,
-    }));
-
+  sendInit(designState) {
     this._send({
-      type: 'session.update',
-      session: {
-        modalities: ['text', 'audio'],
-        tools: realtimeTools,
-        instructions: instructions,
-        voice: 'alloy',
-        input_audio_format: 'pcm16',
-        output_audio_format: 'pcm16',
-        input_audio_transcription: {
-          model: 'gpt-4o-mini-transcription',
-        },
-        turn_detection: {
-          type: 'server_vad',
-          threshold: 0.5,
-          prefix_padding_ms: 300,
-          silence_duration_ms: 500,
-        },
-      },
+      type: 'init',
+      designState: designState,
     });
-    this._sessionConfigured = true;
+  }
+
+  /**
+   * Send updated design state to server relay (re-configures instructions)
+   */
+  sendDesignStateUpdate(designState) {
+    this._send({
+      type: 'design_state_update',
+      designState: designState,
+    });
   }
 
   /**
@@ -272,7 +257,8 @@ class RealtimeClient {
         break;
 
       case 'session.updated':
-        console.log('[Realtime] Session updated');
+        console.log('[Realtime] Session updated — ready to stream audio');
+        this._sessionConfigured = true;
         break;
 
       case 'response.created':

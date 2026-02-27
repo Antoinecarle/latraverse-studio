@@ -1795,7 +1795,49 @@ app.post('/api/agent/chat', async (req, res) => {
 // ============================================================
 // WebSocket Relay — OpenAI Realtime API
 // Proxies ws:// from browser to wss://api.openai.com/v1/realtime
+// Server-side: injects session.update with tools + instructions
+// Client sends { type: 'init', designState: {...} } first
 // ============================================================
+
+function buildRealtimeTools() {
+  // Same tools as AGENT_TOOLS but formatted for Realtime API
+  return AGENT_TOOLS.map(t => ({
+    type: 'function',
+    name: t.name,
+    description: t.description,
+    parameters: t.parameters,
+  }));
+}
+
+function buildRealtimeInstructions(designState) {
+  const stateDesc = buildDesignStateDescription(designState);
+  return `Tu es l'assistant créatif vocal de La Traverse Studio — un partenaire de design qui aide à créer des publications pour les réseaux sociaux.
+
+PERSONNALITÉ :
+- Tu es un directeur artistique passionné, enthousiaste mais professionnel
+- Tu parles TOUJOURS en français, de manière naturelle et chaleureuse
+- Tu donnes des avis créatifs argumentés
+- Tu proposes des idées quand on te demande, tu ne te contentes pas d'exécuter
+- Tu peux discuter de design, de couleurs, de tendances, de branding
+- Quand tu exécutes une action, tu expliques brièvement pourquoi ce choix est bon
+- Sois concis dans tes réponses vocales (2-3 phrases max sauf si on te demande plus)
+
+CONTEXTE :
+Tu travailles sur le Studio Branding de La Traverse, un outil de création de posts pour réseaux sociaux.
+L'utilisateur voit un canvas avec un design en temps réel. Toi aussi tu vois l'état du design via les informations ci-dessous.
+Tu as accès à des fonctions (tools) pour modifier le design en temps réel : changer le template, les couleurs, le texte, la typographie, les effets, générer des images de fond IA, des stickers, des animations SVG, exporter, etc.
+${stateDesc}
+
+RÈGLES :
+- Si l'utilisateur demande quelque chose de vague ("fais-moi un truc cool"), propose d'abord, puis exécute si il valide
+- Si l'utilisateur veut discuter sans agir, discute — n'appelle pas de fonction
+- Tu peux enchaîner plusieurs actions pour une demande complexe (ex: "fais un design tech neon" → setTemplate neon + setStylePack tech + setColors)
+- Pour les couleurs, traduis les noms en hex (rouge = #e53e3e, bleu = #3b82f6, vert = #22c55e, jaune = #eab308, rose = #ec4899, violet = #8b5cf6, orange = #f97316, noir = #000000, blanc = #ffffff, etc.)
+- Pour les images de fond, traduis le prompt en anglais pour Gemini
+- Quand tu génères du texte pour le design, adapte-le au contexte de La Traverse (studio digital à Marseille)
+- IMPORTANT : tu DOIS utiliser les fonctions tools disponibles pour modifier le design. Ne décris pas ce que tu ferais — FAIS-LE en appelant les fonctions.`;
+}
+
 const wss = new WebSocketServer({ server, path: '/ws/realtime' });
 
 wss.on('connection', (clientWs) => {
@@ -1807,69 +1849,152 @@ wss.on('connection', (clientWs) => {
     return;
   }
 
-  // Open upstream connection to OpenAI Realtime API
-  const openaiUrl = 'wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2025-06-03';
-  const openaiWs = new WebSocket(openaiUrl, {
-    headers: {
-      'Authorization': `Bearer ${OPENAI_API_KEY}`,
-      'OpenAI-Beta': 'realtime=v1',
-    },
-  });
-
+  let openaiWs = null;
   let openaiReady = false;
+  let sessionConfigured = false;
+  let clientDesignState = null;
   const pendingMessages = [];
 
-  openaiWs.on('open', () => {
-    console.log('[WS Relay] Connected to OpenAI Realtime API');
-    openaiReady = true;
-    // Flush any messages queued while connecting
-    for (const msg of pendingMessages) {
-      openaiWs.send(msg);
-    }
-    pendingMessages.length = 0;
-  });
+  function connectOpenAI() {
+    const openaiUrl = 'wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2025-06-03';
+    openaiWs = new WebSocket(openaiUrl, {
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'OpenAI-Beta': 'realtime=v1',
+      },
+    });
 
-  openaiWs.on('message', (data) => {
-    // Forward OpenAI responses to browser client
-    if (clientWs.readyState === WebSocket.OPEN) {
-      clientWs.send(data.toString());
-    }
-  });
+    openaiWs.on('open', () => {
+      console.log('[WS Relay] Connected to OpenAI Realtime API');
+      openaiReady = true;
+      // Flush any audio messages queued while connecting
+      for (const msg of pendingMessages) {
+        openaiWs.send(msg);
+      }
+      pendingMessages.length = 0;
+    });
 
-  openaiWs.on('close', (code, reason) => {
-    console.log('[WS Relay] OpenAI closed:', code, reason.toString());
-    if (clientWs.readyState === WebSocket.OPEN) {
-      clientWs.close(code, reason.toString());
-    }
-  });
+    openaiWs.on('message', (data) => {
+      const str = data.toString();
 
-  openaiWs.on('error', (err) => {
-    console.error('[WS Relay] OpenAI error:', err.message);
-    if (clientWs.readyState === WebSocket.OPEN) {
-      clientWs.close(1011, 'OpenAI connection error');
-    }
-  });
+      // Intercept session.created to inject session.update with tools
+      if (!sessionConfigured) {
+        try {
+          const parsed = JSON.parse(str);
+          if (parsed.type === 'session.created') {
+            console.log('[WS Relay] Session created — injecting session.update with tools + instructions');
+            const sessionUpdate = {
+              type: 'session.update',
+              session: {
+                modalities: ['text', 'audio'],
+                tools: buildRealtimeTools(),
+                instructions: buildRealtimeInstructions(clientDesignState),
+                voice: 'alloy',
+                input_audio_format: 'pcm16',
+                output_audio_format: 'pcm16',
+                input_audio_transcription: {
+                  model: 'gpt-4o-mini-transcription',
+                },
+                turn_detection: {
+                  type: 'server_vad',
+                  threshold: 0.5,
+                  prefix_padding_ms: 300,
+                  silence_duration_ms: 700,
+                },
+              },
+            };
+            openaiWs.send(JSON.stringify(sessionUpdate));
+            sessionConfigured = true;
+            console.log('[WS Relay] Session configured with', buildRealtimeTools().length, 'tools');
+          }
+        } catch (e) {
+          // Not JSON or parse error — just forward
+        }
+      }
 
-  // Forward browser messages to OpenAI
+      // Forward everything to browser client
+      if (clientWs.readyState === WebSocket.OPEN) {
+        clientWs.send(str);
+      }
+    });
+
+    openaiWs.on('close', (code, reason) => {
+      console.log('[WS Relay] OpenAI closed:', code, reason.toString());
+      if (clientWs.readyState === WebSocket.OPEN) {
+        clientWs.close(code, reason.toString());
+      }
+    });
+
+    openaiWs.on('error', (err) => {
+      console.error('[WS Relay] OpenAI error:', err.message);
+      if (clientWs.readyState === WebSocket.OPEN) {
+        clientWs.close(1011, 'OpenAI connection error');
+      }
+    });
+  }
+
+  // Handle messages from browser client
   clientWs.on('message', (data) => {
-    const msg = data.toString();
-    if (openaiReady && openaiWs.readyState === WebSocket.OPEN) {
-      openaiWs.send(msg);
+    const msgStr = data.toString();
+
+    // Intercept custom 'init' message from client with design state
+    try {
+      const parsed = JSON.parse(msgStr);
+      if (parsed.type === 'init') {
+        clientDesignState = parsed.designState || null;
+        console.log('[WS Relay] Received init with design state:', clientDesignState ? 'yes' : 'no');
+
+        // Now connect to OpenAI (we waited for init so we have the design state)
+        if (!openaiWs) {
+          connectOpenAI();
+        }
+        return; // Don't forward init to OpenAI
+      }
+
+      // Intercept design state updates
+      if (parsed.type === 'design_state_update') {
+        clientDesignState = parsed.designState || null;
+        // Re-send session.update with new instructions
+        if (openaiReady && openaiWs.readyState === WebSocket.OPEN) {
+          const sessionUpdate = {
+            type: 'session.update',
+            session: {
+              instructions: buildRealtimeInstructions(clientDesignState),
+            },
+          };
+          openaiWs.send(JSON.stringify(sessionUpdate));
+          console.log('[WS Relay] Updated session instructions with new design state');
+        }
+        return; // Don't forward to OpenAI
+      }
+
+      // Don't forward client session.update — server handles that
+      if (parsed.type === 'session.update') {
+        console.log('[WS Relay] Ignoring client session.update (server handles config)');
+        return;
+      }
+    } catch (e) {
+      // Not JSON — binary or other, just forward
+    }
+
+    // Forward everything else to OpenAI
+    if (openaiReady && openaiWs && openaiWs.readyState === WebSocket.OPEN) {
+      openaiWs.send(msgStr);
     } else {
-      pendingMessages.push(msg);
+      pendingMessages.push(msgStr);
     }
   });
 
   clientWs.on('close', () => {
     console.log('[WS Relay] Client disconnected');
-    if (openaiWs.readyState === WebSocket.OPEN || openaiWs.readyState === WebSocket.CONNECTING) {
+    if (openaiWs && (openaiWs.readyState === WebSocket.OPEN || openaiWs.readyState === WebSocket.CONNECTING)) {
       openaiWs.close();
     }
   });
 
   clientWs.on('error', (err) => {
     console.error('[WS Relay] Client error:', err.message);
-    if (openaiWs.readyState === WebSocket.OPEN) {
+    if (openaiWs && openaiWs.readyState === WebSocket.OPEN) {
       openaiWs.close();
     }
   });

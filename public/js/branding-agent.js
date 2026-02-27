@@ -15,29 +15,7 @@
   let chatOpen = false;
   let realtimeClient = null;
   let currentTranscript = '';      // accumulates AI transcript deltas
-  let currentUserTranscript = '';  // user speech transcript
   let transcriptMsgEl = null;     // DOM element for streaming AI transcript
-
-  // ============ AGENT TOOLS (for Realtime API session config) ============
-  const AGENT_TOOLS = [
-    { type: 'function', name: 'setTemplate', description: 'Change le template du design. Templates disponibles: minimal, bold, gradient, split, editorial, glass, neon, promo, quote, duotone, geometric, typewriter, blobs, cards, grid-pattern, magazine, poster, layered', parameters: { type: 'object', properties: { template: { type: 'string', description: 'Nom du template' } }, required: ['template'] } },
-    { type: 'function', name: 'setStylePack', description: 'Applique un pack de style. Packs: traverse, tech, ocean, neonpop, light, sunset, corporate, creative', parameters: { type: 'object', properties: { pack: { type: 'string', description: 'Nom du pack de style' } }, required: ['pack'] } },
-    { type: 'function', name: 'setColors', description: 'Change les couleurs du design (hex)', parameters: { type: 'object', properties: { bgColor: { type: 'string' }, textColor: { type: 'string' }, accentColor: { type: 'string' }, accentColor2: { type: 'string' } } } },
-    { type: 'function', name: 'setText', description: 'Change le texte du design', parameters: { type: 'object', properties: { headline: { type: 'string' }, subline: { type: 'string' }, body: { type: 'string' }, cta: { type: 'string' } } } },
-    { type: 'function', name: 'setTypography', description: 'Change la typographie. Polices: Playfair Display, DM Serif Display, Libre Baskerville, Inter, Instrument Sans, Bebas Neue, Poppins, Oswald, Lora, Montserrat, Raleway, Space Mono', parameters: { type: 'object', properties: { target: { type: 'string', enum: ['headline', 'body'] }, font: { type: 'string' }, size: { type: 'number' }, weight: { type: 'string' }, align: { type: 'string', enum: ['left', 'center', 'right'] }, textCase: { type: 'string', enum: ['none', 'uppercase', 'lowercase', 'capitalize'] } }, required: ['target'] } },
-    { type: 'function', name: 'toggleEffect', description: 'Active/desactive un effet', parameters: { type: 'object', properties: { effect: { type: 'string', enum: ['grain', 'vignette', 'border', 'logo', 'outline', 'gradient'] }, enabled: { type: 'boolean' } }, required: ['effect', 'enabled'] } },
-    { type: 'function', name: 'setEffectValues', description: 'Regle ombre/glow du texte', parameters: { type: 'object', properties: { shadow: { type: 'number' }, glow: { type: 'number' } } } },
-    { type: 'function', name: 'setGradient', description: 'Configure le fond en degrade', parameters: { type: 'object', properties: { enabled: { type: 'boolean' }, start: { type: 'string' }, end: { type: 'string' }, angle: { type: 'number' } }, required: ['enabled'] } },
-    { type: 'function', name: 'setFormat', description: 'Change le format du design', parameters: { type: 'object', properties: { format: { type: 'string', enum: ['post', 'story', 'landscape', 'banner', 'square'] } }, required: ['format'] } },
-    { type: 'function', name: 'generateBackgroundImage', description: "Genere une image de fond IA", parameters: { type: 'object', properties: { prompt: { type: 'string' } }, required: ['prompt'] } },
-    { type: 'function', name: 'generateSticker', description: "Genere un sticker IA", parameters: { type: 'object', properties: { prompt: { type: 'string' } }, required: ['prompt'] } },
-    { type: 'function', name: 'generateSvgAnimation', description: "Genere une animation SVG", parameters: { type: 'object', properties: { prompt: { type: 'string' } }, required: ['prompt'] } },
-    { type: 'function', name: 'exportDesign', description: 'Exporte le design en PNG', parameters: { type: 'object', properties: {} } },
-    { type: 'function', name: 'newDesign', description: 'Cree un nouveau design', parameters: { type: 'object', properties: { name: { type: 'string' } } } },
-    { type: 'function', name: 'resetDesign', description: 'Reinitialise le design', parameters: { type: 'object', properties: {} } },
-    { type: 'function', name: 'undoRedo', description: 'Annule ou retablit', parameters: { type: 'object', properties: { action: { type: 'string', enum: ['undo', 'redo'] } }, required: ['action'] } },
-    { type: 'function', name: 'setBgImageSettings', description: "Regle opacite/flou de l'image de fond", parameters: { type: 'object', properties: { opacity: { type: 'number' }, blur: { type: 'number' } } } },
-  ];
 
   // ============ DOM REFS ============
   const agentBtn = document.getElementById('agent-btn');
@@ -53,42 +31,6 @@
   if (!agentBtn) return;
 
   // ============ REALTIME VOICE MODE ============
-
-  function buildRealtimeInstructions() {
-    var ds = getDesignState();
-    var stateDesc = '';
-    if (ds) {
-      stateDesc = '\n\nETAT ACTUEL DU DESIGN :\n';
-      stateDesc += '- Template: ' + (ds.template || 'minimal') + '\n';
-      stateDesc += '- Format: ' + (ds.format?.label || 'Post') + ' (' + (ds.format?.w) + 'x' + (ds.format?.h) + ')\n';
-      stateDesc += '- Titre: "' + (ds.headline || '') + '"\n';
-      stateDesc += '- Sous-titre: "' + (ds.subline || '') + '"\n';
-      stateDesc += '- Corps: "' + (ds.body || '') + '"\n';
-      stateDesc += '- CTA: "' + (ds.cta || '') + '"\n';
-      stateDesc += '- Couleur fond: ' + (ds.bgColor || '#1a1714') + '\n';
-      stateDesc += '- Couleur texte: ' + (ds.textColor || '#f0e8dc') + '\n';
-      stateDesc += '- Accent: ' + (ds.accentColor || '#c4622a') + '\n';
-      stateDesc += '- Style pack: ' + (ds.stylePack || 'aucun') + '\n';
-      stateDesc += '- Police titre: ' + (ds.typoHeadline?.font || 'Playfair Display') + '\n';
-      stateDesc += '- Police corps: ' + (ds.typoBody?.font || 'Libre Baskerville') + '\n';
-    }
-
-    return "Tu es l'assistant creatif vocal de La Traverse Studio — un partenaire de design qui aide a creer des publications pour les reseaux sociaux.\n\n" +
-      "PERSONNALITE :\n" +
-      "- Tu es un directeur artistique passionne, enthousiaste mais professionnel\n" +
-      "- Tu parles TOUJOURS en francais, de maniere naturelle et chaleureuse\n" +
-      "- Tu donnes des avis creatifs argumentes\n" +
-      "- Tu proposes des idees quand on te demande\n" +
-      "- Sois concis dans tes reponses vocales (2-3 phrases max)\n" +
-      "- Quand tu executes une action, explique brievement pourquoi\n\n" +
-      "REGLES :\n" +
-      "- Si l'utilisateur demande quelque chose de vague, propose d'abord\n" +
-      "- Si l'utilisateur veut discuter sans agir, discute — n'appelle pas de fonction\n" +
-      "- Tu peux enchainer plusieurs actions pour une demande complexe\n" +
-      "- Pour les couleurs, traduis les noms en hex (rouge = #e53e3e, bleu = #3b82f6, etc.)\n" +
-      "- Pour les images de fond, traduis le prompt en anglais pour Gemini\n" +
-      stateDesc;
-  }
 
   async function startVoiceMode() {
     // Open panel if closed
@@ -109,8 +51,7 @@
       // Create Realtime client
       realtimeClient = new RealtimeClient({
         onSessionCreated: function () {
-          console.log('[Agent] Realtime session created, configuring...');
-          realtimeClient.configureSession(AGENT_TOOLS, buildRealtimeInstructions());
+          console.log('[Agent] Realtime session created — server handles config');
         },
 
         onAudioDelta: function () {
@@ -200,6 +141,9 @@
 
       // Connect WebSocket
       await realtimeClient.connect();
+
+      // Send init with design state — server will configure session with tools + instructions
+      realtimeClient.sendInit(getDesignState());
 
       // Start audio capture
       await realtimeClient.startAudioCapture(stream);
@@ -628,9 +572,9 @@
   // Listen for pub changes to reload conversation
   window.addEventListener('branding-pub-changed', function () {
     if (chatOpen) loadConversation();
-    // If voice mode is active, update the session instructions with new design state
+    // If voice mode is active, send updated design state to server relay
     if (voiceMode && realtimeClient) {
-      realtimeClient.configureSession(AGENT_TOOLS, buildRealtimeInstructions());
+      realtimeClient.sendDesignStateUpdate(getDesignState());
     }
   });
 
