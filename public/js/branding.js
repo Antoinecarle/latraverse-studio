@@ -63,7 +63,9 @@
       borderOffset: 12,
       logoScale: 100,
       showGrain: false,
+      grainOpacity: 100,
       showVignette: false,
+      vignetteIntensity: 120,
       bgImage: null,
       bgOpacity: 70,
       bgBlur: 0,
@@ -2107,14 +2109,51 @@
   document.getElementById('opt-grain').addEventListener('change', e => {
     state.showGrain = e.target.checked;
     canvasGrain.classList.toggle('visible', state.showGrain);
+    var grainCtrl = document.getElementById('grain-controls');
+    if (grainCtrl) grainCtrl.style.display = state.showGrain ? '' : 'none';
     pushHistory();
   });
+
+  // Grain opacity
+  var grainOpacitySlider = document.getElementById('grain-opacity');
+  var grainOpacityVal = document.getElementById('grain-opacity-val');
+  if (grainOpacitySlider) grainOpacitySlider.addEventListener('input', function() {
+    state.grainOpacity = parseInt(grainOpacitySlider.value);
+    if (grainOpacityVal) grainOpacityVal.textContent = grainOpacitySlider.value;
+    applyGrain();
+  });
+  if (grainOpacitySlider) grainOpacitySlider.addEventListener('change', function() { pushHistory(); });
+
+  function applyGrain() {
+    if (!canvasGrain) return;
+    var op = (state.grainOpacity != null ? state.grainOpacity : 100) / 100;
+    canvasGrain.style.opacity = state.showGrain ? op : 0;
+  }
 
   document.getElementById('opt-vignette').addEventListener('change', e => {
     state.showVignette = e.target.checked;
     canvasVignette.classList.toggle('visible', state.showVignette);
+    var vigCtrl = document.getElementById('vignette-controls');
+    if (vigCtrl) vigCtrl.style.display = state.showVignette ? '' : 'none';
+    applyVignette();
     pushHistory();
   });
+
+  // Vignette intensity
+  var vignetteSlider = document.getElementById('vignette-intensity');
+  var vignetteVal = document.getElementById('vignette-intensity-val');
+  if (vignetteSlider) vignetteSlider.addEventListener('input', function() {
+    state.vignetteIntensity = parseInt(vignetteSlider.value);
+    if (vignetteVal) vignetteVal.textContent = vignetteSlider.value;
+    applyVignette();
+  });
+  if (vignetteSlider) vignetteSlider.addEventListener('change', function() { pushHistory(); });
+
+  function applyVignette() {
+    if (!canvasVignette) return;
+    var spread = state.vignetteIntensity != null ? state.vignetteIntensity : 120;
+    canvasVignette.style.boxShadow = 'inset 0 0 ' + spread + 'px rgba(0,0,0,0.6)';
+  }
 
   // ============ VERTICAL CONTENT ALIGNMENT ============
   document.querySelectorAll('.valign-btn').forEach(function(btn) {
@@ -2767,7 +2806,9 @@
     canvasLogo.style.display = state.showLogo ? '' : 'none';
     canvasBorder.classList.toggle('visible', state.showBorder);
     canvasGrain.classList.toggle('visible', state.showGrain);
+    applyGrain();
     canvasVignette.classList.toggle('visible', state.showVignette);
+    applyVignette();
 
     // BG image
     if (state.bgImage) {
@@ -3711,7 +3752,13 @@
     document.getElementById('opt-logo').checked = state.showLogo;
     document.getElementById('opt-border').checked = state.showBorder;
     document.getElementById('opt-grain').checked = state.showGrain;
+    var grainCtrl = document.getElementById('grain-controls');
+    if (grainCtrl) grainCtrl.style.display = state.showGrain ? '' : 'none';
+    if (grainOpacitySlider) { grainOpacitySlider.value = state.grainOpacity != null ? state.grainOpacity : 100; if (grainOpacityVal) grainOpacityVal.textContent = state.grainOpacity != null ? state.grainOpacity : 100; }
     document.getElementById('opt-vignette').checked = state.showVignette;
+    var vigCtrl = document.getElementById('vignette-controls');
+    if (vigCtrl) vigCtrl.style.display = state.showVignette ? '' : 'none';
+    if (vignetteSlider) { vignetteSlider.value = state.vignetteIntensity != null ? state.vignetteIntensity : 120; if (vignetteVal) vignetteVal.textContent = state.vignetteIntensity != null ? state.vignetteIntensity : 120; }
 
     // Border style
     document.querySelectorAll('.border-style-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.bstyle === (state.borderStyle || 'classic')); });

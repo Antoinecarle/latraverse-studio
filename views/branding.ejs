@@ -989,9 +989,21 @@
           <input type="checkbox" id="opt-grain">
           <label for="opt-grain">Texture grain</label>
         </div>
+        <div id="grain-controls" style="display:none; margin-top:4px; margin-bottom:8px">
+          <div class="field">
+            <label>Intensite <span id="grain-opacity-val">100</span>%</label>
+            <input type="range" id="grain-opacity" min="10" max="100" value="100" step="5">
+          </div>
+        </div>
         <div class="field field--check">
           <input type="checkbox" id="opt-vignette">
           <label for="opt-vignette">Vignette</label>
+        </div>
+        <div id="vignette-controls" style="display:none; margin-top:4px; margin-bottom:8px">
+          <div class="field">
+            <label>Profondeur <span id="vignette-intensity-val">120</span>px</label>
+            <input type="range" id="vignette-intensity" min="20" max="200" value="120" step="10">
+          </div>
         </div>
         </div>
       </section>
