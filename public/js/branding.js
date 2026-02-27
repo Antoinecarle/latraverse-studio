@@ -88,6 +88,12 @@
       contentAlign: 'start',
       bgOverlayColor: '#000000',
       bgOverlayOpacity: 0,
+      showSubline: true,
+      showBody: true,
+      showCta: true,
+      sublineStyle: 'text',
+      bgPosition: 'center',
+      bgSize: 'cover',
       zoom: 100,
       gridVisible: false,
       stickers: [],
@@ -733,6 +739,74 @@
       canvasCta.style.background = '';
       canvasCta.style.color = '';
       canvasCta.style.borderColor = '';
+    }
+  }
+
+  // ============ ELEMENT VISIBILITY TOGGLES ============
+  var toggleSubline = document.getElementById('toggle-subline');
+  var toggleBody = document.getElementById('toggle-body');
+  var toggleCta = document.getElementById('toggle-cta');
+
+  if (toggleSubline) toggleSubline.addEventListener('change', function() {
+    state.showSubline = toggleSubline.checked;
+    canvasSubline.style.display = state.showSubline ? '' : 'none';
+    var slineField = document.getElementById('subline-style-field');
+    if (slineField) slineField.style.display = state.showSubline ? '' : 'none';
+    pushHistory();
+  });
+  if (toggleBody) toggleBody.addEventListener('change', function() {
+    state.showBody = toggleBody.checked;
+    canvasBody.style.display = state.showBody ? '' : 'none';
+    pushHistory();
+  });
+  if (toggleCta) toggleCta.addEventListener('change', function() {
+    state.showCta = toggleCta.checked;
+    canvasCta.style.display = state.showCta ? '' : 'none';
+    pushHistory();
+  });
+
+  // ============ SUBLINE STYLE ============
+  document.querySelectorAll('.sline-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.sline-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.sublineStyle = btn.dataset.sline;
+      applySublineStyle();
+      pushHistory();
+    });
+  });
+
+  function applySublineStyle() {
+    if (!canvasSubline) return;
+    var s = state.sublineStyle || 'text';
+    var accent = state.accentColor || '#c4622a';
+    canvasSubline.setAttribute('data-subline-style', s);
+    // Reset inline styles (except promo template overrides)
+    if (state.template !== 'promo') {
+      canvasSubline.style.background = '';
+      canvasSubline.style.color = '';
+    }
+    canvasSubline.style.borderBottom = '';
+    canvasSubline.style.paddingBottom = '';
+    canvasSubline.style.borderRadius = '';
+    canvasSubline.style.padding = '';
+    switch (s) {
+      case 'badge':
+        canvasSubline.style.background = accent;
+        canvasSubline.style.color = '#fff';
+        canvasSubline.style.padding = '2px 10px';
+        canvasSubline.style.borderRadius = '4px';
+        break;
+      case 'pill':
+        canvasSubline.style.background = accent;
+        canvasSubline.style.color = '#fff';
+        canvasSubline.style.padding = '2px 14px';
+        canvasSubline.style.borderRadius = '999px';
+        break;
+      case 'separator':
+        canvasSubline.style.borderBottom = '2px solid ' + accent;
+        canvasSubline.style.paddingBottom = '4px';
+        break;
     }
   }
 
@@ -1690,6 +1764,28 @@
     }
   }
 
+  // BG size buttons
+  document.querySelectorAll('.bgsize-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.bgsize-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.bgSize = btn.dataset.bgsize;
+      applyBgImage();
+      pushHistory();
+    });
+  });
+
+  // BG position grid
+  document.querySelectorAll('.bgpos-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.bgpos-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.bgPosition = btn.dataset.bgpos;
+      applyBgImage();
+      pushHistory();
+    });
+  });
+
   function applyBgImage() {
     canvasBgImage.style.setProperty('--overlay-opacity', state.bgOpacity / 100);
     var filters = [];
@@ -1699,6 +1795,8 @@
     if (state.bgSaturation !== 100) filters.push('saturate(' + (state.bgSaturation / 100) + ')');
     canvasBgImage.style.filter = filters.length ? filters.join(' ') : '';
     canvasBgImage.style.transform = state.bgBlur > 0 ? 'scale(1.05)' : '';
+    canvasBgImage.style.backgroundSize = state.bgSize || 'cover';
+    canvasBgImage.style.backgroundPosition = state.bgPosition || 'center';
   }
 
   // ============ ZOOM ============
@@ -2192,6 +2290,11 @@
     applyTypography(fontScale);
     applyEffects();
     applyCtaStyle();
+    applySublineStyle();
+    // Element visibility
+    if (canvasSubline) canvasSubline.style.display = state.showSubline === false ? 'none' : '';
+    if (canvasBody) canvasBody.style.display = state.showBody === false ? 'none' : '';
+    if (canvasCta) canvasCta.style.display = state.showCta === false ? 'none' : '';
     applyBgImage();
     applyPattern();
     applyBorderStyle();
@@ -3060,6 +3163,20 @@
     // BG overlay
     if (bgOverlayColorInput) bgOverlayColorInput.value = state.bgOverlayColor || '#000000';
     if (bgOverlayOpacityInput) { bgOverlayOpacityInput.value = state.bgOverlayOpacity || 0; if (bgOverlayOpacityVal) bgOverlayOpacityVal.textContent = state.bgOverlayOpacity || 0; }
+
+    // Element visibility toggles
+    if (toggleSubline) toggleSubline.checked = state.showSubline !== false;
+    if (toggleBody) toggleBody.checked = state.showBody !== false;
+    if (toggleCta) toggleCta.checked = state.showCta !== false;
+    var slineField = document.getElementById('subline-style-field');
+    if (slineField) slineField.style.display = state.showSubline !== false ? '' : 'none';
+
+    // Subline style
+    document.querySelectorAll('.sline-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.sline === (state.sublineStyle || 'text')); });
+
+    // BG position/size
+    document.querySelectorAll('.bgsize-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.bgsize === (state.bgSize || 'cover')); });
+    document.querySelectorAll('.bgpos-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.bgpos === (state.bgPosition || 'center')); });
 
     // Stickers — restore counter to avoid ID conflicts
     if (state.stickers && state.stickers.length > 0) {

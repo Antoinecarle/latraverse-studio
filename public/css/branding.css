@@ -3811,6 +3811,61 @@ input[type="range"]::-webkit-slider-thumb {
 .bstyle-prev--dashed { border: 1.5px dashed currentColor; }
 .bstyle-prev--inset { border: 1px solid currentColor; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.06), inset 0 0 0 3px currentColor; }
 
+/* ── Mini Toggle (visibility) ── */
+.field-label-row { display: flex; align-items: center; justify-content: space-between; }
+.mini-toggle { position: relative; width: 28px; height: 16px; cursor: pointer; display: inline-block; }
+.mini-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.mini-toggle__dot {
+  position: absolute; inset: 0; border-radius: 8px;
+  background: rgba(255,255,255,0.1); transition: background .2s;
+}
+.mini-toggle__dot::after {
+  content: ''; position: absolute; left: 2px; top: 2px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: rgba(255,255,255,0.3); transition: all .2s;
+}
+.mini-toggle input:checked + .mini-toggle__dot { background: var(--accent); }
+.mini-toggle input:checked + .mini-toggle__dot::after { left: 14px; background: #fff; }
+
+/* ── Subline Style Buttons ── */
+.subline-style-btns { display: flex; gap: 5px; }
+.sline-btn {
+  width: 34px; height: 28px; border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
+  color: var(--text-muted); font-size: 12px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.sline-btn:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+.sline-btn.active { border-color: var(--accent); background: rgba(196,98,42,0.12); color: var(--accent); }
+.sline-prev--badge { font-size: 9px; background: currentColor; color: var(--panel-bg); padding: 1px 4px; border-radius: 3px; }
+.sline-prev--pill { font-size: 9px; background: currentColor; color: var(--panel-bg); padding: 1px 6px; border-radius: 99px; }
+.sline-prev--separator { font-size: 14px; letter-spacing: 4px; }
+
+/* ── BG Size Buttons ── */
+.bgsize-btns { display: flex; gap: 5px; }
+.bgsize-btn {
+  flex: 1; height: 28px; border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
+  color: var(--text-muted); font-size: 10px; font-weight: 600; font-family: var(--font-mono);
+  cursor: pointer; transition: all .15s;
+}
+.bgsize-btn:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+.bgsize-btn.active { border-color: var(--accent); background: rgba(196,98,42,0.12); color: var(--accent); }
+
+/* ── BG Position Grid ── */
+.bgpos-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px;
+  width: 72px;
+}
+.bgpos-btn {
+  width: 22px; height: 18px; border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
+  cursor: pointer; transition: all .15s;
+}
+.bgpos-btn:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+.bgpos-btn.active { border-color: var(--accent); background: rgba(196,98,42,0.15); }
+
 /* ── Vertical Align Buttons ── */
 .valign-btns { display: flex; gap: 5px; }
 .valign-btn {

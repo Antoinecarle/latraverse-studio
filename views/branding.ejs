@@ -269,15 +269,33 @@
           <input type="text" id="input-headline" value="Studio digital" placeholder="Titre...">
         </div>
         <div class="field">
-          <label>Sous-titre</label>
+          <div class="field-label-row">
+            <label>Sous-titre</label>
+            <label class="mini-toggle"><input type="checkbox" id="toggle-subline" checked><span class="mini-toggle__dot"></span></label>
+          </div>
           <input type="text" id="input-subline" value="Marseille" placeholder="Sous-titre...">
         </div>
+        <div class="field" id="subline-style-field">
+          <label>Style sous-titre</label>
+          <div class="subline-style-btns" id="subline-style-btns">
+            <button class="sline-btn active" data-sline="text" title="Texte">Aa</button>
+            <button class="sline-btn" data-sline="badge" title="Badge"><span class="sline-prev sline-prev--badge">A</span></button>
+            <button class="sline-btn" data-sline="pill" title="Pilule"><span class="sline-prev sline-prev--pill">A</span></button>
+            <button class="sline-btn" data-sline="separator" title="Separateur"><span class="sline-prev sline-prev--separator">—</span></button>
+          </div>
+        </div>
         <div class="field">
-          <label>Corps de texte</label>
+          <div class="field-label-row">
+            <label>Corps de texte</label>
+            <label class="mini-toggle"><input type="checkbox" id="toggle-body" checked><span class="mini-toggle__dot"></span></label>
+          </div>
           <textarea id="input-body" rows="3" placeholder="Description...">Sites, apps et outils sur-mesure pour artisans, commercants et independants.</textarea>
         </div>
         <div class="field">
-          <label>CTA / Bas de page</label>
+          <div class="field-label-row">
+            <label>CTA / Bas de page</label>
+            <label class="mini-toggle"><input type="checkbox" id="toggle-cta" checked><span class="mini-toggle__dot"></span></label>
+          </div>
           <input type="text" id="input-cta" value="latraverse.studio" placeholder="CTA ou URL...">
         </div>
         <div class="field">
@@ -924,6 +942,28 @@
           <div class="field">
             <label>Opacite teinte <span id="bg-overlay-opacity-val">0</span>%</label>
             <input type="range" id="bg-overlay-opacity" min="0" max="80" value="0" step="1">
+          </div>
+          <div class="field-sep"></div>
+          <div class="field">
+            <label>Taille image</label>
+            <div class="bgsize-btns" id="bgsize-btns">
+              <button class="bgsize-btn active" data-bgsize="cover" title="Couvrir">Couvrir</button>
+              <button class="bgsize-btn" data-bgsize="contain" title="Contenir">Contenir</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Position image</label>
+            <div class="bgpos-grid" id="bgpos-grid">
+              <button class="bgpos-btn" data-bgpos="top left" title="Haut gauche"></button>
+              <button class="bgpos-btn" data-bgpos="top center" title="Haut centre"></button>
+              <button class="bgpos-btn" data-bgpos="top right" title="Haut droite"></button>
+              <button class="bgpos-btn" data-bgpos="center left" title="Centre gauche"></button>
+              <button class="bgpos-btn active" data-bgpos="center" title="Centre"></button>
+              <button class="bgpos-btn" data-bgpos="center right" title="Centre droite"></button>
+              <button class="bgpos-btn" data-bgpos="bottom left" title="Bas gauche"></button>
+              <button class="bgpos-btn" data-bgpos="bottom center" title="Bas centre"></button>
+              <button class="bgpos-btn" data-bgpos="bottom right" title="Bas droite"></button>
+            </div>
           </div>
         </div>
         </div>
