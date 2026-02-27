@@ -623,9 +623,27 @@
           <input type="checkbox" id="opt-logo" checked>
           <label for="opt-logo">Logo La Traverse</label>
         </div>
+        <div class="field" id="logo-scale-field">
+          <label>Taille logo</label>
+          <div class="slider-row">
+            <input type="range" id="logo-scale" min="50" max="200" value="100" step="5">
+            <span id="logo-scale-val">100</span>
+          </div>
+        </div>
         <div class="field field--check">
           <input type="checkbox" id="opt-border" checked>
           <label for="opt-border">Bordure accent</label>
+        </div>
+        <div class="field" id="border-style-field">
+          <label>Style bordure</label>
+          <div class="border-style-btns" id="border-style-btns">
+            <button class="border-style-btn" data-bstyle="thin" title="Fine"><span class="bstyle-prev bstyle-prev--thin"></span></button>
+            <button class="border-style-btn active" data-bstyle="classic" title="Classique"><span class="bstyle-prev bstyle-prev--classic"></span></button>
+            <button class="border-style-btn" data-bstyle="thick" title="Epaisse"><span class="bstyle-prev bstyle-prev--thick"></span></button>
+            <button class="border-style-btn" data-bstyle="double" title="Double"><span class="bstyle-prev bstyle-prev--double"></span></button>
+            <button class="border-style-btn" data-bstyle="dashed" title="Tirets"><span class="bstyle-prev bstyle-prev--dashed"></span></button>
+            <button class="border-style-btn" data-bstyle="inset" title="Retrait"><span class="bstyle-prev bstyle-prev--inset"></span></button>
+          </div>
         </div>
         <div class="field field--check">
           <input type="checkbox" id="opt-grain">

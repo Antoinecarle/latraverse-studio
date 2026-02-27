@@ -52,6 +52,8 @@
       stylePack: null,
       showLogo: true,
       showBorder: true,
+      borderStyle: 'classic',
+      logoScale: 100,
       showGrain: false,
       showVignette: false,
       bgImage: null,
@@ -1280,8 +1282,73 @@
   document.getElementById('opt-border').addEventListener('change', e => {
     state.showBorder = e.target.checked;
     canvasBorder.classList.toggle('visible', state.showBorder);
+    var bsf = document.getElementById('border-style-field');
+    if (bsf) bsf.style.display = state.showBorder ? '' : 'none';
     pushHistory();
   });
+
+  // Border style variants
+  document.querySelectorAll('.border-style-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.border-style-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.borderStyle = btn.dataset.bstyle;
+      applyBorderStyle();
+      pushHistory();
+    });
+  });
+
+  function applyBorderStyle() {
+    if (!canvasBorder) return;
+    var s = state.borderStyle || 'classic';
+    canvasBorder.setAttribute('data-border-style', s);
+    // Reset inline border styles
+    canvasBorder.style.border = '';
+    canvasBorder.style.outline = '';
+    canvasBorder.style.outlineOffset = '';
+    canvasBorder.style.boxShadow = '';
+    var col = state.accentColor || '#c4622a';
+    switch (s) {
+      case 'thin':
+        canvasBorder.style.border = '1px solid ' + col;
+        break;
+      case 'classic':
+        canvasBorder.style.border = '2px solid ' + col;
+        break;
+      case 'thick':
+        canvasBorder.style.border = '4px solid ' + col;
+        break;
+      case 'double':
+        canvasBorder.style.border = '3px double ' + col;
+        canvasBorder.style.outline = '1px solid ' + col;
+        canvasBorder.style.outlineOffset = '4px';
+        break;
+      case 'dashed':
+        canvasBorder.style.border = '2px dashed ' + col;
+        break;
+      case 'inset':
+        canvasBorder.style.border = '1px solid ' + col;
+        canvasBorder.style.boxShadow = 'inset 0 0 0 3px ' + state.bgColor + ', inset 0 0 0 4px ' + col;
+        break;
+    }
+  }
+
+  // Logo scale
+  var logoScaleSlider = document.getElementById('logo-scale');
+  var logoScaleVal = document.getElementById('logo-scale-val');
+  if (logoScaleSlider) logoScaleSlider.addEventListener('input', function() {
+    state.logoScale = parseInt(logoScaleSlider.value);
+    if (logoScaleVal) logoScaleVal.textContent = logoScaleSlider.value;
+    applyLogoScale();
+  });
+  if (logoScaleSlider) logoScaleSlider.addEventListener('change', function() { pushHistory(); });
+
+  function applyLogoScale() {
+    if (!canvasLogo) return;
+    var scale = (state.logoScale || 100) / 100;
+    canvasLogo.style.transform = scale !== 1 ? 'scale(' + scale + ')' : '';
+    canvasLogo.style.transformOrigin = 'top left';
+  }
 
   document.getElementById('opt-grain').addEventListener('change', e => {
     state.showGrain = e.target.checked;
@@ -1889,6 +1956,8 @@
     applyCtaStyle();
     applyBgImage();
     applyPattern();
+    applyBorderStyle();
+    applyLogoScale();
     applyDecorations();
     renderStickers();
     applyZoom();
@@ -1911,8 +1980,7 @@
     // Text color
     canvas.style.color = state.textColor;
 
-    // Accent on border
-    canvasBorder.style.borderColor = state.accentColor;
+    // Accent on border — handled by applyBorderStyle()
 
     // Split template: right panel via box-shadow
     if (state.template === 'split') {
@@ -2703,6 +2771,14 @@
     document.getElementById('opt-border').checked = state.showBorder;
     document.getElementById('opt-grain').checked = state.showGrain;
     document.getElementById('opt-vignette').checked = state.showVignette;
+
+    // Border style
+    document.querySelectorAll('.border-style-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.bstyle === (state.borderStyle || 'classic')); });
+    var bsf = document.getElementById('border-style-field');
+    if (bsf) bsf.style.display = state.showBorder ? '' : 'none';
+
+    // Logo scale
+    if (logoScaleSlider) { logoScaleSlider.value = state.logoScale || 100; if (logoScaleVal) logoScaleVal.textContent = state.logoScale || 100; }
 
     // Stickers — restore counter to avoid ID conflicts
     if (state.stickers && state.stickers.length > 0) {
