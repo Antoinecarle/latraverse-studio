@@ -10,3 +10,8 @@ current-state.png
 full-page-final.png
 full-page-revealed.png
 ssl/
+
+# Data files — persisted locally, NOT in git
+data/brandings.json
+data/conversations.json
+public/uploads/branding/
