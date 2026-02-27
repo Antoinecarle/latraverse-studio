@@ -1,7 +1,9 @@
 require('dotenv').config({ override: true });
 const express = require('express');
+const http = require('http');
 const path = require('path');
 const multer = require('multer');
+const { WebSocketServer, WebSocket } = require('ws');
 const clientsDb = require('./db/clients');
 const leadsDb = require('./db/leads');
 const diagnosticsDb = require('./db/diagnostics');
@@ -20,6 +22,7 @@ try {
 }
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 
 // Uploads directory
@@ -1789,6 +1792,89 @@ app.post('/api/agent/chat', async (req, res) => {
   }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+// ============================================================
+// WebSocket Relay — OpenAI Realtime API
+// Proxies ws:// from browser to wss://api.openai.com/v1/realtime
+// ============================================================
+const wss = new WebSocketServer({ server, path: '/ws/realtime' });
+
+wss.on('connection', (clientWs) => {
+  console.log('[WS Relay] Client connected');
+
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  if (!OPENAI_API_KEY) {
+    clientWs.close(1008, 'OPENAI_API_KEY not configured');
+    return;
+  }
+
+  // Open upstream connection to OpenAI Realtime API
+  const openaiUrl = 'wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2025-06-03';
+  const openaiWs = new WebSocket(openaiUrl, {
+    headers: {
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      'OpenAI-Beta': 'realtime=v1',
+    },
+  });
+
+  let openaiReady = false;
+  const pendingMessages = [];
+
+  openaiWs.on('open', () => {
+    console.log('[WS Relay] Connected to OpenAI Realtime API');
+    openaiReady = true;
+    // Flush any messages queued while connecting
+    for (const msg of pendingMessages) {
+      openaiWs.send(msg);
+    }
+    pendingMessages.length = 0;
+  });
+
+  openaiWs.on('message', (data) => {
+    // Forward OpenAI responses to browser client
+    if (clientWs.readyState === WebSocket.OPEN) {
+      clientWs.send(data.toString());
+    }
+  });
+
+  openaiWs.on('close', (code, reason) => {
+    console.log('[WS Relay] OpenAI closed:', code, reason.toString());
+    if (clientWs.readyState === WebSocket.OPEN) {
+      clientWs.close(code, reason.toString());
+    }
+  });
+
+  openaiWs.on('error', (err) => {
+    console.error('[WS Relay] OpenAI error:', err.message);
+    if (clientWs.readyState === WebSocket.OPEN) {
+      clientWs.close(1011, 'OpenAI connection error');
+    }
+  });
+
+  // Forward browser messages to OpenAI
+  clientWs.on('message', (data) => {
+    const msg = data.toString();
+    if (openaiReady && openaiWs.readyState === WebSocket.OPEN) {
+      openaiWs.send(msg);
+    } else {
+      pendingMessages.push(msg);
+    }
+  });
+
+  clientWs.on('close', () => {
+    console.log('[WS Relay] Client disconnected');
+    if (openaiWs.readyState === WebSocket.OPEN || openaiWs.readyState === WebSocket.CONNECTING) {
+      openaiWs.close();
+    }
+  });
+
+  clientWs.on('error', (err) => {
+    console.error('[WS Relay] Client error:', err.message);
+    if (openaiWs.readyState === WebSocket.OPEN) {
+      openaiWs.close();
+    }
+  });
+});
+
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`La Traverse running at http://0.0.0.0:${PORT}`);
 });

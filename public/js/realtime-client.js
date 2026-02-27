@@ -1,0 +1,363 @@
+/**
+ * RealtimeClient — WebSocket client for OpenAI Realtime API relay
+ * Handles audio capture (AudioWorklet), playback, and event routing.
+ */
+class RealtimeClient {
+  constructor(options = {}) {
+    this.ws = null;
+    this.audioContext = null;
+    this.workletNode = null;
+    this.micStream = null;
+
+    // Playback state
+    this._playbackQueue = [];
+    this._isPlaying = false;
+    this._currentSource = null;
+    this._nextPlaybackTime = 0;
+
+    // Callbacks
+    this.onSessionCreated = options.onSessionCreated || null;
+    this.onAudioDelta = options.onAudioDelta || null;
+    this.onTranscriptDelta = options.onTranscriptDelta || null;
+    this.onInputTranscript = options.onInputTranscript || null;
+    this.onSpeechStarted = options.onSpeechStarted || null;
+    this.onSpeechStopped = options.onSpeechStopped || null;
+    this.onFunctionCall = options.onFunctionCall || null;
+    this.onResponseDone = options.onResponseDone || null;
+    this.onError = options.onError || null;
+    this.onClose = options.onClose || null;
+    this.onResponseCreated = options.onResponseCreated || null;
+
+    this._connected = false;
+    this._sessionConfigured = false;
+  }
+
+  /**
+   * Connect to the WebSocket relay server
+   */
+  async connect() {
+    return new Promise((resolve, reject) => {
+      const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const url = `${proto}//${window.location.host}/ws/realtime`;
+
+      console.log('[Realtime] Connecting to', url);
+      this.ws = new WebSocket(url);
+
+      this.ws.onopen = () => {
+        console.log('[Realtime] Connected');
+        this._connected = true;
+        resolve();
+      };
+
+      this.ws.onclose = (e) => {
+        console.log('[Realtime] Closed:', e.code, e.reason);
+        this._connected = false;
+        if (this.onClose) this.onClose(e);
+      };
+
+      this.ws.onerror = (e) => {
+        console.error('[Realtime] WebSocket error:', e);
+        if (!this._connected) reject(e);
+        if (this.onError) this.onError(e);
+      };
+
+      this.ws.onmessage = (event) => {
+        this._handleMessage(event);
+      };
+    });
+  }
+
+  /**
+   * Send session.update with tools, instructions, and voice config
+   */
+  configureSession(tools, instructions) {
+    // Convert tools from Responses API format to Realtime API format
+    const realtimeTools = tools.map(t => ({
+      type: 'function',
+      name: t.name,
+      description: t.description,
+      parameters: t.parameters,
+    }));
+
+    this._send({
+      type: 'session.update',
+      session: {
+        modalities: ['text', 'audio'],
+        tools: realtimeTools,
+        instructions: instructions,
+        voice: 'alloy',
+        input_audio_format: 'pcm16',
+        output_audio_format: 'pcm16',
+        input_audio_transcription: {
+          model: 'gpt-4o-mini-transcription',
+        },
+        turn_detection: {
+          type: 'server_vad',
+          threshold: 0.5,
+          prefix_padding_ms: 300,
+          silence_duration_ms: 500,
+        },
+      },
+    });
+    this._sessionConfigured = true;
+  }
+
+  /**
+   * Start capturing mic audio via AudioWorklet and streaming to WS
+   */
+  async startAudioCapture(stream) {
+    this.micStream = stream;
+    this.audioContext = new AudioContext({ sampleRate: 24000 });
+
+    // Load the AudioWorklet processor
+    await this.audioContext.audioWorklet.addModule('/js/audio-processor.js');
+
+    const source = this.audioContext.createMediaStreamSource(stream);
+    this.workletNode = new AudioWorkletNode(this.audioContext, 'audio-capture-processor');
+
+    // Receive PCM16 buffers from the worklet
+    this.workletNode.port.onmessage = (event) => {
+      if (!this._connected || !this._sessionConfigured) return;
+
+      const pcm16Buffer = event.data;
+      const bytes = new Uint8Array(pcm16Buffer);
+      const base64 = this._arrayBufferToBase64(bytes);
+
+      this._send({
+        type: 'input_audio_buffer.append',
+        audio: base64,
+      });
+    };
+
+    source.connect(this.workletNode);
+    this.workletNode.connect(this.audioContext.destination);
+    // The worklet captures audio but doesn't output anything — connected to destination just to keep it alive
+  }
+
+  /**
+   * Play PCM16 audio chunk (base64 encoded)
+   */
+  playAudio(base64Audio) {
+    if (!this.audioContext) {
+      this.audioContext = new AudioContext({ sampleRate: 24000 });
+    }
+
+    const bytes = this._base64ToArrayBuffer(base64Audio);
+    const int16 = new Int16Array(bytes);
+    const float32 = new Float32Array(int16.length);
+
+    // Convert Int16 to Float32
+    for (let i = 0; i < int16.length; i++) {
+      float32[i] = int16[i] / 32768;
+    }
+
+    const buffer = this.audioContext.createBuffer(1, float32.length, 24000);
+    buffer.getChannelData(0).set(float32);
+
+    this._playbackQueue.push(buffer);
+    this._playNextChunk();
+  }
+
+  _playNextChunk() {
+    if (this._playbackQueue.length === 0) {
+      this._isPlaying = false;
+      return;
+    }
+
+    this._isPlaying = true;
+    const buffer = this._playbackQueue.shift();
+    const source = this.audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(this.audioContext.destination);
+
+    const now = this.audioContext.currentTime;
+    const startTime = Math.max(now, this._nextPlaybackTime);
+    source.start(startTime);
+    this._nextPlaybackTime = startTime + buffer.duration;
+    this._currentSource = source;
+
+    source.onended = () => {
+      if (this._playbackQueue.length > 0) {
+        this._playNextChunk();
+      } else {
+        this._isPlaying = false;
+        this._currentSource = null;
+      }
+    };
+  }
+
+  /**
+   * Stop all audio playback immediately
+   */
+  stopPlayback() {
+    this._playbackQueue = [];
+    this._nextPlaybackTime = 0;
+    if (this._currentSource) {
+      try { this._currentSource.stop(); } catch (e) {}
+      this._currentSource = null;
+    }
+    this._isPlaying = false;
+  }
+
+  /**
+   * Send function call result back to the API
+   */
+  sendFunctionResult(callId, result) {
+    this._send({
+      type: 'conversation.item.create',
+      item: {
+        type: 'function_call_output',
+        call_id: callId,
+        output: JSON.stringify(result),
+      },
+    });
+
+    // Trigger a new response after sending the result
+    this._send({
+      type: 'response.create',
+    });
+  }
+
+  /**
+   * Disconnect and clean up all resources
+   */
+  disconnect() {
+    this.stopPlayback();
+
+    if (this.workletNode) {
+      this.workletNode.disconnect();
+      this.workletNode = null;
+    }
+
+    if (this.micStream) {
+      this.micStream.getTracks().forEach(t => t.stop());
+      this.micStream = null;
+    }
+
+    if (this.audioContext && this.audioContext.state !== 'closed') {
+      this.audioContext.close().catch(() => {});
+      this.audioContext = null;
+    }
+
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+    }
+
+    this._connected = false;
+    this._sessionConfigured = false;
+  }
+
+  // ---- Internal ----
+
+  _send(obj) {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(obj));
+    }
+  }
+
+  _handleMessage(event) {
+    let data;
+    try {
+      data = JSON.parse(event.data);
+    } catch (e) {
+      console.error('[Realtime] Failed to parse message:', e);
+      return;
+    }
+
+    switch (data.type) {
+      case 'session.created':
+        console.log('[Realtime] Session created');
+        if (this.onSessionCreated) this.onSessionCreated(data);
+        break;
+
+      case 'session.updated':
+        console.log('[Realtime] Session updated');
+        break;
+
+      case 'response.created':
+        if (this.onResponseCreated) this.onResponseCreated(data);
+        break;
+
+      case 'response.audio.delta':
+        // Stream audio chunk for playback
+        if (data.delta) {
+          this.playAudio(data.delta);
+          if (this.onAudioDelta) this.onAudioDelta(data);
+        }
+        break;
+
+      case 'response.audio_transcript.delta':
+        if (this.onTranscriptDelta) this.onTranscriptDelta(data.delta);
+        break;
+
+      case 'conversation.item.input_audio_transcription.completed':
+        if (this.onInputTranscript && data.transcript) {
+          this.onInputTranscript(data.transcript);
+        }
+        break;
+
+      case 'input_audio_buffer.speech_started':
+        // User started speaking — stop any AI audio playing
+        this.stopPlayback();
+        if (this.onSpeechStarted) this.onSpeechStarted();
+        break;
+
+      case 'input_audio_buffer.speech_stopped':
+        if (this.onSpeechStopped) this.onSpeechStopped();
+        break;
+
+      case 'response.function_call_arguments.done':
+        if (this.onFunctionCall) {
+          this.onFunctionCall({
+            callId: data.call_id,
+            name: data.name,
+            arguments: data.arguments,
+          });
+        }
+        break;
+
+      case 'response.done':
+        if (this.onResponseDone) this.onResponseDone(data);
+        break;
+
+      case 'error':
+        console.error('[Realtime] API error:', data.error);
+        if (this.onError) this.onError(data.error);
+        break;
+
+      case 'rate_limits.updated':
+      case 'response.audio.done':
+      case 'response.audio_transcript.done':
+      case 'response.content_part.added':
+      case 'response.content_part.done':
+      case 'response.output_item.added':
+      case 'response.output_item.done':
+      case 'conversation.item.created':
+      case 'input_audio_buffer.committed':
+        // Known events we don't need to handle
+        break;
+
+      default:
+        console.log('[Realtime] Unhandled event:', data.type);
+    }
+  }
+
+  _arrayBufferToBase64(bytes) {
+    let binary = '';
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  }
+
+  _base64ToArrayBuffer(base64) {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+}

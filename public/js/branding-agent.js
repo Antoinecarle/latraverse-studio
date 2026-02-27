@@ -1,6 +1,7 @@
 /* ============================================================
-   LA TRAVERSE — Creative Agent (Continuous Voice Chat)
-   Real voice conversation: you talk, AI responds vocally, loop.
+   LA TRAVERSE — Creative Agent (Realtime Voice + Text Chat)
+   True speech-to-speech via OpenAI Realtime API.
+   Text chat via /api/agent/chat as fallback.
    One conversation per pub — persisted server-side.
    ============================================================ */
 
@@ -8,15 +9,35 @@
   'use strict';
 
   // ============ STATE ============
-  let voiceMode = false;       // continuous voice conversation active
-  let isListening = false;     // speech recognition currently running
-  let isProcessing = false;    // waiting for AI response
-  let isSpeaking = false;      // TTS currently speaking
-  let recognition = null;
-  let synthesis = window.speechSynthesis;
+  let voiceMode = false;
+  let isProcessing = false;
+  let isSpeaking = false;
   let chatOpen = false;
-  let frVoice = null;          // cached French voice
-  let silenceTimer = null;     // detect end of speech via silence
+  let realtimeClient = null;
+  let currentTranscript = '';      // accumulates AI transcript deltas
+  let currentUserTranscript = '';  // user speech transcript
+  let transcriptMsgEl = null;     // DOM element for streaming AI transcript
+
+  // ============ AGENT TOOLS (for Realtime API session config) ============
+  const AGENT_TOOLS = [
+    { type: 'function', name: 'setTemplate', description: 'Change le template du design. Templates disponibles: minimal, bold, gradient, split, editorial, glass, neon, promo, quote, duotone, geometric, typewriter, blobs, cards, grid-pattern, magazine, poster, layered', parameters: { type: 'object', properties: { template: { type: 'string', description: 'Nom du template' } }, required: ['template'] } },
+    { type: 'function', name: 'setStylePack', description: 'Applique un pack de style. Packs: traverse, tech, ocean, neonpop, light, sunset, corporate, creative', parameters: { type: 'object', properties: { pack: { type: 'string', description: 'Nom du pack de style' } }, required: ['pack'] } },
+    { type: 'function', name: 'setColors', description: 'Change les couleurs du design (hex)', parameters: { type: 'object', properties: { bgColor: { type: 'string' }, textColor: { type: 'string' }, accentColor: { type: 'string' }, accentColor2: { type: 'string' } } } },
+    { type: 'function', name: 'setText', description: 'Change le texte du design', parameters: { type: 'object', properties: { headline: { type: 'string' }, subline: { type: 'string' }, body: { type: 'string' }, cta: { type: 'string' } } } },
+    { type: 'function', name: 'setTypography', description: 'Change la typographie. Polices: Playfair Display, DM Serif Display, Libre Baskerville, Inter, Instrument Sans, Bebas Neue, Poppins, Oswald, Lora, Montserrat, Raleway, Space Mono', parameters: { type: 'object', properties: { target: { type: 'string', enum: ['headline', 'body'] }, font: { type: 'string' }, size: { type: 'number' }, weight: { type: 'string' }, align: { type: 'string', enum: ['left', 'center', 'right'] }, textCase: { type: 'string', enum: ['none', 'uppercase', 'lowercase', 'capitalize'] } }, required: ['target'] } },
+    { type: 'function', name: 'toggleEffect', description: 'Active/desactive un effet', parameters: { type: 'object', properties: { effect: { type: 'string', enum: ['grain', 'vignette', 'border', 'logo', 'outline', 'gradient'] }, enabled: { type: 'boolean' } }, required: ['effect', 'enabled'] } },
+    { type: 'function', name: 'setEffectValues', description: 'Regle ombre/glow du texte', parameters: { type: 'object', properties: { shadow: { type: 'number' }, glow: { type: 'number' } } } },
+    { type: 'function', name: 'setGradient', description: 'Configure le fond en degrade', parameters: { type: 'object', properties: { enabled: { type: 'boolean' }, start: { type: 'string' }, end: { type: 'string' }, angle: { type: 'number' } }, required: ['enabled'] } },
+    { type: 'function', name: 'setFormat', description: 'Change le format du design', parameters: { type: 'object', properties: { format: { type: 'string', enum: ['post', 'story', 'landscape', 'banner', 'square'] } }, required: ['format'] } },
+    { type: 'function', name: 'generateBackgroundImage', description: "Genere une image de fond IA", parameters: { type: 'object', properties: { prompt: { type: 'string' } }, required: ['prompt'] } },
+    { type: 'function', name: 'generateSticker', description: "Genere un sticker IA", parameters: { type: 'object', properties: { prompt: { type: 'string' } }, required: ['prompt'] } },
+    { type: 'function', name: 'generateSvgAnimation', description: "Genere une animation SVG", parameters: { type: 'object', properties: { prompt: { type: 'string' } }, required: ['prompt'] } },
+    { type: 'function', name: 'exportDesign', description: 'Exporte le design en PNG', parameters: { type: 'object', properties: {} } },
+    { type: 'function', name: 'newDesign', description: 'Cree un nouveau design', parameters: { type: 'object', properties: { name: { type: 'string' } } } },
+    { type: 'function', name: 'resetDesign', description: 'Reinitialise le design', parameters: { type: 'object', properties: {} } },
+    { type: 'function', name: 'undoRedo', description: 'Annule ou retablit', parameters: { type: 'object', properties: { action: { type: 'string', enum: ['undo', 'redo'] } }, required: ['action'] } },
+    { type: 'function', name: 'setBgImageSettings', description: "Regle opacite/flou de l'image de fond", parameters: { type: 'object', properties: { opacity: { type: 'number' }, blur: { type: 'number' } } } },
+  ];
 
   // ============ DOM REFS ============
   const agentBtn = document.getElementById('agent-btn');
@@ -31,94 +52,45 @@
 
   if (!agentBtn) return;
 
-  // ============ SPEECH RECOGNITION SETUP ============
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  // ============ REALTIME VOICE MODE ============
 
-  if (SpeechRecognition) {
-    recognition = new SpeechRecognition();
-    recognition.lang = 'fr-FR';
-    recognition.continuous = true;         // KEY: never stops on its own
-    recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = function () {
-      isListening = true;
-      agentMic.classList.add('listening');
-      agentBtn.classList.add('listening');
-      setStatus('Je t\'ecoute...');
-    };
-
-    recognition.onresult = function (event) {
-      let interim = '';
-      let finalTranscript = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
-        } else {
-          interim += event.results[i][0].transcript;
-        }
-      }
-
-      // Show interim text in the input field as user speaks
-      if (interim) {
-        agentInput.value = interim;
-        // Reset silence timer — user is still talking
-        clearTimeout(silenceTimer);
-      }
-
-      if (finalTranscript) {
-        var text = finalTranscript.trim();
-        if (text) {
-          agentInput.value = '';
-          // Pause recognition while processing (will auto-resume after AI speaks)
-          pauseListening();
-          sendMessage(text);
-        }
-      }
-    };
-
-    recognition.onerror = function (event) {
-      console.error('[Agent] Speech error:', event.error);
-      if (event.error === 'not-allowed') {
-        setStatus('Micro refuse — autorise le micro');
-        stopVoiceMode();
-      } else if (event.error === 'no-speech') {
-        // No speech detected — just restart if voice mode is on
-        if (voiceMode && !isProcessing && !isSpeaking) {
-          restartListening();
-        }
-      } else if (event.error === 'aborted') {
-        // Normal when we stop/restart
-      } else {
-        // Network or other error — try to restart
-        if (voiceMode) {
-          setTimeout(restartListening, 500);
-        }
-      }
-    };
-
-    recognition.onend = function () {
-      isListening = false;
-      agentMic.classList.remove('listening');
-      agentBtn.classList.remove('listening');
-
-      // Auto-restart if voice mode is still active and we're not processing/speaking
-      if (voiceMode && !isProcessing && !isSpeaking) {
-        setTimeout(restartListening, 300);
-      } else if (!voiceMode) {
-        setStatus('');
-      }
-    };
-  }
-
-  // ============ VOICE MODE CONTROL ============
-  function startVoiceMode() {
-    if (!recognition) {
-      addMessage('assistant', 'La reconnaissance vocale n\'est pas supportee par ce navigateur. Utilise Chrome.');
-      return;
+  function buildRealtimeInstructions() {
+    var ds = getDesignState();
+    var stateDesc = '';
+    if (ds) {
+      stateDesc = '\n\nETAT ACTUEL DU DESIGN :\n';
+      stateDesc += '- Template: ' + (ds.template || 'minimal') + '\n';
+      stateDesc += '- Format: ' + (ds.format?.label || 'Post') + ' (' + (ds.format?.w) + 'x' + (ds.format?.h) + ')\n';
+      stateDesc += '- Titre: "' + (ds.headline || '') + '"\n';
+      stateDesc += '- Sous-titre: "' + (ds.subline || '') + '"\n';
+      stateDesc += '- Corps: "' + (ds.body || '') + '"\n';
+      stateDesc += '- CTA: "' + (ds.cta || '') + '"\n';
+      stateDesc += '- Couleur fond: ' + (ds.bgColor || '#1a1714') + '\n';
+      stateDesc += '- Couleur texte: ' + (ds.textColor || '#f0e8dc') + '\n';
+      stateDesc += '- Accent: ' + (ds.accentColor || '#c4622a') + '\n';
+      stateDesc += '- Style pack: ' + (ds.stylePack || 'aucun') + '\n';
+      stateDesc += '- Police titre: ' + (ds.typoHeadline?.font || 'Playfair Display') + '\n';
+      stateDesc += '- Police corps: ' + (ds.typoBody?.font || 'Libre Baskerville') + '\n';
     }
 
+    return "Tu es l'assistant creatif vocal de La Traverse Studio — un partenaire de design qui aide a creer des publications pour les reseaux sociaux.\n\n" +
+      "PERSONNALITE :\n" +
+      "- Tu es un directeur artistique passionne, enthousiaste mais professionnel\n" +
+      "- Tu parles TOUJOURS en francais, de maniere naturelle et chaleureuse\n" +
+      "- Tu donnes des avis creatifs argumentes\n" +
+      "- Tu proposes des idees quand on te demande\n" +
+      "- Sois concis dans tes reponses vocales (2-3 phrases max)\n" +
+      "- Quand tu executes une action, explique brievement pourquoi\n\n" +
+      "REGLES :\n" +
+      "- Si l'utilisateur demande quelque chose de vague, propose d'abord\n" +
+      "- Si l'utilisateur veut discuter sans agir, discute — n'appelle pas de fonction\n" +
+      "- Tu peux enchainer plusieurs actions pour une demande complexe\n" +
+      "- Pour les couleurs, traduis les noms en hex (rouge = #e53e3e, bleu = #3b82f6, etc.)\n" +
+      "- Pour les images de fond, traduis le prompt en anglais pour Gemini\n" +
+      stateDesc;
+  }
+
+  async function startVoiceMode() {
     // Open panel if closed
     if (!chatOpen) {
       agentPanel.classList.add('open');
@@ -127,119 +99,176 @@
       loadConversation();
     }
 
-    // IMPORTANT: Request mic permission FIRST via getUserMedia
-    // This triggers Chrome's permission popup. SpeechRecognition alone doesn't always do it.
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(function (stream) {
-        // Permission granted — stop the stream (we don't need it, SpeechRecognition handles audio)
-        stream.getTracks().forEach(function (t) { t.stop(); });
+    setStatus('Connexion...');
+    agentBtn.classList.add('thinking');
 
-        voiceMode = true;
-        agentBtn.classList.add('voice-active');
-        agentMic.classList.add('voice-active');
-        startListening();
-      })
-      .catch(function (err) {
-        console.error('[Agent] Mic permission denied:', err);
-        addMessage('assistant', 'Micro refuse. Autorise le micro dans ton navigateur (icone cadenas en haut a gauche).');
-        setStatus('Micro refuse');
+    try {
+      // Request mic permission
+      var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // Create Realtime client
+      realtimeClient = new RealtimeClient({
+        onSessionCreated: function () {
+          console.log('[Agent] Realtime session created, configuring...');
+          realtimeClient.configureSession(AGENT_TOOLS, buildRealtimeInstructions());
+        },
+
+        onAudioDelta: function () {
+          if (!isSpeaking) {
+            isSpeaking = true;
+            agentBtn.classList.add('speaking');
+            agentBtn.classList.remove('listening', 'thinking');
+            setStatus('Agent parle...');
+          }
+        },
+
+        onTranscriptDelta: function (delta) {
+          // Stream AI transcript into chat
+          currentTranscript += delta;
+          if (!transcriptMsgEl) {
+            transcriptMsgEl = createStreamingMessage('assistant');
+          }
+          updateStreamingMessage(transcriptMsgEl, currentTranscript);
+        },
+
+        onInputTranscript: function (transcript) {
+          // User's speech was transcribed — show in chat
+          if (transcript && transcript.trim()) {
+            addMessage('user', transcript.trim());
+          }
+        },
+
+        onSpeechStarted: function () {
+          // User started talking — show listening state
+          agentBtn.classList.add('listening');
+          agentBtn.classList.remove('speaking', 'thinking');
+          setStatus("Je t'ecoute...");
+          isSpeaking = false;
+          // Finalize any streaming AI message
+          finalizeStreamingMessage();
+        },
+
+        onSpeechStopped: function () {
+          agentBtn.classList.remove('listening');
+          agentBtn.classList.add('thinking');
+          setStatus('Reflexion...');
+        },
+
+        onFunctionCall: function (call) {
+          console.log('[Agent] Function call:', call.name, call.arguments);
+          try {
+            var args = typeof call.arguments === 'string' ? JSON.parse(call.arguments) : call.arguments;
+            executeAction({ function: call.name, arguments: args });
+            // Send result back so the AI can continue
+            realtimeClient.sendFunctionResult(call.callId, { success: true, action: call.name });
+          } catch (e) {
+            console.error('[Agent] Function call error:', e);
+            realtimeClient.sendFunctionResult(call.callId, { success: false, error: e.message });
+          }
+        },
+
+        onResponseDone: function () {
+          isSpeaking = false;
+          agentBtn.classList.remove('speaking', 'thinking');
+          agentBtn.classList.add('listening');
+          setStatus("Je t'ecoute...");
+          // Finalize any streaming AI message
+          finalizeStreamingMessage();
+        },
+
+        onResponseCreated: function () {
+          agentBtn.classList.add('thinking');
+          agentBtn.classList.remove('listening');
+          setStatus('Reflexion...');
+        },
+
+        onError: function (err) {
+          console.error('[Agent] Realtime error:', err);
+          var msg = err.message || err.code || 'Erreur connexion';
+          addMessage('assistant', 'Erreur: ' + msg);
+          setStatus('Erreur');
+        },
+
+        onClose: function () {
+          if (voiceMode) {
+            console.log('[Agent] Connection closed unexpectedly');
+            stopVoiceMode();
+            addMessage('assistant', 'Connexion perdue. Clique sur le micro pour recommencer.');
+          }
+        },
       });
+
+      // Connect WebSocket
+      await realtimeClient.connect();
+
+      // Start audio capture
+      await realtimeClient.startAudioCapture(stream);
+
+      voiceMode = true;
+      agentBtn.classList.remove('thinking');
+      agentBtn.classList.add('voice-active', 'listening');
+      agentMic.classList.add('voice-active');
+      setStatus("Je t'ecoute...");
+
+    } catch (err) {
+      console.error('[Agent] Failed to start voice mode:', err);
+      agentBtn.classList.remove('thinking');
+      if (err.name === 'NotAllowedError') {
+        addMessage('assistant', 'Micro refuse. Autorise le micro dans ton navigateur.');
+        setStatus('Micro refuse');
+      } else {
+        addMessage('assistant', 'Impossible de demarrer le mode vocal: ' + err.message);
+        setStatus('Erreur');
+      }
+      if (realtimeClient) {
+        realtimeClient.disconnect();
+        realtimeClient = null;
+      }
+    }
   }
 
   function stopVoiceMode() {
     voiceMode = false;
-    agentBtn.classList.remove('voice-active', 'listening');
+    isSpeaking = false;
+    agentBtn.classList.remove('voice-active', 'listening', 'speaking', 'thinking');
     agentMic.classList.remove('voice-active', 'listening');
-    clearTimeout(silenceTimer);
 
-    if (isListening) {
-      try { recognition.stop(); } catch (e) {}
+    if (realtimeClient) {
+      realtimeClient.disconnect();
+      realtimeClient = null;
     }
-    if (isSpeaking) {
-      synthesis.cancel();
-      isSpeaking = false;
-    }
+
+    finalizeStreamingMessage();
     setStatus('');
   }
 
-  function startListening() {
-    if (isListening || isProcessing || isSpeaking) return;
-    try {
-      recognition.start();
-    } catch (e) {
-      // Already started — ignore
-      console.warn('[Agent] Recognition start error:', e.message);
+  // ============ STREAMING MESSAGE HELPERS ============
+  function createStreamingMessage(role) {
+    var div = document.createElement('div');
+    div.className = 'agent-msg agent-msg--' + role + ' agent-msg--streaming';
+    if (role === 'assistant') {
+      div.innerHTML = '<div class="agent-msg__avatar">AI</div><div class="agent-msg__text"></div>';
+    } else {
+      div.innerHTML = '<div class="agent-msg__text"></div>';
     }
+    agentMessages.appendChild(div);
+    agentMessages.scrollTop = agentMessages.scrollHeight;
+    return div;
   }
 
-  function pauseListening() {
-    if (isListening) {
-      try { recognition.stop(); } catch (e) {}
+  function updateStreamingMessage(el, text) {
+    if (!el) return;
+    var textEl = el.querySelector('.agent-msg__text');
+    if (textEl) textEl.textContent = text;
+    agentMessages.scrollTop = agentMessages.scrollHeight;
+  }
+
+  function finalizeStreamingMessage() {
+    if (transcriptMsgEl) {
+      transcriptMsgEl.classList.remove('agent-msg--streaming');
+      transcriptMsgEl = null;
     }
-  }
-
-  function restartListening() {
-    if (!voiceMode || isProcessing || isSpeaking || isListening) return;
-    setStatus('Je t\'ecoute...');
-    try {
-      recognition.start();
-    } catch (e) {
-      // If it fails, try again after a short delay
-      setTimeout(() => {
-        if (voiceMode && !isListening && !isProcessing && !isSpeaking) {
-          try { recognition.start(); } catch (e2) {}
-        }
-      }, 500);
-    }
-  }
-
-  // ============ SPEECH SYNTHESIS (TTS) ============
-  function speak(text) {
-    if (!synthesis || !text) {
-      onSpeakEnd();
-      return;
-    }
-
-    synthesis.cancel();
-    isSpeaking = true;
-    agentBtn.classList.add('speaking');
-    agentBtn.classList.remove('listening');
-    setStatus('Agent parle...');
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'fr-FR';
-    utterance.rate = 1.08;
-    utterance.pitch = 1;
-
-    if (frVoice) utterance.voice = frVoice;
-
-    utterance.onend = onSpeakEnd;
-    utterance.onerror = onSpeakEnd;
-
-    synthesis.speak(utterance);
-  }
-
-  function onSpeakEnd() {
-    isSpeaking = false;
-    agentBtn.classList.remove('speaking');
-
-    // Auto-restart listening after AI finishes speaking
-    if (voiceMode && !isProcessing) {
-      setTimeout(restartListening, 400);
-    }
-  }
-
-  // Load/cache French voice
-  function loadVoices() {
-    if (!synthesis) return;
-    var voices = synthesis.getVoices();
-    frVoice = voices.find(function (v) { return v.lang.startsWith('fr') && v.name.includes('Google'); })
-      || voices.find(function (v) { return v.lang.startsWith('fr'); });
-  }
-
-  if (synthesis) {
-    synthesis.onvoiceschanged = loadVoices;
-    loadVoices();
+    currentTranscript = '';
   }
 
   // ============ UI HELPERS ============
@@ -308,7 +337,7 @@
           addMessage(msg.role, cleanContent);
         }
       } else {
-        addMessage('assistant', 'Salut ! Je suis ton partenaire creatif. Dis-moi ce que tu veux faire, ou discutons ensemble de tes idees.');
+        addMessage('assistant', 'Salut ! Je suis ton partenaire creatif. Clique sur le micro pour discuter a voix, ou tape ton message.');
       }
     } catch (e) {
       console.error('[Agent] Load conversation error:', e);
@@ -316,7 +345,7 @@
     }
   }
 
-  // ============ SEND MESSAGE ============
+  // ============ SEND MESSAGE (text chat fallback) ============
   async function sendMessage(text) {
     if (!text || isProcessing) return;
 
@@ -347,13 +376,12 @@
         addMessage('assistant', 'Desole, une erreur est survenue : ' + (err.error || 'Erreur inconnue'));
         isProcessing = false;
         agentBtn.classList.remove('thinking');
-        if (voiceMode) setTimeout(restartListening, 500);
         return;
       }
 
       var data = await res.json();
 
-      // Execute actions first (so the canvas updates before the voice response)
+      // Execute actions first
       if (data.actions && data.actions.length > 0) {
         for (var action of data.actions) {
           executeAction(action);
@@ -363,24 +391,16 @@
       // Show text response
       if (data.text) {
         addMessage('assistant', data.text);
-        // In voice mode, speak the response — listening restarts after TTS ends
-        if (voiceMode) {
-          speak(data.text);
-        }
-      } else if (voiceMode) {
-        // No text to speak — restart listening immediately
-        onSpeakEnd();
       }
 
     } catch (err) {
       removeTypingIndicator();
       addMessage('assistant', 'Erreur de connexion.');
       console.error('[Agent] Send error:', err);
-      if (voiceMode) setTimeout(restartListening, 500);
     } finally {
       isProcessing = false;
       agentBtn.classList.remove('thinking');
-      if (!voiceMode) setStatus('');
+      setStatus('');
     }
   }
 
@@ -547,10 +567,8 @@
   // FAB button — toggle voice mode
   agentBtn.addEventListener('click', function () {
     if (voiceMode) {
-      // Stop voice conversation
       stopVoiceMode();
     } else {
-      // Start voice conversation
       startVoiceMode();
     }
   });
@@ -577,7 +595,7 @@
     });
   }
 
-  // Send button (text mode — still works)
+  // Send button (text mode)
   if (agentSend) {
     agentSend.addEventListener('click', function () {
       var text = agentInput.value.trim();
@@ -610,6 +628,10 @@
   // Listen for pub changes to reload conversation
   window.addEventListener('branding-pub-changed', function () {
     if (chatOpen) loadConversation();
+    // If voice mode is active, update the session instructions with new design state
+    if (voiceMode && realtimeClient) {
+      realtimeClient.configureSession(AGENT_TOOLS, buildRealtimeInstructions());
+    }
   });
 
 })();
