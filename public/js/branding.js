@@ -102,9 +102,11 @@
       decoOpacity: 100,
       bgImageScale: 100,
       logoColor: '',
+      opacityHeadline: 100,
       opacitySubline: 100,
       opacityBody: 100,
       opacityCta: 100,
+      canvasRadius: 0,
       headlineRotation: 0,
       headlineDecoration: 'none',
       textShadowX: 0,
@@ -2007,6 +2009,22 @@
   });
   if (decoOpacitySlider) decoOpacitySlider.addEventListener('change', function() { pushHistory(); });
 
+  // Canvas corner radius
+  var canvasRadiusSlider = document.getElementById('canvas-radius');
+  var canvasRadiusVal = document.getElementById('canvas-radius-val');
+  if (canvasRadiusSlider) canvasRadiusSlider.addEventListener('input', function() {
+    state.canvasRadius = parseInt(canvasRadiusSlider.value);
+    if (canvasRadiusVal) canvasRadiusVal.textContent = canvasRadiusSlider.value;
+    applyCanvasRadius();
+  });
+  if (canvasRadiusSlider) canvasRadiusSlider.addEventListener('change', function() { pushHistory(); });
+
+  function applyCanvasRadius() {
+    var r = (state.canvasRadius || 0) + 'px';
+    canvas.style.borderRadius = state.canvasRadius > 0 ? r : '';
+    canvas.style.overflow = state.canvasRadius > 0 ? 'hidden' : '';
+  }
+
   // Logo color
   var logoColorInput = document.getElementById('logo-color');
   var logoColorReset = document.getElementById('logo-color-reset');
@@ -2071,6 +2089,7 @@
 
   // Element opacity controls
   var opSliders = [
+    { id: 'opacity-headline', valId: 'opacity-headline-val', key: 'opacityHeadline', el: canvasHeadline },
     { id: 'opacity-subline', valId: 'opacity-subline-val', key: 'opacitySubline', el: canvasSubline },
     { id: 'opacity-body',    valId: 'opacity-body-val',    key: 'opacityBody',    el: canvasBody },
     { id: 'opacity-cta',     valId: 'opacity-cta-val',     key: 'opacityCta',     el: canvasCta }
@@ -2088,6 +2107,7 @@
   });
 
   function applyElementOpacities() {
+    if (canvasHeadline) canvasHeadline.style.opacity = (state.opacityHeadline != null ? state.opacityHeadline : 100) / 100;
     if (canvasSubline) canvasSubline.style.opacity = (state.opacitySubline != null ? state.opacitySubline : 100) / 100;
     if (canvasBody) canvasBody.style.opacity = (state.opacityBody != null ? state.opacityBody : 100) / 100;
     // CTA opacity: only override if not already styled by template (some set opacity)
@@ -2910,6 +2930,7 @@
     applyHeadlineDecoration();
     applyDecorations();
     applyDecoOpacity();
+    applyCanvasRadius();
     renderStickers();
     fitCanvasToViewport();
   }
@@ -3849,6 +3870,7 @@
     if (ctaMaxWSlider) { ctaMaxWSlider.value = state.ctaMaxW != null ? state.ctaMaxW : 100; if (ctaMaxWVal) ctaMaxWVal.textContent = state.ctaMaxW != null ? state.ctaMaxW : 100; }
     if (decoOpacitySlider) { decoOpacitySlider.value = state.decoOpacity != null ? state.decoOpacity : 100; if (decoOpacityVal) decoOpacityVal.textContent = state.decoOpacity != null ? state.decoOpacity : 100; }
     if (bgImageScaleSlider) { bgImageScaleSlider.value = state.bgImageScale || 100; if (bgImageScaleVal) bgImageScaleVal.textContent = state.bgImageScale || 100; }
+    if (canvasRadiusSlider) { canvasRadiusSlider.value = state.canvasRadius || 0; if (canvasRadiusVal) canvasRadiusVal.textContent = state.canvasRadius || 0; }
     if (logoColorInput) logoColorInput.value = state.logoColor || state.textColor || '#ffffff';
 
     // Element opacities
@@ -4401,6 +4423,69 @@
     updatePlacedList();
     updateLayersPanel();
   }
+
+  // ============ SVG HOVER ANIMATION (canvas-level hit detection) ============
+  var _svgHoverActive = null; // currently hovered SVG element
+
+  function injectCanvasHoverRules(svg) {
+    if (svg.dataset.hoverInjected) return;
+    svg.querySelectorAll('style').forEach(function(styleEl) {
+      var css = styleEl.textContent;
+      var hoverRules = [];
+      var regex = /([^{}]*):hover([^{]*)\{([^}]*)\}/g;
+      var m;
+      while ((m = regex.exec(css)) !== null) {
+        hoverRules.push(m[1].trim() + '.canvas-hover' + m[2] + '{' + m[3] + '}');
+      }
+      if (hoverRules.length > 0) {
+        styleEl.textContent = css + '\n/* canvas-hover */\n' + hoverRules.join('\n');
+      }
+    });
+    svg.dataset.hoverInjected = '1';
+  }
+
+  function setCanvasHover(svg, on) {
+    if (on) {
+      svg.classList.add('canvas-hover');
+      svg.querySelectorAll(':scope > g').forEach(function(g) { g.classList.add('canvas-hover'); });
+    } else {
+      svg.classList.remove('canvas-hover');
+      svg.querySelectorAll(':scope > g').forEach(function(g) { g.classList.remove('canvas-hover'); });
+    }
+  }
+
+  canvasWrapper.addEventListener('mousemove', function(e) {
+    var svgStickers = canvas.querySelectorAll('.sticker-item');
+    var found = null;
+
+    svgStickers.forEach(function(el) {
+      var svgEl = el.querySelector('.svg-anim-wrapper svg');
+      if (!svgEl) return;
+      var rect = el.getBoundingClientRect();
+      if (e.clientX >= rect.left && e.clientX <= rect.right &&
+          e.clientY >= rect.top && e.clientY <= rect.bottom) {
+        found = svgEl;
+      }
+    });
+
+    if (found !== _svgHoverActive) {
+      // Remove hover from previous
+      if (_svgHoverActive) setCanvasHover(_svgHoverActive, false);
+      // Add hover to new
+      if (found) {
+        injectCanvasHoverRules(found);
+        setCanvasHover(found, true);
+      }
+      _svgHoverActive = found;
+    }
+  });
+
+  canvasWrapper.addEventListener('mouseleave', function() {
+    if (_svgHoverActive) {
+      setCanvasHover(_svgHoverActive, false);
+      _svgHoverActive = null;
+    }
+  });
 
   function selectSticker(id) {
     selectedStickerId = id;
