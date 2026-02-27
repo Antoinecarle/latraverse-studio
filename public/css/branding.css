@@ -976,6 +976,16 @@ body {
 }
 .case-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
 .case-btn.active { border-color: var(--accent); color: var(--accent); }
+.subline-case-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 30px;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--bg-panel); color: var(--text-dim);
+  font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.subline-case-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+.subline-case-btn.active { border-color: var(--accent); color: var(--accent); }
 
 .file-input {
   width: 100%;

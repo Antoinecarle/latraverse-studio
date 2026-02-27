@@ -64,8 +64,8 @@
       bgSaturation: 100,
       gradient: { enabled: false, angle: 135, start: '#c4622a', end: '#1a1714' },
       typoHeadline: { font: "'Playfair Display', serif", size: 48, weight: '700', align: 'left', case: 'none', lh: 110, ls: 0 },
-      typoSubline: { size: 14, weight: '400', ls: 0 },
-      typoBody: { font: "'Libre Baskerville', serif", size: 15, weight: '400' },
+      typoSubline: { size: 14, weight: '400', ls: 0, case: 'none' },
+      typoBody: { font: "'Libre Baskerville', serif", size: 15, weight: '400', align: 'left', lh: 160 },
       typoCta: { size: 12, weight: '500' },
       fxShadow: 0,
       fxGlow: 0,
@@ -971,6 +971,17 @@
   });
   if (typoSublineLs) typoSublineLs.addEventListener('change', function() { pushHistory(); });
 
+  // Subline case buttons
+  document.querySelectorAll('.subline-case-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.subline-case-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.typoSubline.case = btn.dataset.case;
+      pushHistory();
+      applyTypography();
+    });
+  });
+
   // ============ CTA TYPOGRAPHY ============
   var typoCtaSize = document.getElementById('typo-cta-size');
   var typoCtaSizeVal = document.getElementById('typo-cta-size-val');
@@ -988,6 +999,26 @@
     pushHistory();
     applyTypography();
   });
+
+  // ============ BODY ALIGNMENT & LINE HEIGHT ============
+  document.querySelectorAll('.align-btn[data-target="body"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.align-btn[data-target="body"]').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.typoBody.align = btn.dataset.align;
+      pushHistory();
+      applyTypography();
+    });
+  });
+
+  var typoBodyLh = document.getElementById('typo-body-lh');
+  var typoBodyLhVal = document.getElementById('typo-body-lh-val');
+  if (typoBodyLh) typoBodyLh.addEventListener('input', function() {
+    state.typoBody.lh = parseInt(typoBodyLh.value);
+    if (typoBodyLhVal) typoBodyLhVal.textContent = (state.typoBody.lh / 100).toFixed(1);
+    applyTypography();
+  });
+  if (typoBodyLh) typoBodyLh.addEventListener('change', function() { pushHistory(); });
 
   // ============ COLORS ============
   function setupColorPresets() {
@@ -2477,12 +2508,18 @@
     canvasBody.style.fontFamily = state.typoBody.font;
     canvasBody.style.fontSize = (state.typoBody.size * fs * shrinkRatio) + 'px';
     canvasBody.style.fontWeight = state.typoBody.weight;
+    canvasBody.style.lineHeight = (state.typoBody.lh || 160) / 100;
+    if (state.typoBody.align && !centeredTemplates.includes(state.template)) {
+      canvasBody.style.textAlign = state.typoBody.align;
+    }
 
     // Subline — customizable size, weight, letter-spacing
     var subSize = (state.typoSubline && state.typoSubline.size) || 14;
     canvasSubline.style.fontSize = (subSize * fs * shrinkRatio) + 'px';
     canvasSubline.style.fontWeight = (state.typoSubline && state.typoSubline.weight) || '400';
     canvasSubline.style.letterSpacing = ((state.typoSubline && state.typoSubline.ls) || 0) + 'px';
+    var subCase = (state.typoSubline && state.typoSubline.case) || 'none';
+    canvasSubline.style.textTransform = subCase === 'none' ? '' : subCase;
 
     // CTA — customizable size, weight
     var ctaSize = (state.typoCta && state.typoCta.size) || 12;
@@ -3133,6 +3170,10 @@
     if (typoBodyFont) typoBodyFont.value = state.typoBody.font;
     if (typoBodySize) { typoBodySize.value = state.typoBody.size; if (typoBodySizeVal) typoBodySizeVal.textContent = state.typoBody.size; }
     if (typoBodyWeight) typoBodyWeight.value = state.typoBody.weight;
+
+    // Body alignment & line height
+    document.querySelectorAll('.align-btn[data-target="body"]').forEach(function(b) { b.classList.toggle('active', b.dataset.align === (state.typoBody.align || 'left')); });
+    if (typoBodyLh) { typoBodyLh.value = state.typoBody.lh || 160; if (typoBodyLhVal) typoBodyLhVal.textContent = ((state.typoBody.lh || 160) / 100).toFixed(1); }
 
     // Typography subline
     var ss = state.typoSubline || { size: 14, weight: '400', ls: 0 };
