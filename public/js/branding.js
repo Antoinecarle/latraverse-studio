@@ -688,6 +688,42 @@
   setupContentEditable(canvasBody, 'input-body', 'body');
   setupContentEditable(canvasCta, 'input-cta', 'cta');
 
+  // ============ TYPO PRESETS ============
+  var typoPresetDefs = {
+    'elegant': { font: "'Playfair Display', serif", size: 48, weight: '700', case: 'none', lh: 110, ls: 0 },
+    'bold-sans': { font: "'Montserrat', sans-serif", size: 56, weight: '900', case: 'uppercase', lh: 100, ls: 2 },
+    'modern': { font: "'Inter', sans-serif", size: 42, weight: '600', case: 'none', lh: 115, ls: -1 },
+    'display': { font: "'Bebas Neue', sans-serif", size: 64, weight: '400', case: 'uppercase', lh: 95, ls: 3 },
+    'editorial': { font: "'DM Serif Display', serif", size: 50, weight: '400', case: 'none', lh: 108, ls: 0 },
+    'minimal': { font: "'Raleway', sans-serif", size: 36, weight: '300', case: 'uppercase', lh: 120, ls: 4 },
+    'mono': { font: "'Space Mono', monospace", size: 34, weight: '400', case: 'none', lh: 125, ls: 0 },
+    'poster': { font: "'Oswald', sans-serif", size: 60, weight: '700', case: 'uppercase', lh: 95, ls: 1 }
+  };
+
+  document.querySelectorAll('.typo-preset').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var preset = typoPresetDefs[btn.dataset.preset];
+      if (!preset) return;
+      document.querySelectorAll('.typo-preset').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.typoHeadline.font = preset.font;
+      state.typoHeadline.size = preset.size;
+      state.typoHeadline.weight = preset.weight;
+      state.typoHeadline.case = preset.case;
+      state.typoHeadline.lh = preset.lh;
+      state.typoHeadline.ls = preset.ls;
+      // Update UI controls
+      if (typoHeadlineFont) typoHeadlineFont.value = preset.font;
+      if (typoHeadlineSize) { typoHeadlineSize.value = preset.size; if (typoHeadlineSizeVal) typoHeadlineSizeVal.textContent = preset.size; }
+      if (typoHeadlineWeight) typoHeadlineWeight.value = preset.weight;
+      if (typoHeadlineLh) { typoHeadlineLh.value = preset.lh; if (typoHeadlineLhVal) typoHeadlineLhVal.textContent = (preset.lh / 100).toFixed(1); }
+      if (typoHeadlineLs) { typoHeadlineLs.value = preset.ls; if (typoHeadlineLsVal) typoHeadlineLsVal.textContent = preset.ls; }
+      document.querySelectorAll('.case-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.case === preset.case); });
+      pushHistory();
+      updateCanvas();
+    });
+  });
+
   // ============ TYPOGRAPHY — HEADLINE ============
   const typoHeadlineFont = document.getElementById('typo-headline-font');
   const typoHeadlineSize = document.getElementById('typo-headline-size');
@@ -4784,7 +4820,7 @@
       var gif = new GIF({
         workers: 2,
         quality: 10,
-        workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js',
+        workerScript: '/js/gif.worker.js',
         width: frames[0].width,
         height: frames[0].height,
       });

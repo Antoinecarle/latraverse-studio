@@ -3727,5 +3727,13 @@ input[type="range"]::-webkit-slider-thumb {
 .pattern-opt:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: var(--text); }
 .pattern-opt.active { border-color: var(--accent); background: rgba(196,98,42,0.12); color: var(--accent); }
 
+/* ── Typo Presets ── */
+.typo-presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.typo-preset { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: var(--text); cursor: pointer; transition: all .15s; }
+.typo-preset:hover { border-color: rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); }
+.typo-preset.active { border-color: var(--accent); background: rgba(196,98,42,0.1); }
+.typo-preset__preview { height: 28px; display: flex; align-items: center; justify-content: center; line-height: 1; color: var(--text); }
+.typo-preset__name { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
 /* ── Canvas Pattern Overlay ── */
 .canvas__pattern { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
