@@ -851,6 +851,69 @@
     document.querySelectorAll('.color-presets[data-target="' + target + '"] .color-dot').forEach(d => d.classList.remove('active'));
   }
 
+  // ============ COLOR HISTORY ============
+  var colorHistoryDots = document.getElementById('color-history-dots');
+  var colorHistoryArr = JSON.parse(localStorage.getItem('branding_color_history') || '[]');
+  var COLOR_HISTORY_MAX = 10;
+
+  function addToColorHistory(color) {
+    if (!color || color.length < 4) return;
+    color = color.toLowerCase();
+    // Remove if already exists
+    colorHistoryArr = colorHistoryArr.filter(function(c) { return c !== color; });
+    // Add to front
+    colorHistoryArr.unshift(color);
+    // Limit
+    if (colorHistoryArr.length > COLOR_HISTORY_MAX) colorHistoryArr = colorHistoryArr.slice(0, COLOR_HISTORY_MAX);
+    localStorage.setItem('branding_color_history', JSON.stringify(colorHistoryArr));
+    renderColorHistory();
+  }
+
+  function renderColorHistory() {
+    if (!colorHistoryDots) return;
+    if (colorHistoryArr.length === 0) {
+      colorHistoryDots.parentElement.style.display = 'none';
+      return;
+    }
+    colorHistoryDots.parentElement.style.display = '';
+    colorHistoryDots.innerHTML = colorHistoryArr.map(function(c) {
+      return '<button class="color-history__dot" style="background:' + c + '" data-color="' + c + '" title="' + c + '"></button>';
+    }).join('');
+    colorHistoryDots.querySelectorAll('.color-history__dot').forEach(function(dot) {
+      dot.addEventListener('click', function() {
+        var c = dot.dataset.color;
+        // Apply to whichever color input is "most likely" — use accent by default
+        state.accentColor = c;
+        document.getElementById('color-accent').value = c;
+        clearPresetActive('accent');
+        state.stylePack = null;
+        document.querySelectorAll('.style-pack-btn').forEach(function(b) { b.classList.remove('active'); });
+        pushHistory();
+        applyColors();
+      });
+    });
+  }
+  renderColorHistory();
+
+  // Hook into color changes to record history
+  var _origPushHistory = pushHistory;
+  var _colorHistoryTimer = null;
+  function scheduleColorHistoryUpdate() {
+    clearTimeout(_colorHistoryTimer);
+    _colorHistoryTimer = setTimeout(function() {
+      addToColorHistory(state.bgColor);
+      addToColorHistory(state.accentColor);
+      addToColorHistory(state.textColor);
+      addToColorHistory(state.accentColor2);
+    }, 1000);
+  }
+
+  // Override color input change handlers to track history
+  ['color-bg', 'color-text', 'color-accent', 'color-accent2'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', scheduleColorHistoryUpdate);
+  });
+
   // ============ RANDOM PALETTE ============
   var btnRandomPalette = document.getElementById('btn-random-palette');
   if (btnRandomPalette) btnRandomPalette.addEventListener('click', function() {
@@ -895,6 +958,7 @@
 
     pushHistory();
     updateCanvas();
+    scheduleColorHistoryUpdate();
   });
 
   function hslToHex(h, s, l) {

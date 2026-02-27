@@ -1086,6 +1086,39 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .color-input--lg { width: 32px; height: 32px; }
 
+/* Color history */
+.color-history {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.color-history__label {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-family: var(--font-sans);
+}
+.color-history__dots {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.color-history__dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  transition: transform .1s, border-color .15s;
+}
+.color-history__dot:hover {
+  transform: scale(1.2);
+  border-color: rgba(255,255,255,0.3);
+}
+
 /* Gradient presets */
 .gradient-presets {
   display: flex;
