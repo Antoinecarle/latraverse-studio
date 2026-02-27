@@ -77,6 +77,7 @@
       bgPattern: 'none',
       bgPatternOpacity: 15,
       bgPatternScale: 20,
+      bgPatternColor: '',
       ctaStyle: 'text',
       canvasPadding: 10,
       opacitySubline: 100,
@@ -93,6 +94,9 @@
       showSubline: true,
       showBody: true,
       showCta: true,
+      sublineColor: '',
+      ctaBgColor: '',
+      ctaTextColor: '',
       sublineStyle: 'text',
       bgPosition: 'center',
       bgSize: 'cover',
@@ -731,21 +735,23 @@
   function applyCtaStyle() {
     if (!canvasCta) return;
     canvasCta.setAttribute('data-cta-style', state.ctaStyle || 'text');
+    var bgCol = state.ctaBgColor || state.accentColor;
+    var txtCol = state.ctaTextColor || '#fff';
     if (state.ctaStyle === 'filled') {
-      canvasCta.style.background = state.accentColor;
-      canvasCta.style.color = '#fff';
+      canvasCta.style.background = bgCol;
+      canvasCta.style.color = txtCol;
       canvasCta.style.borderColor = '';
     } else if (state.ctaStyle === 'outline') {
       canvasCta.style.background = 'transparent';
-      canvasCta.style.color = state.accentColor;
-      canvasCta.style.borderColor = state.accentColor;
+      canvasCta.style.color = state.ctaBgColor || state.accentColor;
+      canvasCta.style.borderColor = state.ctaBgColor || state.accentColor;
     } else if (state.ctaStyle === 'pill') {
-      canvasCta.style.background = state.accentColor;
-      canvasCta.style.color = '#fff';
+      canvasCta.style.background = bgCol;
+      canvasCta.style.color = txtCol;
       canvasCta.style.borderColor = '';
     } else {
       canvasCta.style.background = '';
-      canvasCta.style.color = '';
+      canvasCta.style.color = state.ctaTextColor || '';
       canvasCta.style.borderColor = '';
     }
   }
@@ -815,6 +821,10 @@
         canvasSubline.style.borderBottom = '2px solid ' + accent;
         canvasSubline.style.paddingBottom = '4px';
         break;
+    }
+    // Apply custom subline color if set (override for text/separator modes)
+    if (state.sublineColor && s !== 'badge' && s !== 'pill') {
+      canvasSubline.style.color = state.sublineColor;
     }
   }
 
@@ -1019,6 +1029,48 @@
     applyTypography();
   });
   if (typoBodyLh) typoBodyLh.addEventListener('change', function() { pushHistory(); });
+
+  // ============ CUSTOM ELEMENT COLORS ============
+  var sublineColorInput = document.getElementById('subline-color');
+  var sublineColorReset = document.getElementById('subline-color-reset');
+  if (sublineColorInput) sublineColorInput.addEventListener('input', function() {
+    state.sublineColor = sublineColorInput.value;
+    applySublineStyle();
+  });
+  if (sublineColorInput) sublineColorInput.addEventListener('change', function() { pushHistory(); });
+  if (sublineColorReset) sublineColorReset.addEventListener('click', function() {
+    state.sublineColor = '';
+    if (sublineColorInput) sublineColorInput.value = state.textColor || '#ffffff';
+    applySublineStyle();
+    pushHistory();
+  });
+
+  var ctaBgColorInput = document.getElementById('cta-bg-color');
+  var ctaBgColorReset = document.getElementById('cta-bg-color-reset');
+  var ctaTextColorInput = document.getElementById('cta-text-color');
+  var ctaTextColorReset = document.getElementById('cta-text-color-reset');
+  if (ctaBgColorInput) ctaBgColorInput.addEventListener('input', function() {
+    state.ctaBgColor = ctaBgColorInput.value;
+    applyCtaStyle();
+  });
+  if (ctaBgColorInput) ctaBgColorInput.addEventListener('change', function() { pushHistory(); });
+  if (ctaBgColorReset) ctaBgColorReset.addEventListener('click', function() {
+    state.ctaBgColor = '';
+    if (ctaBgColorInput) ctaBgColorInput.value = state.accentColor || '#c4622a';
+    applyCtaStyle();
+    pushHistory();
+  });
+  if (ctaTextColorInput) ctaTextColorInput.addEventListener('input', function() {
+    state.ctaTextColor = ctaTextColorInput.value;
+    applyCtaStyle();
+  });
+  if (ctaTextColorInput) ctaTextColorInput.addEventListener('change', function() { pushHistory(); });
+  if (ctaTextColorReset) ctaTextColorReset.addEventListener('click', function() {
+    state.ctaTextColor = '';
+    if (ctaTextColorInput) ctaTextColorInput.value = '#ffffff';
+    applyCtaStyle();
+    pushHistory();
+  });
 
   // ============ COLORS ============
   function setupColorPresets() {
@@ -1260,6 +1312,7 @@
       var show = state.bgPattern !== 'none';
       if (patternOpacityField) patternOpacityField.style.display = show ? '' : 'none';
       if (patternScaleField) patternScaleField.style.display = show ? '' : 'none';
+      if (patternColorField) patternColorField.style.display = show ? '' : 'none';
       pushHistory();
       applyPattern();
     });
@@ -1279,6 +1332,14 @@
   });
   if (patternScale) patternScale.addEventListener('change', function() { pushHistory(); });
 
+  var patternColorField = document.getElementById('pattern-color-field');
+  var patternColorInput = document.getElementById('pattern-color');
+  if (patternColorInput) patternColorInput.addEventListener('input', function() {
+    state.bgPatternColor = patternColorInput.value;
+    applyPattern();
+  });
+  if (patternColorInput) patternColorInput.addEventListener('change', function() { pushHistory(); });
+
   function applyPattern() {
     if (!canvasPattern) return;
     if (state.bgPattern === 'none' || !state.bgPattern) {
@@ -1288,7 +1349,7 @@
     }
     var opacity = (state.bgPatternOpacity || 15) / 100;
     var scale = state.bgPatternScale || 20;
-    var textCol = state.textColor || '#ffffff';
+    var textCol = state.bgPatternColor || state.textColor || '#ffffff';
     canvasPattern.style.opacity = opacity;
 
     switch (state.bgPattern) {
@@ -1884,30 +1945,27 @@
   }
 
   // ============ ZOOM ============
-  const zoomVal = document.getElementById('zoom-val');
   const btnZoomIn = document.getElementById('btn-zoom-in');
   const btnZoomOut = document.getElementById('btn-zoom-out');
   const btnZoomFit = document.getElementById('btn-zoom-fit');
 
-  function applyZoom() {
-    if (zoomVal) zoomVal.textContent = state.zoom + '%';
-    canvasWrapper.style.transform = 'scale(' + (state.zoom / 100) + ')';
-    canvasWrapper.style.transformOrigin = 'center center';
-  }
+  // applyZoom is now handled by fitCanvasToViewport() which combines
+  // viewport fit scale + user zoom into a single transform.
+  function applyZoom() { fitCanvasToViewport(); }
 
   if (btnZoomIn) btnZoomIn.addEventListener('click', () => {
     state.zoom = Math.min(200, state.zoom + 10);
-    applyZoom();
+    fitCanvasToViewport();
   });
 
   if (btnZoomOut) btnZoomOut.addEventListener('click', () => {
     state.zoom = Math.max(30, state.zoom - 10);
-    applyZoom();
+    fitCanvasToViewport();
   });
 
   if (btnZoomFit) btnZoomFit.addEventListener('click', () => {
     state.zoom = 100;
-    applyZoom();
+    fitCanvasToViewport();
   });
 
   // Mouse wheel zoom
@@ -2034,17 +2092,16 @@
    *  canvas up to the real target size so html2canvas renders text, SVG
    *  and CSS effects at full resolution. */
   function prepareCanvasForExport(targetW) {
-    var prevTransform = canvasWrapper.style.transform;
     canvasWrapper.style.transform = '';
     canvas.classList.add('exporting');
     canvasWrapper.style.overflow = 'hidden';
     deselectStickers();
 
-    // Snapshot current pixel dimensions (set by updateCanvas)
-    var prevCanvasW = canvas.offsetWidth;
-    var prevCanvasH = canvas.offsetHeight;
+    // Save reference dimensions
+    var refW = state._refW || REF_BASE;
+    var refH = state._refH || REF_BASE;
 
-    // Resize canvas to native resolution
+    // Resize canvas to native export resolution
     var nativeW = targetW;
     var nativeH = Math.round(nativeW * (state.format.h / state.format.w));
     canvas.style.width = nativeW + 'px';
@@ -2053,20 +2110,20 @@
     canvasWrapper.style.height = nativeH + 'px';
 
     // Re-apply typography at native scale so fonts are crisp
-    var exportFontScale = Math.max(nativeW, nativeH) / 540;
+    var exportFontScale = Math.max(nativeW, nativeH) / REF_BASE;
     applyTypography(exportFontScale);
 
     return {
       restore: function() {
-        // Restore exact previous display dimensions
-        canvas.style.width = prevCanvasW + 'px';
-        canvas.style.height = prevCanvasH + 'px';
-        canvasWrapper.style.width = prevCanvasW + 'px';
-        canvasWrapper.style.height = prevCanvasH + 'px';
-        canvasWrapper.style.transform = prevTransform;
+        // Restore to fixed reference dimensions
+        canvas.style.width = refW + 'px';
+        canvas.style.height = refH + 'px';
+        canvasWrapper.style.width = refW + 'px';
+        canvasWrapper.style.height = refH + 'px';
         canvasWrapper.style.overflow = '';
         canvas.classList.remove('exporting');
-        applyTypography(Math.max(prevCanvasW, prevCanvasH) / 540);
+        applyTypography(Math.max(refW, refH) / REF_BASE);
+        fitCanvasToViewport();
       }
     };
   }
@@ -2312,42 +2369,47 @@
   loadGallery();
 
   // ============ MAIN UPDATE ============
+
+  // Fixed reference base — canvas is always authored at this width.
+  // Viewport fitting uses CSS transform so content never changes on resize.
+  var REF_BASE = 540;
+
+  /** Recalculate ONLY the viewport-fit transform (resize / zoom safe).
+   *  Never touches fonts, text, or layout — just the visual scale. */
+  function fitCanvasToViewport() {
+    var refW = state._refW || REF_BASE;
+    var refH = state._refH || REF_BASE;
+    var maxW = canvasArea.clientWidth - 80;
+    var maxH = canvasArea.clientHeight - 100;
+    var fitScale = Math.min(maxW / refW, maxH / refH, 1.4);
+    state._fitScale = fitScale;
+    var totalScale = fitScale * (state.zoom / 100);
+    canvasWrapper.style.transform = 'scale(' + totalScale + ')';
+    canvasWrapper.style.transformOrigin = 'center center';
+    var zv = document.getElementById('zoom-val');
+    if (zv) zv.textContent = state.zoom + '%';
+  }
+
   function updateCanvas() {
     // Template
     canvas.dataset.template = state.template;
     if (infoTemplate) infoTemplate.textContent = state.template.charAt(0).toUpperCase() + state.template.slice(1);
 
-    // Format — scale to fit viewport
-    const maxW = canvasArea.clientWidth - 80;
-    const maxH = canvasArea.clientHeight - 100;
-    const ratio = state.format.w / state.format.h;
+    // Fixed reference canvas size — depends ONLY on format, never on viewport
+    var refW = REF_BASE;
+    var refH = Math.round(REF_BASE * (state.format.h / state.format.w));
+    state._refW = refW;
+    state._refH = refH;
 
-    let displayW, displayH;
-    if (ratio >= 1) {
-      displayW = Math.min(maxW, 600);
-      displayH = displayW / ratio;
-      if (displayH > maxH) {
-        displayH = maxH;
-        displayW = displayH * ratio;
-      }
-    } else {
-      displayH = Math.min(maxH, 600);
-      displayW = displayH * ratio;
-      if (displayW > maxW) {
-        displayW = maxW;
-        displayH = displayW / ratio;
-      }
-    }
-
-    canvas.style.width = displayW + 'px';
-    canvas.style.height = displayH + 'px';
-    canvasWrapper.style.width = displayW + 'px';
-    canvasWrapper.style.height = displayH + 'px';
+    canvas.style.width = refW + 'px';
+    canvas.style.height = refH + 'px';
+    canvasWrapper.style.width = refW + 'px';
+    canvasWrapper.style.height = refH + 'px';
 
     if (infoFormat) infoFormat.textContent = state.format.label + ' \u2014 ' + state.format.w + ' \u00d7 ' + state.format.h;
 
-    // Scale font sizes — use the larger display dimension vs 540 so portrait formats don't shrink text
-    const fontScale = Math.max(displayW, displayH) / 540;
+    // Font scale is FIXED per format — never changes on viewport resize
+    var fontScale = Math.max(refW, refH) / REF_BASE;
 
     // Update text
     canvasHeadline.textContent = state.headline;
@@ -2391,7 +2453,7 @@
     applyHeadlineDecoration();
     applyDecorations();
     renderStickers();
-    applyZoom();
+    fitCanvasToViewport();
   }
 
   // ============ APPLY COLORS ============
@@ -2453,8 +2515,8 @@
 
   // ============ APPLY TYPOGRAPHY ============
   function applyTypography(fontScale) {
-    const s = fontScale || (Math.max(canvas.offsetWidth, canvas.offsetHeight) / 540);
-    const fs = Math.max(0.5, Math.min(s, 1.5));
+    const s = fontScale || (Math.max(state._refW || REF_BASE, state._refH || REF_BASE) / REF_BASE);
+    const fs = Math.max(0.5, Math.min(s, 2.0));
 
     // Content alignment for some templates (set BEFORE measuring)
     const content = canvas.querySelector('.canvas__content');
@@ -3189,6 +3251,11 @@
     // CTA style
     document.querySelectorAll('.cta-style-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.style === (state.ctaStyle || 'text')); });
 
+    // Custom element colors
+    if (sublineColorInput) sublineColorInput.value = state.sublineColor || state.textColor || '#ffffff';
+    if (ctaBgColorInput) ctaBgColorInput.value = state.ctaBgColor || state.accentColor || '#c4622a';
+    if (ctaTextColorInput) ctaTextColorInput.value = state.ctaTextColor || '#ffffff';
+
     // Colors
     document.getElementById('color-bg').value = state.bgColor;
     document.getElementById('color-text').value = state.textColor;
@@ -3225,8 +3292,10 @@
     var showPatternControls = state.bgPattern && state.bgPattern !== 'none';
     if (patternOpacityField) patternOpacityField.style.display = showPatternControls ? '' : 'none';
     if (patternScaleField) patternScaleField.style.display = showPatternControls ? '' : 'none';
+    if (patternColorField) patternColorField.style.display = showPatternControls ? '' : 'none';
     if (patternOpacity) { patternOpacity.value = state.bgPatternOpacity || 15; if (patternOpacityVal) patternOpacityVal.textContent = state.bgPatternOpacity || 15; }
     if (patternScale) { patternScale.value = state.bgPatternScale || 20; if (patternScaleVal) patternScaleVal.textContent = state.bgPatternScale || 20; }
+    if (patternColorInput) patternColorInput.value = state.bgPatternColor || state.textColor || '#ffffff';
 
     // Options
     document.getElementById('opt-logo').checked = state.showLogo;
@@ -4823,7 +4892,7 @@
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => updateCanvas(), 100);
+    resizeTimer = setTimeout(() => fitCanvasToViewport(), 100);
   });
 
   // ============ AI GENERATOR ============

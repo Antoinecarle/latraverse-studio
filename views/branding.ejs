@@ -466,6 +466,13 @@
             <button class="subline-case-btn" data-case="lowercase" title="Minuscules">aa</button>
           </div>
         </div>
+        <div class="field">
+          <div class="color-field-row">
+            <label>Couleur</label>
+            <input type="color" id="subline-color" value="#ffffff" class="color-mini">
+            <button class="color-reset-btn" id="subline-color-reset" title="Reset">×</button>
+          </div>
+        </div>
         </div>
       </section>
 
@@ -548,6 +555,22 @@
               <option value="700">Bold</option>
               <option value="800">Extra Bold</option>
             </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field field--half">
+            <div class="color-field-row">
+              <label>Fond CTA</label>
+              <input type="color" id="cta-bg-color" value="#c4622a" class="color-mini">
+              <button class="color-reset-btn" id="cta-bg-color-reset" title="Reset">×</button>
+            </div>
+          </div>
+          <div class="field field--half">
+            <div class="color-field-row">
+              <label>Texte CTA</label>
+              <input type="color" id="cta-text-color" value="#ffffff" class="color-mini">
+              <button class="color-reset-btn" id="cta-text-color-reset" title="Reset">×</button>
+            </div>
           </div>
         </div>
         </div>
@@ -715,6 +738,12 @@
         <div class="field" id="pattern-scale-field" style="display:none">
           <label>Taille motif <span id="pattern-scale-val">20</span>px</label>
           <input type="range" id="pattern-scale" min="8" max="60" value="20">
+        </div>
+        <div class="field" id="pattern-color-field" style="display:none">
+          <div class="color-field-row">
+            <label>Couleur motif</label>
+            <input type="color" id="pattern-color" value="#ffffff" class="color-mini">
+          </div>
         </div>
         </div>
       </section>
