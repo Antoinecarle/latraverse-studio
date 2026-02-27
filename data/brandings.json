@@ -1,23 +1,25 @@
 [
   {
-    "id": "1e69b72a-eb32-41b7-b659-fd508dfe85a2",
-    "name": "Promo Ete 2026",
+    "id": "fe257dc7-bfec-4e5f-aa77-181d91082aec",
+    "name": "Sans titre",
     "state": {
       "format": {
         "w": 1080,
         "h": 1080,
         "label": "Post"
       },
-      "template": "minimal",
-      "headline": "Studio digital",
-      "subline": "Marseille",
-      "body": "Sites, apps et outils sur-mesure pour artisans, commercants et independants.",
-      "cta": "latraverse.studio",
-      "bgColor": "#1a1714",
-      "textColor": "#f0e8dc",
-      "accentColor": "#c4622a",
+      "template": "neon",
+      "headline": "Vibes Festives",
+      "subline": "Fête",
+      "body": "Plongez au cœur d'une explosion sonore et visuelle.",
+      "cta": "Réservez Vite",
+      "bgColor": "#0e0b1a",
+      "textColor": "#e8e0f8",
+      "accentColor": "#8b5cf6",
+      "accentColor2": "#a78bfa",
+      "stylePack": "tech",
       "showLogo": true,
-      "showBorder": true,
+      "showBorder": false,
       "showGrain": false,
       "showVignette": false,
       "bgImage": null,
@@ -30,25 +32,355 @@
         "end": "#1a1714"
       },
       "typoHeadline": {
+        "font": "'Inter', sans-serif",
+        "size": 62,
+        "weight": "800",
+        "align": "center",
+        "case": "uppercase",
+        "lh": 110,
+        "ls": 0
+      },
+      "typoBody": {
+        "font": "'Inter', sans-serif",
+        "size": 14,
+        "weight": "400"
+      },
+      "fxShadow": 0,
+      "fxGlow": 0,
+      "fxOutline": false,
+      "stickers": [
+        {
+          "id": "stk-5",
+          "type": "ai-image",
+          "imageUrl": "/uploads/branding/sticker-1772226053595.png",
+          "x": 70,
+          "y": 75,
+          "w": 100,
+          "h": 100,
+          "rotation": 0,
+          "opacity": 1,
+          "layer": "above"
+        }
+      ]
+    },
+    "created_at": "2026-02-27T20:56:54.445Z",
+    "updated_at": "2026-02-27T21:04:38.754Z"
+  },
+  {
+    "id": "8e72a68a-41a2-426c-bc18-db0ef77e09d9",
+    "name": "Sans titre",
+    "state": {
+      "format": {
+        "w": 1080,
+        "h": 1350,
+        "label": "Portrait"
+      },
+      "template": "duotone",
+      "headline": "INNOVATION SUR MESURE",
+      "subline": "PROGRÈS",
+      "body": "Transformez vos défis en succès logiciels personnalisés.",
+      "cta": "DÉCOUVREZ PLUS",
+      "bgColor": "#1a1714",
+      "textColor": "#f0e8dc",
+      "accentColor": "#c4622a",
+      "accentColor2": "#e8a87c",
+      "stylePack": null,
+      "showLogo": true,
+      "showBorder": false,
+      "showGrain": false,
+      "showVignette": false,
+      "bgImage": "http://72.62.237.177:3005/uploads/branding/gemini-1772218206113.png",
+      "bgOpacity": 9,
+      "bgBlur": 0,
+      "gradient": {
+        "enabled": false,
+        "angle": 135,
+        "start": "#c4622a",
+        "end": "#1a1714"
+      },
+      "typoHeadline": {
         "font": "'Playfair Display', serif",
-        "size": 48,
-        "weight": "700",
+        "size": 62,
+        "weight": "800",
+        "align": "left",
+        "case": "uppercase",
+        "lh": 110,
+        "ls": 0
+      },
+      "typoBody": {
+        "font": "'Libre Baskerville', serif",
+        "size": 14,
+        "weight": "400"
+      },
+      "fxShadow": 0,
+      "fxGlow": 0,
+      "fxOutline": false,
+      "stickers": [
+        {
+          "id": "stk-11",
+          "type": "browser-frame",
+          "x": 54.81058162698008,
+          "y": 70.172900513203,
+          "w": 177.77777777777777,
+          "h": 122.22222222222223,
+          "rotation": 0,
+          "opacity": 1,
+          "layer": "above"
+        },
+        {
+          "id": "stk-14",
+          "type": "ai-image",
+          "imageUrl": "/uploads/branding/sticker-1772218177974.png",
+          "x": 60.112392377625,
+          "y": 11.063030281968839,
+          "w": 111.11111111111111,
+          "h": 111.11111111111111,
+          "rotation": 0,
+          "opacity": 1,
+          "layer": "above"
+        }
+      ]
+    },
+    "created_at": "2026-02-27T18:39:27.233Z",
+    "updated_at": "2026-02-27T20:56:40.358Z"
+  },
+  {
+    "id": "7b76790d-2cc8-49ce-a496-c5cd3b3bc78e",
+    "name": "Sans titre",
+    "state": {
+      "format": {
+        "w": 1080,
+        "h": 1080,
+        "label": "Post"
+      },
+      "template": "typewriter",
+      "headline": "Marseille Vibre",
+      "subline": "2026",
+      "body": "Explore ses trésors, vis la liberté urbaine.",
+      "cta": "Découvre Maintenant",
+      "bgColor": "#0e0b1a",
+      "textColor": "#e8e0f8",
+      "accentColor": "#8b5cf6",
+      "accentColor2": "#a78bfa",
+      "stylePack": "tech",
+      "showLogo": true,
+      "showBorder": false,
+      "showGrain": true,
+      "showVignette": false,
+      "bgImage": null,
+      "bgOpacity": 70,
+      "bgBlur": 0,
+      "gradient": {
+        "enabled": false,
+        "angle": 135,
+        "start": "#c4622a",
+        "end": "#1a1714"
+      },
+      "typoHeadline": {
+        "font": "'Inter', sans-serif",
+        "size": 60,
+        "weight": "800",
+        "align": "center",
+        "case": "uppercase",
+        "lh": 110,
+        "ls": 0
+      },
+      "typoBody": {
+        "font": "'Inter', sans-serif",
+        "size": 14,
+        "weight": "400"
+      },
+      "fxShadow": 0,
+      "fxGlow": 0,
+      "fxOutline": false,
+      "stickers": [
+        {
+          "id": "stk-5",
+          "type": "browser-frame",
+          "x": 58.913384083445436,
+          "y": 73.1532465430036,
+          "w": 177.77777777777777,
+          "h": 122.22222222222223,
+          "rotation": 0,
+          "opacity": 1,
+          "layer": "above"
+        }
+      ]
+    },
+    "created_at": "2026-02-27T18:24:53.783Z",
+    "updated_at": "2026-02-27T20:56:44.203Z"
+  },
+  {
+    "id": "bd7759e1-da87-459f-87ba-5ec0f2b9bb92",
+    "name": "GOUROU",
+    "state": {
+      "format": {
+        "w": 1080,
+        "h": 1920,
+        "label": "Story"
+      },
+      "template": "typewriter",
+      "headline": "Agents IA",
+      "subline": "Déployez",
+      "body": "Lancez des IA puissantes en quelques clics.",
+      "cta": "Voir Démo",
+      "bgColor": "#0e0b1a",
+      "textColor": "#e8e0f8",
+      "accentColor": "#8b5cf6",
+      "accentColor2": "#a78bfa",
+      "stylePack": "tech",
+      "showLogo": true,
+      "showBorder": true,
+      "showGrain": true,
+      "showVignette": false,
+      "bgImage": "/uploads/branding/sticker-1772217003721.png",
+      "bgOpacity": 70,
+      "bgBlur": 0,
+      "gradient": {
+        "enabled": false,
+        "angle": 135,
+        "start": "#c4622a",
+        "end": "#1a1714"
+      },
+      "typoHeadline": {
+        "font": "'Inter', sans-serif",
+        "size": 88,
+        "weight": "800",
         "align": "left",
         "case": "none",
         "lh": 110,
         "ls": 0
       },
       "typoBody": {
-        "font": "'Libre Baskerville', serif",
+        "font": "'Inter', sans-serif",
         "size": 15,
         "weight": "400"
       },
       "fxShadow": 0,
+      "fxGlow": 4,
+      "fxOutline": false,
+      "stickers": [
+        {
+          "id": "stk-8",
+          "type": "svg-animation",
+          "svgCode": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 400\" width=\"400\" height=\"400\">\n  <style>\n    .robot {\n      transform-origin: 190px 200px;\n      animation: bounce 0.6s cubic-bezier(0.8, 0, 0.2, 1) infinite alternate;\n      cursor: pointer;\n    }\n    .robot:hover {\n      animation: crazyShake 0.15s infinite;\n    }\n    .flame {\n      transform-origin: 160px 340px;\n      animation: burn 0.15s infinite alternate;\n    }\n    .wink {\n      transform-origin: 187.5px 197.5px;\n      animation: wink 2.5s infinite;\n    }\n    .flicker {\n      animation: flicker 2s infinite;\n    }\n    .fast-flicker {\n      animation: flicker 0.5s infinite alternate;\n    }\n    .pulse-halo {\n      transform-origin: 190px 200px;\n      animation: wave 1.5s cubic-bezier(0, 0.5, 0.5, 1) infinite;\n      fill: none;\n      stroke: #a771ea;\n    }\n    .pulse-halo:nth-child(2) { animation-delay: 0.75s; }\n    .hand {\n      transform-origin: center;\n      animation: spinHand 2s linear infinite;\n    }\n    .hand-l { transform-origin: 45px 215px; animation-direction: reverse; }\n    .hand-r { transform-origin: 350px 180px; }\n    .bit {\n      transform-origin: center;\n      animation: pop 0.8s infinite alternate;\n    }\n\n    @keyframes bounce {\n      0% { transform: translateY(12px); }\n      100% { transform: translateY(-18px); }\n    }\n    @keyframes burn {\n      0% { transform: scaleY(0.7); opacity: 0.8; }\n      100% { transform: scaleY(1.4); opacity: 1; }\n    }\n    @keyframes wink {\n      0%, 65%, 85%, 100% { transform: scaleY(1); }\n      75% { transform: scaleY(0); }\n    }\n    @keyframes flicker {\n      0%, 88%, 92%, 96%, 100% { opacity: 1; filter: drop-shadow(0 0 10px #a771ea); }\n      90%, 94% { opacity: 0.4; filter: none; }\n    }\n    @keyframes crazyShake {\n      0%, 100% { transform: translate(0, 0) rotate(0); }\n      25% { transform: translate(6px, -6px) rotate(4deg); }\n      50% { transform: translate(-6px, 6px) rotate(-4deg); }\n      75% { transform: translate(6px, 6px) rotate(2deg); }\n    }\n    @keyframes wave {\n      0% { transform: scale(0.4); opacity: 0.9; stroke-width: 2; }\n      100% { transform: scale(1.6); opacity: 0; stroke-width: 18; }\n    }\n    @keyframes spinHand {\n      0% { transform: rotate(0deg); }\n      100% { transform: rotate(360deg); }\n    }\n    @keyframes pop {\n      0% { transform: scale(0.3); opacity: 0.1; }\n      100% { transform: scale(1.5); opacity: 1; filter: drop-shadow(0 0 8px #a771ea); }\n    }\n  </style>\n\n  <circle class=\"pulse-halo\" cx=\"190\" cy=\"200\" r=\"110\" />\n  <circle class=\"pulse-halo\" cx=\"190\" cy=\"200\" r=\"110\" />\n\n  <rect class=\"bit\" x=\"45\" y=\"75\" width=\"12\" height=\"12\" fill=\"#a771ea\" rx=\"3\" style=\"animation-delay: 0s; transform-origin: 51px 81px;\" />\n  <rect class=\"bit\" x=\"330\" y=\"65\" width=\"16\" height=\"16\" fill=\"#592ed1\" rx=\"4\" style=\"animation-delay: 0.3s; transform-origin: 338px 73px;\" />\n  <rect class=\"bit\" x=\"85\" y=\"325\" width=\"18\" height=\"18\" fill=\"#592ed1\" rx=\"5\" style=\"animation-delay: 0.7s; transform-origin: 94px 334px;\" />\n  <rect class=\"bit\" x=\"350\" y=\"295\" width=\"14\" height=\"14\" fill=\"#a771ea\" rx=\"4\" style=\"animation-delay: 0.5s; transform-origin: 357px 302px;\" />\n\n  <rect class=\"hand hand-l flicker\" x=\"30\" y=\"200\" width=\"30\" height=\"30\" fill=\"#a771ea\" rx=\"8\" />\n  <rect class=\"hand hand-r flicker\" x=\"330\" y=\"160\" width=\"40\" height=\"40\" fill=\"#a771ea\" rx=\"10\" />\n\n  <g class=\"robot\">\n    <path d=\"M 120 300 L 200 300 L 180 340 L 140 340 Z\" fill=\"#592ed1\" />\n    <path d=\"M 120 300 L 200 300 L 180 340 L 140 340 Z\" fill=\"#000\" opacity=\"0.4\" />\n    \n    <polygon class=\"flame\" points=\"140,340 180,340 160,390\" fill=\"#a771ea\" />\n    <polygon class=\"flame\" points=\"150,340 170,340 160,370\" fill=\"#fff\" />\n\n    <rect x=\"185\" y=\"85\" width=\"10\" height=\"40\" fill=\"#592ed1\" />\n    <rect x=\"185\" y=\"85\" width=\"10\" height=\"40\" fill=\"#000\" opacity=\"0.2\" />\n    <rect class=\"fast-flicker\" x=\"175\" y=\"60\" width=\"30\" height=\"30\" fill=\"#a771ea\" rx=\"6\" />\n\n    <path d=\"M 80 140 L 140 90 L 300 90 L 240 140 Z\" fill=\"#592ed1\" />\n    <path d=\"M 80 140 L 140 90 L 300 90 L 240 140 Z\" fill=\"#fff\" opacity=\"0.25\" />\n    \n    <path d=\"M 240 140 L 300 90 L 300 250 L 240 300 Z\" fill=\"#592ed1\" />\n    <path d=\"M 240 140 L 300 90 L 300 250 L 240 300 Z\" fill=\"#000\" opacity=\"0.3\" />\n    \n    <path d=\"M 80 140 L 240 140 L 240 300 L 80 300 Z\" fill=\"#592ed1\" />\n    \n    <path class=\"flicker\" d=\"M 80 140 L 140 90 L 300 90 L 300 250 L 240 300 L 80 300 Z\" fill=\"none\" stroke=\"#a771ea\" stroke-width=\"5\" stroke-linejoin=\"round\" />\n    <path d=\"M 240 140 L 300 90\" stroke=\"#a771ea\" stroke-width=\"5\" stroke-linecap=\"round\" />\n    <path d=\"M 80 140 L 240 140 L 240 300\" stroke=\"#a771ea\" stroke-width=\"5\" stroke-linejoin=\"round\" fill=\"none\" />\n\n    <rect x=\"95\" y=\"155\" width=\"130\" height=\"130\" rx=\"15\" fill=\"#a771ea\" />\n    <rect x=\"95\" y=\"155\" width=\"130\" height=\"130\" rx=\"15\" fill=\"#000\" opacity=\"0.1\" />\n\n    <g fill=\"#592ed1\">\n      <rect x=\"115\" y=\"190\" width=\"25\" height=\"15\" rx=\"5\" />\n      <rect class=\"wink\" x=\"175\" y=\"190\" width=\"25\" height=\"15\" rx=\"5\" />\n      \n      <rect x=\"130\" y=\"240\" width=\"60\" height=\"14\" rx=\"7\" />\n      <rect class=\"fast-flicker\" x=\"138\" y=\"243\" width=\"8\" height=\"8\" rx=\"4\" fill=\"#fff\" />\n      <rect class=\"fast-flicker\" x=\"156\" y=\"243\" width=\"8\" height=\"8\" rx=\"4\" fill=\"#fff\" style=\"animation-delay: 0.1s\" />\n      <rect class=\"fast-flicker\" x=\"174\" y=\"243\" width=\"8\" height=\"8\" rx=\"4\" fill=\"#fff\" style=\"animation-delay: 0.2s\" />\n    </g>\n  </g>\n</svg>",
+          "svgUrl": "/uploads/branding/svg-anim-1772224714967.svg",
+          "x": 45.87973392382735,
+          "y": 66.63913566890307,
+          "w": 161.66666666666669,
+          "h": 161.66666666666669,
+          "rotation": 0,
+          "opacity": 1,
+          "layer": "below"
+        }
+      ]
+    },
+    "created_at": "2026-02-27T16:25:43.700Z",
+    "updated_at": "2026-02-27T20:56:54.361Z"
+  },
+  {
+    "id": "1e69b72a-eb32-41b7-b659-fd508dfe85a2",
+    "name": "Promo Ete 2026",
+    "state": {
+      "format": {
+        "w": 1080,
+        "h": 1080,
+        "label": "Post"
+      },
+      "template": "neon",
+      "headline": "Esprit Futur",
+      "subline": "Demain",
+      "body": "Explorez l'avenir, créez votre nouvelle réalité digitale.",
+      "cta": "Lancez Projet",
+      "bgColor": "#0a1628",
+      "textColor": "#e0f0ff",
+      "accentColor": "#38bdf8",
+      "accentColor2": "#7dd3fc",
+      "stylePack": "ocean",
+      "showLogo": true,
+      "showBorder": false,
+      "showGrain": false,
+      "showVignette": false,
+      "bgImage": null,
+      "bgOpacity": 70,
+      "bgBlur": 0,
+      "gradient": {
+        "enabled": false,
+        "angle": 135,
+        "start": "#c4622a",
+        "end": "#1a1714"
+      },
+      "typoHeadline": {
+        "font": "'Poppins', sans-serif",
+        "size": 60,
+        "weight": "800",
+        "align": "left",
+        "case": "uppercase",
+        "lh": 110,
+        "ls": 0
+      },
+      "typoBody": {
+        "font": "'Inter', sans-serif",
+        "size": 14,
+        "weight": "400"
+      },
+      "fxShadow": 0,
       "fxGlow": 0,
-      "fxOutline": false
+      "fxOutline": false,
+      "stickers": [
+        {
+          "id": "stk-4",
+          "type": "ai-image",
+          "imageUrl": "/uploads/branding/sticker-1772216992253.png",
+          "x": 15,
+          "y": 55,
+          "w": 26.444444444444446,
+          "h": 26.444444444444446,
+          "rotation": 0,
+          "opacity": 1,
+          "layer": "above"
+        },
+        {
+          "id": "stk-5",
+          "type": "ai-image",
+          "imageUrl": "/uploads/branding/sticker-1772216997391.png",
+          "x": 60,
+          "y": 10,
+          "w": 19.833333333333336,
+          "h": 19.833333333333336,
+          "rotation": 0,
+          "opacity": 1,
+          "layer": "above"
+        },
+        {
+          "id": "stk-6",
+          "type": "ai-image",
+          "imageUrl": "/uploads/branding/sticker-1772217003721.png",
+          "x": 75,
+          "y": 70,
+          "w": 17.62962962962963,
+          "h": 17.62962962962963,
+          "rotation": 0,
+          "opacity": 1,
+          "layer": "above"
+        },
+        {
+          "id": "stk-7",
+          "type": "svg-animation",
+          "svgCode": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 400\" width=\"400\" height=\"400\">\n    <defs>\n        <!-- Primary Heart Gradient -->\n        <radialGradient id=\"heartGrad\" cx=\"35%\" cy=\"30%\" r=\"75%\">\n            <stop offset=\"0%\" stop-color=\"#e8a87c\" />\n            <stop offset=\"50%\" stop-color=\"#c4622a\" />\n            <stop offset=\"100%\" stop-color=\"#7a3612\" />\n        </radialGradient>\n\n        <!-- Ambient Glows -->\n        <radialGradient id=\"glowGrad\" cx=\"50%\" cy=\"50%\" r=\"50%\">\n            <stop offset=\"0%\" stop-color=\"#c4622a\" stop-opacity=\"0.4\" />\n            <stop offset=\"100%\" stop-color=\"#c4622a\" stop-opacity=\"0\" />\n        </radialGradient>\n        \n        <radialGradient id=\"hoverGlowGrad\" cx=\"50%\" cy=\"50%\" r=\"50%\">\n            <stop offset=\"0%\" stop-color=\"#e8a87c\" stop-opacity=\"0.6\" />\n            <stop offset=\"60%\" stop-color=\"#c4622a\" stop-opacity=\"0.2\" />\n            <stop offset=\"100%\" stop-color=\"#e8a87c\" stop-opacity=\"0\" />\n        </radialGradient>\n\n        <radialGradient id=\"innerCoreGrad\" cx=\"50%\" cy=\"50%\" r=\"50%\">\n            <stop offset=\"0%\" stop-color=\"#e8a87c\" stop-opacity=\"0.9\" />\n            <stop offset=\"100%\" stop-color=\"#c4622a\" stop-opacity=\"0.1\" />\n        </radialGradient>\n\n        <!-- Reusable Heart Path (Optimized & Perfectly Symmetrical) -->\n        <path id=\"heartShape\" d=\"M200,330 C90,230 50,160 50,110 C50,60 90,30 135,30 C170,30 190,50 200,70 C210,50 230,30 265,30 C310,30 350,60 350,110 C350,160 310,230 200,330 Z\" />\n\n        <!-- Filters -->\n        <filter id=\"blurShadow\" x=\"-20%\" y=\"-20%\" width=\"140%\" height=\"140%\">\n            <feGaussianBlur stdDeviation=\"15\" />\n        </filter>\n    </defs>\n\n    <style>\n        /* Base Scene */\n        .scene {\n            transform-origin: 200px 180px;\n            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);\n        }\n\n        /* Hover Interactions */\n        svg:hover .scene {\n            transform: scale(1.05);\n        }\n        svg:hover .ambient {\n            opacity: 0.2;\n        }\n        svg:hover .ambient-hover {\n            opacity: 1;\n            transform: scale(1.1);\n        }\n        svg:hover .heart-group {\n            animation-duration: 1.8s;\n        }\n        svg:hover .ripple {\n            animation-duration: 1.8s;\n            stroke: #e8a87c;\n        }\n        svg:hover .particle {\n            animation-duration: 1.8s;\n        }\n\n        /* Ambient Layers */\n        .ambient, .ambient-hover {\n            transform-origin: 200px 180px;\n            transition: all 0.8s ease;\n        }\n        .ambient-hover {\n            opacity: 0;\n        }\n\n        /* Main Heart Animations */\n        .heart-group {\n            transform-origin: 200px 180px;\n            animation: organic-pulse 2.4s infinite cubic-bezier(0.25, 0.46, 0.45, 0.94);\n        }\n\n        @keyframes organic-pulse {\n            0%   { transform: scale(1); }\n            12%  { transform: scale(1.04); }     /* Lub */\n            24%  { transform: scale(0.98); }     /* Relax */\n            38%  { transform: scale(1.14); }     /* Dub */\n            55%  { transform: scale(1.01); }     /* Exhale */\n            75%  { transform: scale(0.99); }\n            100% { transform: scale(1); }\n        }\n\n        /* Inner Core */\n        .heart-inner {\n            transform-origin: 200px 180px;\n            animation: inner-pulse 2.4s infinite ease-in-out;\n            mix-blend-mode: screen;\n        }\n\n        @keyframes inner-pulse {\n            0%   { transform: scale(0.35); opacity: 0.5; }\n            38%  { transform: scale(0.48); opacity: 0.9; }\n            100% { transform: scale(0.35); opacity: 0.5; }\n        }\n\n        /* Ripple / Echo Effects */\n        .ripple {\n            fill: none;\n            stroke: #c4622a;\n            stroke-width: 2px;\n            transform-origin: 200px 180px;\n            animation: ripple-anim 2.4s infinite cubic-bezier(0.1, 0.6, 0.3, 1);\n        }\n        .r1 { animation-delay: 0s; }\n        .r2 { animation-delay: 0.8s; }\n        .r3 { animation-delay: 1.6s; }\n\n        @keyframes ripple-anim {\n            0%   { transform: scale(0.9); opacity: 0.6; stroke-width: 5px; }\n            100% { transform: scale(1.6); opacity: 0; stroke-width: 1px; }\n        }\n\n        /* Highlight Layer */\n        .highlight {\n            fill: none;\n            stroke: #e8a87c;\n            stroke-width: 4px;\n            stroke-linecap: round;\n            opacity: 0.7;\n        }\n\n        /* Particle Flow System */\n        .particle {\n            fill: #e8a87c;\n            opacity: 0;\n            transform-origin: 200px 180px;\n            animation: flow-out 2.4s infinite cubic-bezier(0.1, 0.8, 0.3, 1);\n        }\n        \n        .p1 { animation-delay: 0.80s; }\n        .p2 { animation-delay: 0.85s; }\n        .p3 { animation-delay: 0.90s; }\n        .p4 { animation-delay: 0.95s; }\n        .p5 { animation-delay: 1.00s; }\n        .p6 { animation-delay: 1.05s; }\n        .p7 { animation-delay: 1.10s; }\n        .p8 { animation-delay: 1.15s; }\n\n        @keyframes flow-out {\n            0%   { transform: translateY(0px) scale(0.2); opacity: 0; }\n            20%  { opacity: 0.8; }\n            100% { transform: translateY(-70px) scale(1.2); opacity: 0; }\n        }\n    </style>\n\n    <!-- Invisible trigger area for whole-SVG hover interaction -->\n    <rect width=\"100%\" height=\"100%\" fill=\"transparent\" pointer-events=\"all\" />\n\n    <g class=\"scene\">\n        <!-- Ambient Background Glows -->\n        <circle cx=\"200\" cy=\"180\" r=\"170\" fill=\"url(#glowGrad)\" class=\"ambient\" />\n        <circle cx=\"200\" cy=\"180\" r=\"190\" fill=\"url(#hoverGlowGrad)\" class=\"ambient-hover\" />\n\n        <!-- Rippling Echoes -->\n        <g class=\"ripples\">\n            <use href=\"#heartShape\" class=\"ripple r1\" />\n            <use href=\"#heartShape\" class=\"ripple r2\" />\n            <use href=\"#heartShape\" class=\"ripple r3\" />\n        </g>\n\n        <!-- Main Beating Heart Group -->\n        <g class=\"heart-group\">\n            <!-- Blurred Drop Shadow -->\n            <use href=\"#heartShape\" fill=\"#c4622a\" opacity=\"0.5\" filter=\"url(#blurShadow)\" />\n            \n            <!-- Core 3D Heart -->\n            <use href=\"#heartShape\" fill=\"url(#heartGrad)\" />\n            \n            <!-- Elegant Top-Left Highlight -->\n            <path d=\"M 85 105 C 85 70 115 45 145 45\" class=\"highlight\" />\n        </g>\n\n        <!-- Translucent Breathing Inner Heart -->\n        <use href=\"#heartShape\" fill=\"url(#innerCoreGrad)\" class=\"heart-inner\" pointer-events=\"none\" />\n\n        <!-- Radiating Organic Particles -->\n        <g class=\"particles\">\n            <g style=\"transform-origin: 200px 180px; transform: rotate(0deg);\"><circle cx=\"200\" cy=\"90\" r=\"4.5\" class=\"particle p1\"/></g>\n            <g style=\"transform-origin: 200px 180px; transform: rotate(45deg);\"><circle cx=\"200\" cy=\"90\" r=\"3\" class=\"particle p2\"/></g>\n            <g style=\"transform-origin: 200px 180px; transform: rotate(90deg);\"><circle cx=\"200\" cy=\"90\" r=\"5\" class=\"particle p3\"/></g>\n            <g style=\"transform-origin: 200px 180px; transform: rotate(135deg);\"><circle cx=\"200\" cy=\"90\" r=\"2.5\" class=\"particle p4\"/></g>\n            <g style=\"transform-origin: 200px 180px; transform: rotate(180deg);\"><circle cx=\"200\" cy=\"90\" r=\"4\" class=\"particle p5\"/></g>\n            <g style=\"transform-origin: 200px 180px; transform: rotate(225deg);\"><circle cx=\"200\" cy=\"90\" r=\"3.5\" class=\"particle p6\"/></g>\n            <g style=\"transform-origin: 200px 180px; transform: rotate(270deg);\"><circle cx=\"200\" cy=\"90\" r=\"5\" class=\"particle p7\"/></g>\n            <g style=\"transform-origin: 200px 180px; transform: rotate(315deg);\"><circle cx=\"200\" cy=\"90\" r=\"3\" class=\"particle p8\"/></g>\n        </g>\n    </g>\n</svg>",
+          "svgUrl": "/uploads/branding/svg-anim-1772222727992.svg",
+          "x": 35.430396045733055,
+          "y": 34.64936403285462,
+          "w": 166.66666666666669,
+          "h": 166.66666666666669,
+          "rotation": 0,
+          "opacity": 1,
+          "layer": "below"
+        }
+      ]
     },
     "created_at": "2026-02-25T15:57:31.415Z",
-    "updated_at": "2026-02-25T15:58:38.819Z"
+    "updated_at": "2026-02-27T20:56:36.951Z"
   },
   {
     "id": "b874fba0-e5c9-49bb-81c1-f8e95bbe9d27",
@@ -60,15 +392,17 @@
         "label": "Post"
       },
       "template": "bold",
-      "headline": "Studio digital",
-      "subline": "Marseille",
-      "body": "Sites, apps et outils sur-mesure pour artisans, commercants et independants.",
-      "cta": "latraverse.studio",
-      "bgColor": "#0a0a0a",
-      "textColor": "#f0e8dc",
-      "accentColor": "#c4622a",
+      "headline": "Marseille en bleu",
+      "subline": "L'IA à votre service.",
+      "body": "Optimisez vos processus avec l'intelligence artificielle. Gagnez du temps et de l'efficacité pour vous concentrer sur l'essentiel de votre activité.",
+      "cta": "Découvrez l'IA",
+      "bgColor": "#0a1628",
+      "textColor": "#e0f0ff",
+      "accentColor": "#38bdf8",
+      "accentColor2": "#7dd3fc",
+      "stylePack": "ocean",
       "showLogo": true,
-      "showBorder": true,
+      "showBorder": false,
       "showGrain": false,
       "showVignette": false,
       "bgImage": null,
@@ -81,24 +415,25 @@
         "end": "#1a1714"
       },
       "typoHeadline": {
-        "font": "'Playfair Display', serif",
-        "size": 48,
-        "weight": "700",
-        "align": "left",
-        "case": "none",
+        "font": "'Poppins', sans-serif",
+        "size": 60,
+        "weight": "900",
+        "align": "center",
+        "case": "uppercase",
         "lh": 110,
         "ls": 0
       },
       "typoBody": {
-        "font": "'Libre Baskerville', serif",
+        "font": "'Inter', sans-serif",
         "size": 15,
         "weight": "400"
       },
       "fxShadow": 0,
       "fxGlow": 0,
-      "fxOutline": false
+      "fxOutline": false,
+      "stickers": []
     },
     "created_at": "2026-02-25T15:55:04.201Z",
-    "updated_at": "2026-02-25T16:13:29.240Z"
+    "updated_at": "2026-02-27T21:02:34.066Z"
   }
 ]

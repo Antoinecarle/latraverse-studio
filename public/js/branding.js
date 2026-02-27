@@ -20,6 +20,12 @@
   const canvasVignette = document.getElementById('canvas-vignette');
   const canvasDecorations = document.getElementById('canvas-decorations');
   const canvasGrid = document.getElementById('canvas-grid');
+  const canvasStickers = document.getElementById('canvas-stickers');
+  const canvasStickersBelow = document.getElementById('canvas-stickers-below');
+  const layersPanel = document.getElementById('layers-panel');
+  const layersPanelBody = document.getElementById('layers-panel-body');
+  const btnLayers = document.getElementById('btn-layers');
+  const layersPanelClose = document.getElementById('layers-panel-close');
   const infoFormat = document.getElementById('info-format');
   const infoTemplate = document.getElementById('info-template');
   const exportOverlay = document.getElementById('export-overlay');
@@ -36,6 +42,8 @@
       bgColor: '#1a1714',
       textColor: '#f0e8dc',
       accentColor: '#c4622a',
+      accentColor2: '#e8a87c',
+      stylePack: null,
       showLogo: true,
       showBorder: true,
       showGrain: false,
@@ -51,6 +59,15 @@
       fxOutline: false,
       zoom: 100,
       gridVisible: false,
+      stickers: [],
+      freeLayout: false,
+      textPositions: {
+        logo:     { x: 10, y: 5 },
+        headline: { x: 10, y: 30 },
+        subline:  { x: 10, y: 50 },
+        body:     { x: 10, y: 60 },
+        cta:      { x: 10, y: 85 }
+      },
     };
   }
 
@@ -326,16 +343,48 @@
     if (btnRedo) btnRedo.disabled = historyIndex >= history.length - 1;
   }
 
-  // ============ TABS ============
-  document.querySelectorAll('.sidebar__tabs .tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const tabName = tab.dataset.tab;
-      document.querySelectorAll('.sidebar__tabs .tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      tab.classList.add('active');
-      const content = document.querySelector('[data-tab-content="' + tabName + '"]');
-      if (content) content.classList.add('active');
+  // ============ RAIL + PANEL TABS ============
+  const panelDrawer = document.getElementById('sidebar');
+  const panelTitle = document.getElementById('panel-title');
+  const panelClose = document.getElementById('panel-close');
+  const tabTitles = { design: 'Design', text: 'Texte', style: 'Style', stickers: 'Stickers', media: 'Medias', animations: 'Animations SVG' };
+  let activeTab = 'design';
+
+  document.querySelectorAll('.rail__btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabName = btn.dataset.tab;
+      if (tabName === activeTab && panelDrawer.classList.contains('open')) {
+        panelDrawer.classList.remove('open');
+        btn.classList.remove('active');
+        activeTab = null;
+      } else {
+        document.querySelectorAll('.rail__btn').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        const content = document.querySelector('[data-tab-content="' + tabName + '"]');
+        if (content) content.classList.add('active');
+        panelDrawer.classList.add('open');
+        if (panelTitle) panelTitle.textContent = tabTitles[tabName] || tabName;
+        activeTab = tabName;
+      }
     });
+  });
+
+  if (panelClose) {
+    panelClose.addEventListener('click', () => {
+      panelDrawer.classList.remove('open');
+      document.querySelectorAll('.rail__btn').forEach(t => t.classList.remove('active'));
+      activeTab = null;
+    });
+  }
+
+  // Keyboard shortcut: Escape to close panel
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && panelDrawer && panelDrawer.classList.contains('open')) {
+      panelDrawer.classList.remove('open');
+      document.querySelectorAll('.rail__btn').forEach(t => t.classList.remove('active'));
+      activeTab = null;
+    }
   });
 
   // ============ FORMAT ============
@@ -349,20 +398,115 @@
     });
   });
 
+  // ============ STYLE PACKS ============
+  const stylePacks = {
+    traverse:  { name: 'La Traverse',  bg: '#1a1714', text: '#f0e8dc', accent: '#c4622a', accent2: '#e8a87c', headlineFont: "'Playfair Display', serif", bodyFont: "'Libre Baskerville', serif" },
+    tech:      { name: 'Tech Purple',  bg: '#0e0b1a', text: '#e8e0f8', accent: '#8b5cf6', accent2: '#a78bfa', headlineFont: "'Inter', sans-serif", bodyFont: "'Inter', sans-serif" },
+    ocean:     { name: 'Ocean Blue',   bg: '#0a1628', text: '#e0f0ff', accent: '#38bdf8', accent2: '#7dd3fc', headlineFont: "'Poppins', sans-serif", bodyFont: "'Inter', sans-serif" },
+    neonpop:   { name: 'Neon Pop',     bg: '#000000', text: '#ffffff', accent: '#22d3ee', accent2: '#f43f5e', headlineFont: "'Bebas Neue', sans-serif", bodyFont: "'Inter', sans-serif" },
+    light:     { name: 'Minimal Light',bg: '#fafaf8', text: '#1a1a1a', accent: '#6b7280', accent2: '#9ca3af', headlineFont: "'Raleway', sans-serif", bodyFont: "'Inter', sans-serif" },
+    sunset:    { name: 'Sunset',       bg: '#1a0a14', text: '#fde8ef', accent: '#f97316', accent2: '#ec4899', headlineFont: "'Montserrat', sans-serif", bodyFont: "'Poppins', sans-serif" },
+    corporate: { name: 'Corporate',    bg: '#0f172a', text: '#e2e8f0', accent: '#3b82f6', accent2: '#60a5fa', headlineFont: "'Inter', sans-serif", bodyFont: "'Inter', sans-serif" },
+    creative:  { name: 'Creative',     bg: '#1a0a20', text: '#f5e6ff', accent: '#e879f9', accent2: '#f472b6', headlineFont: "'Poppins', sans-serif", bodyFont: "'Raleway', sans-serif" },
+  };
+
+  function applyStylePack(packKey) {
+    const pack = stylePacks[packKey];
+    if (!pack) return;
+    state.stylePack = packKey;
+    state.bgColor = pack.bg;
+    state.textColor = pack.text;
+    state.accentColor = pack.accent;
+    state.accentColor2 = pack.accent2;
+    state.typoHeadline.font = pack.headlineFont;
+    state.typoBody.font = pack.bodyFont;
+
+    // Update UI controls
+    document.getElementById('color-bg').value = pack.bg;
+    document.getElementById('color-text').value = pack.text;
+    document.getElementById('color-accent').value = pack.accent;
+    const accent2Input = document.getElementById('color-accent2');
+    if (accent2Input) accent2Input.value = pack.accent2;
+    clearPresetActive('bg');
+    clearPresetActive('text');
+    clearPresetActive('accent');
+    if (typoHeadlineFont) typoHeadlineFont.value = pack.headlineFont;
+    if (typoBodyFont) typoBodyFont.value = pack.bodyFont;
+
+    // Update style pack buttons
+    document.querySelectorAll('.style-pack-btn').forEach(b => b.classList.toggle('active', b.dataset.pack === packKey));
+
+    pushHistory();
+    updateCanvas();
+  }
+
+  // Style pack click handlers (setup after DOM ready)
+  let stylePackHoverTimeout = null;
+  let preHoverState = null;
+
+  document.querySelectorAll('.style-pack-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      preHoverState = null; // Clear hover state on commit
+      applyStylePack(btn.dataset.pack);
+    });
+
+    // Hover-to-preview: temporarily apply the pack on hover
+    btn.addEventListener('mouseenter', () => {
+      clearTimeout(stylePackHoverTimeout);
+      stylePackHoverTimeout = setTimeout(() => {
+        if (!preHoverState) {
+          preHoverState = {
+            bg: state.bgColor,
+            text: state.textColor,
+            accent: state.accentColor,
+            accent2: state.accentColor2,
+            hFont: state.typoHeadline.font,
+            bFont: state.typoBody.font
+          };
+        }
+        const pack = stylePacks[btn.dataset.pack];
+        if (!pack) return;
+        canvas.style.background = pack.bg;
+        canvas.style.color = pack.text;
+        canvas.style.setProperty('--accent-color', pack.accent);
+        canvasHeadline.style.fontFamily = pack.headlineFont;
+        canvasBody.style.fontFamily = pack.bodyFont;
+      }, 120);
+    });
+
+    btn.addEventListener('mouseleave', () => {
+      clearTimeout(stylePackHoverTimeout);
+      if (preHoverState) {
+        canvas.style.background = preHoverState.bg;
+        canvas.style.color = preHoverState.text;
+        canvas.style.setProperty('--accent-color', preHoverState.accent);
+        canvasHeadline.style.fontFamily = preHoverState.hFont;
+        canvasBody.style.fontFamily = preHoverState.bFont;
+        preHoverState = null;
+      }
+    });
+  });
+
   // ============ TEMPLATE DEFAULTS ============
   const templateDefaults = {
-    minimal:    { bg: '#1a1714', text: '#f0e8dc', accent: '#c4622a' },
-    bold:       { bg: '#0a0a0a', text: '#f0e8dc', accent: '#c4622a' },
-    gradient:   { bg: '#1a1714', text: '#f0e8dc', accent: '#c4622a' },
-    split:      { bg: '#1a1714', text: '#f0e8dc', accent: '#c4622a' },
-    editorial:  { bg: '#faf6f1', text: '#1a1714', accent: '#c4622a' },
-    glass:      { bg: '#0c1220', text: '#f0e8dc', accent: '#4a6fa5' },
-    neon:       { bg: '#0a0a0a', text: '#f0e8dc', accent: '#c4622a' },
-    promo:      { bg: '#0a0a0a', text: '#f0e8dc', accent: '#c4622a' },
-    quote:      { bg: '#f5f0e8', text: '#1a1a1a', accent: '#c4622a' },
-    duotone:    { bg: '#1a1714', text: '#f0e8dc', accent: '#c4622a' },
-    geometric:  { bg: '#1a1714', text: '#f0e8dc', accent: '#c4622a' },
-    typewriter: { bg: '#f5f0e8', text: '#1a1714', accent: '#c4622a' },
+    minimal:    { bg: '#1a1714', text: '#f0e8dc', accent: '#c4622a', accent2: '#e8a87c' },
+    bold:       { bg: '#0a0a0a', text: '#f0e8dc', accent: '#c4622a', accent2: '#e8a87c' },
+    gradient:   { bg: '#1a1714', text: '#f0e8dc', accent: '#c4622a', accent2: '#e8a87c' },
+    split:      { bg: '#1a1714', text: '#f0e8dc', accent: '#c4622a', accent2: '#e8a87c' },
+    editorial:  { bg: '#faf6f1', text: '#1a1714', accent: '#c4622a', accent2: '#e8a87c' },
+    glass:      { bg: '#0c1220', text: '#f0e8dc', accent: '#4a6fa5', accent2: '#7dd3fc' },
+    neon:       { bg: '#0a0a0a', text: '#f0e8dc', accent: '#c4622a', accent2: '#e8a87c' },
+    promo:      { bg: '#0a0a0a', text: '#f0e8dc', accent: '#c4622a', accent2: '#e8a87c' },
+    quote:      { bg: '#f5f0e8', text: '#1a1a1a', accent: '#c4622a', accent2: '#e8a87c' },
+    duotone:    { bg: '#1a1714', text: '#f0e8dc', accent: '#c4622a', accent2: '#e8a87c' },
+    geometric:  { bg: '#1a1714', text: '#f0e8dc', accent: '#c4622a', accent2: '#e8a87c' },
+    typewriter: { bg: '#f5f0e8', text: '#1a1714', accent: '#c4622a', accent2: '#e8a87c' },
+    blobs:      { bg: '#0a0a14', text: '#f0e8dc', accent: '#8b5cf6', accent2: '#ec4899' },
+    cards:      { bg: '#0c1220', text: '#f0e8dc', accent: '#38bdf8', accent2: '#818cf8' },
+    'grid-pattern': { bg: '#111111', text: '#e8e8e8', accent: '#c4622a', accent2: '#e8a87c' },
+    magazine:   { bg: '#0a0a0a', text: '#ffffff', accent: '#c4622a', accent2: '#e8a87c' },
+    poster:     { bg: '#1a1714', text: '#f0e8dc', accent: '#c4622a', accent2: '#e8a87c' },
+    layered:    { bg: '#0e0b1a', text: '#f0e8dc', accent: '#8b5cf6', accent2: '#a78bfa' },
   };
 
   // ============ TEMPLATES ============
@@ -372,18 +516,23 @@
       btn.classList.add('active');
       state.template = btn.dataset.template;
 
-      // Apply template default colors
-      const defaults = templateDefaults[state.template];
-      if (defaults) {
-        state.bgColor = defaults.bg;
-        state.textColor = defaults.text;
-        state.accentColor = defaults.accent;
-        document.getElementById('color-bg').value = defaults.bg;
-        document.getElementById('color-text').value = defaults.text;
-        document.getElementById('color-accent').value = defaults.accent;
-        clearPresetActive('bg');
-        clearPresetActive('text');
-        clearPresetActive('accent');
+      // Apply template default colors ONLY if no style pack is active
+      if (!state.stylePack) {
+        const defaults = templateDefaults[state.template];
+        if (defaults) {
+          state.bgColor = defaults.bg;
+          state.textColor = defaults.text;
+          state.accentColor = defaults.accent;
+          state.accentColor2 = defaults.accent2 || '#e8a87c';
+          document.getElementById('color-bg').value = defaults.bg;
+          document.getElementById('color-text').value = defaults.text;
+          document.getElementById('color-accent').value = defaults.accent;
+          const accent2Input = document.getElementById('color-accent2');
+          if (accent2Input) accent2Input.value = defaults.accent2 || '#e8a87c';
+          clearPresetActive('bg');
+          clearPresetActive('text');
+          clearPresetActive('accent');
+        }
       }
 
       // Reset glass panel visibility
@@ -546,7 +695,13 @@
           } else if (target === 'accent') {
             state.accentColor = color;
             document.getElementById('color-accent').value = color;
+          } else if (target === 'accent2') {
+            state.accentColor2 = color;
+            document.getElementById('color-accent2').value = color;
           }
+          // Clear active style pack on manual color change
+          state.stylePack = null;
+          document.querySelectorAll('.style-pack-btn').forEach(b => b.classList.remove('active'));
           pushHistory();
           applyColors();
         });
@@ -557,6 +712,8 @@
 
   document.getElementById('color-bg').addEventListener('input', e => {
     state.bgColor = e.target.value;
+    state.stylePack = null;
+    document.querySelectorAll('.style-pack-btn').forEach(b => b.classList.remove('active'));
     clearPresetActive('bg');
     applyColors();
   });
@@ -564,6 +721,8 @@
 
   document.getElementById('color-text').addEventListener('input', e => {
     state.textColor = e.target.value;
+    state.stylePack = null;
+    document.querySelectorAll('.style-pack-btn').forEach(b => b.classList.remove('active'));
     clearPresetActive('text');
     applyColors();
   });
@@ -571,10 +730,24 @@
 
   document.getElementById('color-accent').addEventListener('input', e => {
     state.accentColor = e.target.value;
+    state.stylePack = null;
+    document.querySelectorAll('.style-pack-btn').forEach(b => b.classList.remove('active'));
     clearPresetActive('accent');
     applyColors();
   });
   document.getElementById('color-accent').addEventListener('change', () => pushHistory());
+
+  // Accent 2 color
+  const colorAccent2 = document.getElementById('color-accent2');
+  if (colorAccent2) {
+    colorAccent2.addEventListener('input', e => {
+      state.accentColor2 = e.target.value;
+      state.stylePack = null;
+      document.querySelectorAll('.style-pack-btn').forEach(b => b.classList.remove('active'));
+      applyColors();
+    });
+    colorAccent2.addEventListener('change', () => pushHistory());
+  }
 
   function clearPresetActive(target) {
     document.querySelectorAll('.color-presets[data-target="' + target + '"] .color-dot').forEach(d => d.classList.remove('active'));
@@ -849,6 +1022,10 @@
     const prevTransform = canvasWrapper.style.transform;
     canvasWrapper.style.transform = '';
 
+    // Hide sticker selection UI during export
+    canvas.classList.add('exporting');
+    deselectStickers();
+
     setTimeout(() => {
       html2canvas(canvas, {
         scale: scale,
@@ -864,11 +1041,13 @@
         link.click();
         exportOverlay.classList.remove('visible');
         canvasWrapper.style.transform = prevTransform;
+        canvas.classList.remove('exporting');
       }).catch(err => {
         console.error('Export error:', err);
         alert('Erreur lors de l\'export.');
         exportOverlay.classList.remove('visible');
         canvasWrapper.style.transform = prevTransform;
+        canvas.classList.remove('exporting');
       });
     }, 100);
   }
@@ -1081,6 +1260,7 @@
     applyEffects();
     applyBgImage();
     applyDecorations();
+    renderStickers();
     applyZoom();
   }
 
@@ -1123,7 +1303,7 @@
     // Glass panel
     const glassPanel = document.getElementById('canvas-glass-panel');
     if (glassPanel) {
-      if (state.template === 'glass') {
+      if (state.template === 'glass' || state.template === 'cards') {
         glassPanel.style.opacity = '1';
       } else {
         glassPanel.style.opacity = '0';
@@ -1139,39 +1319,14 @@
     const s = fontScale || (canvas.offsetWidth / 540);
     const fs = Math.max(0.5, Math.min(s, 1.5));
 
-    // Headline
-    canvasHeadline.style.fontFamily = state.typoHeadline.font;
-    canvasHeadline.style.fontSize = (state.typoHeadline.size * fs) + 'px';
-    canvasHeadline.style.fontWeight = state.typoHeadline.weight;
-    canvasHeadline.style.textAlign = state.typoHeadline.align;
-    canvasHeadline.style.textTransform = state.typoHeadline.case === 'none' ? '' : state.typoHeadline.case;
-    canvasHeadline.style.lineHeight = (state.typoHeadline.lh / 100);
-    canvasHeadline.style.letterSpacing = state.typoHeadline.ls + 'px';
-
-    // Body
-    canvasBody.style.fontFamily = state.typoBody.font;
-    canvasBody.style.fontSize = (state.typoBody.size * fs) + 'px';
-    canvasBody.style.fontWeight = state.typoBody.weight;
-
-    // Subline & CTA scale
-    canvasSubline.style.fontSize = (14 * fs) + 'px';
-    canvasCta.style.fontSize = (12 * fs) + 'px';
-
-    // Logo scale
-    const logoSpan = canvasLogo.querySelector('span');
-    if (logoSpan) logoSpan.style.fontSize = (14 * fs) + 'px';
-    const logoSvg = canvasLogo.querySelector('svg');
-    if (logoSvg) {
-      logoSvg.style.width = (28 * fs) + 'px';
-      logoSvg.style.height = (28 * fs) + 'px';
-    }
-
-    // Content alignment for some templates
+    // Content alignment for some templates (set BEFORE measuring)
     const content = canvas.querySelector('.canvas__content');
-    if (state.template === 'bold' || state.template === 'promo' || state.template === 'quote' || state.template === 'glass') {
+    const centeredTemplates = ['bold', 'promo', 'quote', 'glass', 'neon', 'blobs', 'cards'];
+    if (centeredTemplates.includes(state.template)) {
       if (content) content.style.alignItems = 'center';
       if (content) content.style.textAlign = 'center';
       canvasBody.style.textAlign = 'center';
+      if (content) content.style.width = '';
     } else if (state.template === 'split') {
       if (content) content.style.alignItems = '';
       if (content) content.style.textAlign = '';
@@ -1182,6 +1337,52 @@
       if (content) content.style.textAlign = '';
       if (content) content.style.width = '';
       canvasBody.style.textAlign = '';
+    }
+
+    // Headline — auto-fit: reduce size if text overflows container
+    canvasHeadline.style.fontFamily = state.typoHeadline.font;
+    canvasHeadline.style.fontWeight = state.typoHeadline.weight;
+    canvasHeadline.style.textAlign = state.typoHeadline.align;
+    canvasHeadline.style.textTransform = state.typoHeadline.case === 'none' ? '' : state.typoHeadline.case;
+    canvasHeadline.style.lineHeight = (state.typoHeadline.lh / 100);
+    canvasHeadline.style.letterSpacing = state.typoHeadline.ls + 'px';
+
+    // Auto-fit headline: limit to max 2 lines by shrinking font if needed
+    const desiredHeadlinePx = state.typoHeadline.size * fs;
+    let headlinePx = desiredHeadlinePx;
+    canvasHeadline.style.fontSize = headlinePx + 'px';
+    const canvasW = canvas.offsetWidth;
+    if (canvasW > 0 && canvasHeadline.scrollHeight > 0) {
+      let tries = 0;
+      while (tries < 20 && headlinePx > 6) {
+        const lh = headlinePx * (state.typoHeadline.lh / 100 || 1.1);
+        const maxH = lh * 2.2;
+        if (canvasHeadline.scrollHeight <= maxH + 1) break;
+        headlinePx *= 0.9;
+        canvasHeadline.style.fontSize = headlinePx + 'px';
+        tries++;
+      }
+    }
+
+    // Calculate shrink ratio so body/subline/cta scale proportionally
+    const shrinkRatio = desiredHeadlinePx > 0 ? headlinePx / desiredHeadlinePx : 1;
+
+    // Body — scale proportionally if headline was shrunk
+    canvasBody.style.fontFamily = state.typoBody.font;
+    canvasBody.style.fontSize = (state.typoBody.size * fs * shrinkRatio) + 'px';
+    canvasBody.style.fontWeight = state.typoBody.weight;
+
+    // Subline & CTA scale — also proportional
+    canvasSubline.style.fontSize = (14 * fs * shrinkRatio) + 'px';
+    canvasCta.style.fontSize = (12 * fs * shrinkRatio) + 'px';
+
+    // Logo scale
+    const logoSpan = canvasLogo.querySelector('span');
+    if (logoSpan) logoSpan.style.fontSize = (14 * fs) + 'px';
+    const logoSvg = canvasLogo.querySelector('svg');
+    if (logoSvg) {
+      logoSvg.style.width = (28 * fs) + 'px';
+      logoSvg.style.height = (28 * fs) + 'px';
     }
   }
 
@@ -1223,32 +1424,538 @@
     if (!canvasDecorations) return;
     canvasDecorations.innerHTML = '';
 
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-    const accent = state.accentColor;
+    var w = canvas.offsetWidth;
+    var h = canvas.offsetHeight;
+    var accent = state.accentColor;
+    var accent2 = state.accentColor2 || '#e8a87c';
+    var accentRgb = hexToRgb(accent);
+    var accent2Rgb = hexToRgb(accent2);
+    var s = w / 540; // scale factor
+
+    // ---- COMPONENT HELPERS (SuperDuper-style floating UI elements) ----
+
+    // Gradient pill badge (looks like a floating button)
+    function pill(x, y, pw, ph, bg, op, rot) {
+      return '<div style="position:absolute;top:'+y+';left:'+x+';width:'+pw+'px;height:'+ph+'px;border-radius:'+ph+'px;background:'+bg+';opacity:'+op+';transform:rotate('+(rot||0)+'deg);box-shadow:0 '+(4*s)+'px '+(16*s)+'px rgba(0,0,0,0.25)"></div>';
+    }
+
+    // Glass card mockup (frosted card with inner mock content lines)
+    function glassCard(x, y, cw, ch, op, rot) {
+      var r = Math.round(10 * s);
+      return '<div style="position:absolute;top:'+y+';left:'+x+';width:'+cw+'px;height:'+ch+'px;border-radius:'+r+'px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);opacity:'+op+';transform:rotate('+(rot||0)+'deg);box-shadow:0 '+(8*s)+'px '+(32*s)+'px rgba(0,0,0,0.3);overflow:hidden">' +
+        '<div style="position:absolute;top:15%;left:12%;right:35%;height:3px;background:rgba(255,255,255,0.2);border-radius:2px"></div>' +
+        '<div style="position:absolute;top:30%;left:12%;right:15%;height:2px;background:rgba(255,255,255,0.08);border-radius:1px"></div>' +
+        '<div style="position:absolute;top:42%;left:12%;right:25%;height:2px;background:rgba(255,255,255,0.06);border-radius:1px"></div>' +
+        '<div style="position:absolute;bottom:15%;left:12%;width:40%;height:'+Math.max(6,ch*0.1)+'px;border-radius:999px;background:linear-gradient(90deg,rgba('+accentRgb+',0.35),rgba('+accent2Rgb+',0.25))"></div>' +
+      '</div>';
+    }
+
+    // App icon circle (rounded square, looks like an app badge)
+    function appIcon(x, y, sz, bg, op) {
+      var r = Math.round(sz * 0.28);
+      return '<div style="position:absolute;top:'+y+';left:'+x+';width:'+sz+'px;height:'+sz+'px;border-radius:'+r+'px;background:'+bg+';opacity:'+op+';box-shadow:0 '+(4*s)+'px '+(20*s)+'px rgba(0,0,0,0.3)"></div>';
+    }
+
+    // Rounded square grid pattern (background of outlined rounded squares)
+    function roundedGrid(cellSz, gap, color, op) {
+      var html = '';
+      var cols = Math.ceil(w / (cellSz + gap)) + 1;
+      var rows = Math.ceil(h / (cellSz + gap)) + 1;
+      var r = Math.round(cellSz * 0.25);
+      for (var row = 0; row < rows; row++) {
+        for (var col = 0; col < cols; col++) {
+          var lx = col * (cellSz + gap);
+          var ly = row * (cellSz + gap);
+          html += '<div style="position:absolute;top:'+ly+'px;left:'+lx+'px;width:'+cellSz+'px;height:'+cellSz+'px;border-radius:'+r+'px;border:1px solid '+color+';opacity:'+op+'"></div>';
+        }
+      }
+      return '<div style="position:absolute;inset:0;overflow:hidden">' + html + '</div>';
+    }
+
+    // Floating tag badge (outlined pill with optional inner dot)
+    function tag(x, y, tw, th, color, op, rot) {
+      return '<div style="position:absolute;top:'+y+';left:'+x+';width:'+tw+'px;height:'+th+'px;border-radius:'+th+'px;border:1.5px solid '+color+';opacity:'+op+';transform:rotate('+(rot||0)+'deg)">' +
+        '<div style="position:absolute;top:50%;left:20%;width:'+(th*0.3)+'px;height:'+(th*0.3)+'px;border-radius:50%;background:'+color+';transform:translateY(-50%);opacity:0.5"></div>' +
+        '<div style="position:absolute;top:50%;left:40%;right:15%;height:2px;background:'+color+';transform:translateY(-50%);opacity:0.3;border-radius:1px"></div>' +
+      '</div>';
+    }
+
+    // Screen / phone mockup frame
+    function screenFrame(x, y, sw, sh, color, op, rot) {
+      var r = Math.round(12 * s);
+      return '<div style="position:absolute;top:'+y+';left:'+x+';width:'+sw+'px;height:'+sh+'px;border-radius:'+r+'px;border:2px solid '+color+';opacity:'+op+';transform:rotate('+(rot||0)+'deg);box-shadow:0 '+(6*s)+'px '+(24*s)+'px rgba(0,0,0,0.2)">' +
+        '<div style="position:absolute;top:8%;left:50%;transform:translateX(-50%);width:25%;height:3px;border-radius:2px;background:'+color+';opacity:0.3"></div>' +
+        '<div style="position:absolute;bottom:5%;left:50%;transform:translateX(-50%);width:20%;height:20%;border-radius:50%;border:1.5px solid '+color+';opacity:0.2"></div>' +
+      '</div>';
+    }
+
+    // Blob (gradient circle with blur)
+    function blob(x, y, sz, color, op, blur) {
+      return '<div style="position:absolute;top:'+y+';left:'+x+';width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:'+color+';opacity:'+op+';filter:blur('+blur+'px)"></div>';
+    }
+
+    // Micro dots
+    function microDots(count, color, opBase) {
+      var dots = '';
+      for (var i = 0; i < count; i++) {
+        var dx = 5 + (i * 73 + 17) % 90;
+        var dy = 8 + (i * 47 + 31) % 84;
+        var dsz = 2 + (i % 3);
+        dots += '<div style="position:absolute;top:'+dy+'%;left:'+dx+'%;width:'+dsz+'px;height:'+dsz+'px;border-radius:50%;background:'+color+';opacity:'+(opBase - i*0.012).toFixed(3)+'"></div>';
+      }
+      return dots;
+    }
 
     switch (state.template) {
+
+      case 'minimal': {
+        canvasDecorations.innerHTML =
+          // vertical accent bar
+          '<div style="position:absolute;left:7%;top:12%;bottom:12%;width:3px;background:linear-gradient(180deg,transparent,'+accent+','+accent2+',transparent);opacity:0.3;border-radius:2px"></div>' +
+          // floating glass card top-right
+          glassCard('65%', '8%', w*0.28, h*0.18, 0.4, 3) +
+          // pill badge bottom-right
+          pill('70%', '78%', w*0.22, 12*s, 'linear-gradient(90deg,'+accent+','+accent2+')', 0.25, -5) +
+          // small app icon
+          appIcon('82%', '55%', 22*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.2) +
+          // tag outline
+          tag('60%', '50%', w*0.15, 10*s, accent, 0.15, 2) +
+          // L-bracket top-right
+          '<div style="position:absolute;top:6%;right:6%;width:'+30*s+'px;height:1px;background:'+accent+';opacity:0.25"></div>' +
+          '<div style="position:absolute;top:6%;right:6%;width:1px;height:'+30*s+'px;background:'+accent+';opacity:0.25"></div>' +
+          // L-bracket bottom-left
+          '<div style="position:absolute;bottom:6%;left:6%;width:'+30*s+'px;height:1px;background:'+accent2+';opacity:0.2"></div>' +
+          '<div style="position:absolute;bottom:6%;left:6%;width:1px;height:'+30*s+'px;background:'+accent2+';opacity:0.2"></div>' +
+          // subtle glow
+          blob('75%', '15%', w*0.3, accent, 0.05, w*0.08) +
+          microDots(6, accent, 0.1);
+        break;
+      }
+
+      case 'bold': {
+        var letter = (state.headline || 'B').charAt(0).toUpperCase();
+        canvasDecorations.innerHTML =
+          // giant letter
+          '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'+state.typoHeadline.font+';font-size:'+(w*0.85)+'px;font-weight:900;color:'+accent+';opacity:0.05;line-height:1;pointer-events:none">'+letter+'</div>' +
+          // floating glass card (top-right, tilted)
+          glassCard('62%', '5%', w*0.3, h*0.2, 0.35, 5) +
+          // floating glass card (bottom-left, tilted)
+          glassCard('2%', '68%', w*0.25, h*0.16, 0.25, -4) +
+          // gradient pills
+          pill('8%', '12%', w*0.2, 14*s, 'linear-gradient(90deg,'+accent+','+accent2+')', 0.3, -8) +
+          pill('65%', '82%', w*0.18, 12*s, 'linear-gradient(90deg,'+accent2+','+accent+')', 0.2, 5) +
+          // app icon badges
+          appIcon('5%', '5%', 28*s, accent, 0.35) +
+          appIcon('88%', '5%', 20*s, accent2, 0.25) +
+          appIcon('90%', '88%', 24*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.3) +
+          appIcon('5%', '90%', 18*s, accent2, 0.2) +
+          // glow orbs
+          blob('-5%', '-5%', w*0.4, accent, 0.08, w*0.1) +
+          blob('70%', '70%', w*0.35, accent2, 0.06, w*0.09) +
+          microDots(8, accent, 0.1);
+        break;
+      }
+
+      case 'gradient': {
+        canvasDecorations.innerHTML =
+          // large blobs
+          blob('-10%', '-15%', w*0.7, accent, 0.2, w*0.15) +
+          blob('60%', '60%', w*0.6, accent2, 0.16, w*0.13) +
+          blob('-5%', '40%', w*0.35, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.1, w*0.08) +
+          // floating glass cards
+          glassCard('60%', '5%', w*0.32, h*0.22, 0.35, 6) +
+          glassCard('3%', '70%', w*0.28, h*0.18, 0.25, -5) +
+          // gradient pills
+          pill('5%', '8%', w*0.24, 14*s, 'linear-gradient(90deg,rgba('+accentRgb+',0.5),rgba('+accent2Rgb+',0.4))', 0.5, -6) +
+          pill('55%', '85%', w*0.2, 12*s, 'linear-gradient(90deg,rgba('+accent2Rgb+',0.4),rgba('+accentRgb+',0.3))', 0.4, 4) +
+          // app icons
+          appIcon('85%', '35%', 26*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.3) +
+          appIcon('8%', '55%', 20*s, accent2, 0.2) +
+          // tag
+          tag('70%', '55%', w*0.18, 10*s, accent, 0.2, -3) +
+          // mesh overlay
+          '<div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba('+accentRgb+',0.06),transparent 40%,transparent 60%,rgba('+accent2Rgb+',0.04))"></div>' +
+          microDots(10, accent2, 0.08);
+        break;
+      }
+
+      case 'split': {
+        canvasDecorations.innerHTML =
+          // divider
+          '<div style="position:absolute;top:0;bottom:0;left:58%;width:3px;background:linear-gradient(180deg,transparent 5%,'+accent+' 30%,'+accent2+' 70%,transparent 95%);opacity:0.5"></div>' +
+          // right panel gradient
+          '<div style="position:absolute;top:0;bottom:0;left:58%;right:0;background:linear-gradient(90deg,rgba('+accentRgb+',0.04),rgba('+accent2Rgb+',0.08))"></div>' +
+          // glass card on right side
+          glassCard('62%', '12%', w*0.32, h*0.25, 0.35, 2) +
+          // second glass card on right (smaller)
+          glassCard('65%', '55%', w*0.26, h*0.18, 0.25, -3) +
+          // pill badge on right
+          pill('64%', '82%', w*0.22, 12*s, 'linear-gradient(90deg,'+accent+','+accent2+')', 0.3, 0) +
+          // app icon on right
+          appIcon('88%', '42%', 22*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.3) +
+          // divider junction dots
+          '<div style="position:absolute;top:25%;left:58%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:'+accent+';opacity:0.35"></div>' +
+          '<div style="position:absolute;top:50%;left:58%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:'+accent2+';opacity:0.3"></div>' +
+          '<div style="position:absolute;top:75%;left:58%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:'+accent+';opacity:0.35"></div>' +
+          // left side glow
+          blob('10%', '20%', w*0.35, accent, 0.04, w*0.08) +
+          microDots(5, accent, 0.08);
+        break;
+      }
+
       case 'editorial': {
-        // Thin accent line top + bottom
         canvasDecorations.innerHTML =
-          '<div style="position:absolute;top:8%;left:10%;right:10%;height:1px;background:' + accent + ';opacity:0.4"></div>' +
-          '<div style="position:absolute;bottom:8%;left:10%;right:10%;height:1px;background:' + accent + ';opacity:0.4"></div>';
+          // double lines top
+          '<div style="position:absolute;top:6%;left:10%;right:10%;height:1px;background:'+accent+';opacity:0.35"></div>' +
+          '<div style="position:absolute;top:calc(6% + 4px);left:10%;right:10%;height:1px;background:'+accent+';opacity:0.15"></div>' +
+          // double lines bottom
+          '<div style="position:absolute;bottom:6%;left:10%;right:10%;height:1px;background:'+accent+';opacity:0.35"></div>' +
+          '<div style="position:absolute;bottom:calc(6% + 4px);left:10%;right:10%;height:1px;background:'+accent+';opacity:0.15"></div>' +
+          // diamonds
+          '<div style="position:absolute;top:6%;left:50%;transform:translate(-50%,-50%) rotate(45deg);width:10px;height:10px;background:'+accent+';opacity:0.5"></div>' +
+          '<div style="position:absolute;bottom:6%;left:50%;transform:translate(-50%,50%) rotate(45deg);width:8px;height:8px;border:1px solid '+accent+';opacity:0.35"></div>' +
+          // side accents
+          '<div style="position:absolute;top:50%;left:6%;width:1px;height:50px;background:'+accent+';opacity:0.2;transform:translateY(-50%)"></div>' +
+          '<div style="position:absolute;top:50%;right:6%;width:1px;height:50px;background:'+accent+';opacity:0.2;transform:translateY(-50%)"></div>' +
+          // corner flourishes
+          '<div style="position:absolute;top:6%;left:10%;width:20px;height:1px;background:'+accent2+';opacity:0.4;transform:rotate(-45deg);transform-origin:left"></div>' +
+          '<div style="position:absolute;top:6%;right:10%;width:20px;height:1px;background:'+accent2+';opacity:0.4;transform:rotate(45deg);transform-origin:right"></div>' +
+          // dot cluster top-right
+          (function(){ var d=''; for(var r=0;r<3;r++) for(var c=0;c<3;c++) d+='<div style="position:absolute;top:'+(11+r*2)+'%;right:'+(13+c*2)+'%;width:3px;height:3px;border-radius:50%;background:'+accent+';opacity:0.12"></div>'; return d; })() +
+          // dot cluster bottom-left
+          (function(){ var d=''; for(var r=0;r<3;r++) for(var c=0;c<3;c++) d+='<div style="position:absolute;bottom:'+(11+r*2)+'%;left:'+(13+c*2)+'%;width:3px;height:3px;border-radius:50%;background:'+accent2+';opacity:0.1"></div>'; return d; })();
         break;
       }
-      case 'geometric': {
-        // Abstract geometric shapes
+
+      case 'glass': {
         canvasDecorations.innerHTML =
-          '<div style="position:absolute;top:10%;right:10%;width:' + (w * 0.2) + 'px;height:' + (w * 0.2) + 'px;border:2px solid ' + accent + ';opacity:0.15;transform:rotate(45deg)"></div>' +
-          '<div style="position:absolute;bottom:15%;left:8%;width:' + (w * 0.12) + 'px;height:' + (w * 0.12) + 'px;border-radius:50%;border:2px solid ' + accent + ';opacity:0.12"></div>' +
-          '<div style="position:absolute;top:20%;left:5%;width:' + (w * 0.08) + 'px;height:' + (w * 0.08) + 'px;background:' + accent + ';opacity:0.08;transform:rotate(30deg)"></div>';
+          // large orbs behind glass
+          blob('5%', '0%', w*0.5, accent, 0.25, w*0.12) +
+          blob('55%', '55%', w*0.45, accent2, 0.2, w*0.1) +
+          blob('60%', '10%', w*0.25, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.12, w*0.06) +
+          // floating glass card (top-left corner, behind main panel)
+          glassCard('-5%', '-3%', w*0.35, h*0.22, 0.3, -8) +
+          // floating glass card (bottom-right, behind main panel)
+          glassCard('72%', '75%', w*0.3, h*0.2, 0.25, 6) +
+          // gradient pills floating around
+          pill('2%', '60%', w*0.2, 12*s, 'linear-gradient(90deg,rgba('+accentRgb+',0.4),rgba('+accent2Rgb+',0.3))', 0.4, -12) +
+          pill('72%', '10%', w*0.18, 10*s, 'linear-gradient(90deg,rgba('+accent2Rgb+',0.35),rgba('+accentRgb+',0.25))', 0.35, 8) +
+          // app icon badges
+          appIcon('-2%', '28%', 26*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.35) +
+          appIcon('90%', '45%', 20*s, accent, 0.25) +
+          appIcon('85%', '8%', 18*s, accent2, 0.2) +
+          // small floating tag
+          tag('5%', '88%', w*0.15, 10*s, accent2, 0.2, -5) +
+          microDots(7, accent, 0.08);
         break;
       }
+
+      case 'neon': {
+        var ringSize = w * 0.45;
+        canvasDecorations.innerHTML =
+          // neon ring with glow
+          '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:'+ringSize+'px;height:'+ringSize+'px;border-radius:50%;border:2px solid '+accent+';opacity:0.2;box-shadow:0 0 '+40*s+'px rgba('+accentRgb+',0.3),0 0 '+80*s+'px rgba('+accentRgb+',0.12),inset 0 0 '+40*s+'px rgba('+accentRgb+',0.1)"></div>' +
+          // ring ripples
+          '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:'+(ringSize*1.35)+'px;height:'+(ringSize*1.35)+'px;border-radius:50%;border:1px solid '+accent+';opacity:0.07"></div>' +
+          '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:'+(ringSize*0.65)+'px;height:'+(ringSize*0.65)+'px;border-radius:50%;border:1px solid '+accent2+';opacity:0.1"></div>' +
+          // crossed glow lines
+          '<div style="position:absolute;top:50%;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,'+accent+',transparent);opacity:0.1;transform:translateY(-50%)"></div>' +
+          '<div style="position:absolute;top:5%;bottom:5%;left:50%;width:1px;background:linear-gradient(180deg,transparent,'+accent+',transparent);opacity:0.1;transform:translateX(-50%)"></div>' +
+          // floating pills
+          pill('5%', '8%', w*0.22, 12*s, 'linear-gradient(90deg,rgba('+accentRgb+',0.3),rgba('+accent2Rgb+',0.2))', 0.45, -10) +
+          pill('65%', '85%', w*0.2, 10*s, 'linear-gradient(90deg,rgba('+accent2Rgb+',0.25),rgba('+accentRgb+',0.2))', 0.35, 6) +
+          // app icons with neon glow
+          '<div style="position:absolute;top:5%;left:5%;width:'+24*s+'px;height:'+24*s+'px;border-radius:'+6*s+'px;background:'+accent+';opacity:0.3;box-shadow:0 0 '+16*s+'px rgba('+accentRgb+',0.4)"></div>' +
+          '<div style="position:absolute;bottom:6%;right:6%;width:'+20*s+'px;height:'+20*s+'px;border-radius:'+5*s+'px;background:'+accent2+';opacity:0.25;box-shadow:0 0 '+12*s+'px rgba('+accent2Rgb+',0.35)"></div>' +
+          // corner glow blobs
+          blob('0%', '0%', w*0.15, accent, 0.08, w*0.05) +
+          blob('82%', '82%', w*0.15, accent2, 0.08, w*0.05) +
+          // floating tag
+          tag('70%', '12%', w*0.18, 10*s, accent, 0.2, -4) +
+          microDots(8, accent, 0.12);
+        break;
+      }
+
+      case 'promo': {
+        canvasDecorations.innerHTML =
+          // gradient bars top/bottom
+          '<div style="position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,'+accent+','+accent2+');opacity:0.9"></div>' +
+          '<div style="position:absolute;bottom:0;left:0;right:0;height:5px;background:linear-gradient(90deg,'+accent2+','+accent+');opacity:0.9"></div>' +
+          // floating glass cards
+          glassCard('62%', '6%', w*0.32, h*0.2, 0.3, 5) +
+          glassCard('2%', '72%', w*0.28, h*0.16, 0.25, -4) +
+          // gradient pills
+          pill('5%', '10%', w*0.22, 14*s, 'linear-gradient(90deg,rgba('+accentRgb+',0.4),rgba('+accent2Rgb+',0.3))', 0.45, -6) +
+          pill('60%', '82%', w*0.2, 12*s, 'linear-gradient(90deg,rgba('+accent2Rgb+',0.35),rgba('+accentRgb+',0.25))', 0.35, 5) +
+          // app icon badges
+          appIcon('88%', '35%', 26*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.35) +
+          appIcon('3%', '45%', 20*s, accent, 0.25) +
+          appIcon('5%', '5%', 18*s, accent2, 0.2) +
+          appIcon('88%', '88%', 22*s, accent, 0.25) +
+          // floating circles
+          '<div style="position:absolute;top:18%;right:8%;width:'+(w*0.08)+'px;height:'+(w*0.08)+'px;border-radius:50%;border:2px solid '+accent+';opacity:0.2"></div>' +
+          '<div style="position:absolute;bottom:20%;left:10%;width:'+(w*0.06)+'px;height:'+(w*0.06)+'px;border-radius:50%;border:2px solid '+accent2+';opacity:0.15"></div>' +
+          // spotlight
+          '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:'+(w*0.5)+'px;height:'+(w*0.5)+'px;border-radius:50%;background:radial-gradient(circle,rgba('+accentRgb+',0.06),transparent 70%)"></div>' +
+          microDots(6, accent, 0.08);
+        break;
+      }
+
+      case 'quote': {
+        canvasDecorations.innerHTML =
+          // large quotes
+          '<div style="position:absolute;top:6%;left:50%;transform:translateX(-50%);font-family:'+state.typoHeadline.font+';font-size:'+(w*0.4)+'px;color:'+accent+';opacity:0.12;line-height:1;pointer-events:none">\u201C</div>' +
+          '<div style="position:absolute;bottom:8%;right:18%;font-family:'+state.typoHeadline.font+';font-size:'+(w*0.2)+'px;color:'+accent2+';opacity:0.08;line-height:1;pointer-events:none">\u201D</div>' +
+          // thin frame
+          '<div style="position:absolute;top:5%;left:5%;right:5%;bottom:5%;border:1px solid '+accent+';opacity:0.08;border-radius:6px"></div>' +
+          // diamonds
+          '<div style="position:absolute;top:5%;left:50%;transform:translate(-50%,-50%) rotate(45deg);width:10px;height:10px;background:'+accent+';opacity:0.35"></div>' +
+          '<div style="position:absolute;bottom:5%;left:50%;transform:translate(-50%,50%) rotate(45deg);width:8px;height:8px;border:1px solid '+accent+';opacity:0.3"></div>' +
+          // side gradient lines
+          '<div style="position:absolute;top:25%;left:5%;width:1px;height:50%;background:linear-gradient(180deg,transparent,'+accent+',transparent);opacity:0.15"></div>' +
+          '<div style="position:absolute;top:25%;right:5%;width:1px;height:50%;background:linear-gradient(180deg,transparent,'+accent2+',transparent);opacity:0.15"></div>' +
+          // floating pills for richness
+          pill('65%', '82%', w*0.2, 10*s, 'linear-gradient(90deg,rgba('+accentRgb+',0.2),rgba('+accent2Rgb+',0.15))', 0.3, 4) +
+          pill('8%', '12%', w*0.16, 8*s, 'linear-gradient(90deg,rgba('+accent2Rgb+',0.15),rgba('+accentRgb+',0.1))', 0.25, -3) +
+          // app icons
+          appIcon('85%', '10%', 18*s, accent, 0.2) +
+          appIcon('5%', '85%', 16*s, accent2, 0.18) +
+          '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:'+(w*0.4)+'px;height:'+(w*0.4)+'px;border-radius:50%;background:radial-gradient(circle,rgba('+accentRgb+',0.04),transparent 70%)"></div>';
+        break;
+      }
+
       case 'duotone': {
-        // Overlay gradient filter effect
         canvasDecorations.innerHTML =
-          '<div style="position:absolute;inset:0;background:linear-gradient(135deg,' + accent + '20,' + state.bgColor + '40);mix-blend-mode:multiply;pointer-events:none"></div>';
+          // gradient mesh layers
+          '<div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba('+accentRgb+',0.15),transparent 35%,transparent 65%,rgba('+accent2Rgb+',0.12))"></div>' +
+          '<div style="position:absolute;inset:0;background:linear-gradient(225deg,rgba('+accent2Rgb+',0.07),transparent 40%,transparent 60%,rgba('+accentRgb+',0.05))"></div>' +
+          // blobs
+          blob('-15%', '-20%', w*0.7, accent, 0.08, w*0.14) +
+          blob('60%', '60%', w*0.5, accent2, 0.07, w*0.12) +
+          // floating cards
+          glassCard('60%', '5%', w*0.3, h*0.2, 0.3, 5) +
+          glassCard('3%', '72%', w*0.26, h*0.16, 0.2, -4) +
+          // pills
+          pill('5%', '10%', w*0.2, 12*s, 'linear-gradient(90deg,rgba('+accentRgb+',0.35),rgba('+accent2Rgb+',0.25))', 0.4, -5) +
+          pill('68%', '82%', w*0.18, 10*s, 'linear-gradient(90deg,rgba('+accent2Rgb+',0.3),rgba('+accentRgb+',0.2))', 0.3, 3) +
+          // app icons
+          appIcon('88%', '35%', 22*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.25) +
+          appIcon('3%', '48%', 18*s, accent2, 0.2) +
+          microDots(8, accent2, 0.06);
         break;
       }
+
+      case 'geometric': {
+        canvasDecorations.innerHTML =
+          // rounded square grid background
+          roundedGrid(Math.round(28*s), Math.round(8*s), accent, 0.07) +
+          // center fade for readability
+          '<div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(26,23,20,0.8) 15%,transparent 65%)"></div>' +
+          // large rotated square
+          '<div style="position:absolute;top:6%;right:5%;width:'+(w*0.22)+'px;height:'+(w*0.22)+'px;border:2px solid '+accent+';opacity:0.2;transform:rotate(45deg)"></div>' +
+          // medium circle
+          '<div style="position:absolute;bottom:10%;left:5%;width:'+(w*0.15)+'px;height:'+(w*0.15)+'px;border-radius:50%;border:2px solid '+accent2+';opacity:0.15"></div>' +
+          // floating glass card
+          glassCard('60%', '55%', w*0.3, h*0.2, 0.3, 4) +
+          // gradient pills
+          pill('5%', '15%', w*0.2, 12*s, 'linear-gradient(90deg,'+accent+','+accent2+')', 0.25, -6) +
+          pill('65%', '82%', w*0.18, 10*s, 'linear-gradient(90deg,'+accent2+','+accent+')', 0.2, 5) +
+          // app icon
+          appIcon('85%', '10%', 24*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.3) +
+          appIcon('3%', '80%', 18*s, accent, 0.2) +
+          // small filled shapes
+          '<div style="position:absolute;top:40%;left:3%;width:'+(w*0.06)+'px;height:'+(w*0.06)+'px;background:'+accent+';opacity:0.08;transform:rotate(30deg)"></div>' +
+          '<div style="position:absolute;top:30%;right:3%;width:0;height:0;border-left:'+(w*0.04)+'px solid transparent;border-right:'+(w*0.04)+'px solid transparent;border-bottom:'+(w*0.06)+'px solid '+accent2+';opacity:0.08"></div>' +
+          // glow blobs
+          blob('70%', '0%', w*0.3, accent, 0.05, w*0.08) +
+          blob('0%', '70%', w*0.25, accent2, 0.04, w*0.06) +
+          microDots(6, accent2, 0.07);
+        break;
+      }
+
+      case 'typewriter': {
+        var lines = '';
+        for (var i = 0; i < 8; i++) {
+          var ltop = 15 + (i * (70 / 8));
+          lines += '<div style="position:absolute;top:'+ltop+'%;left:12%;right:8%;height:1px;background:'+accent+';opacity:0.06"></div>';
+        }
+        canvasDecorations.innerHTML = lines +
+          // margin line
+          '<div style="position:absolute;top:8%;bottom:8%;left:10%;width:2px;background:'+accent+';opacity:0.12"></div>' +
+          // cursor bar
+          '<div style="position:absolute;top:38%;left:14%;width:2px;height:'+(w*0.06)+'px;background:'+accent+';opacity:0.3"></div>' +
+          // margin dots
+          '<div style="position:absolute;top:20%;left:10%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:'+accent+';opacity:0.18"></div>' +
+          '<div style="position:absolute;top:50%;left:10%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:'+accent+';opacity:0.18"></div>' +
+          '<div style="position:absolute;top:80%;left:10%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:'+accent2+';opacity:0.15"></div>' +
+          // floating card (right side)
+          glassCard('65%', '15%', w*0.28, h*0.18, 0.25, 3) +
+          // pill tag
+          pill('60%', '75%', w*0.2, 10*s, 'linear-gradient(90deg,rgba('+accentRgb+',0.2),rgba('+accent2Rgb+',0.15))', 0.3, -3) +
+          // corner brackets
+          '<div style="position:absolute;top:5%;right:5%;width:'+25*s+'px;height:1px;background:'+accent+';opacity:0.2"></div>' +
+          '<div style="position:absolute;top:5%;right:5%;width:1px;height:'+25*s+'px;background:'+accent+';opacity:0.2"></div>' +
+          '<div style="position:absolute;bottom:5%;right:5%;width:'+25*s+'px;height:1px;background:'+accent2+';opacity:0.15"></div>' +
+          '<div style="position:absolute;bottom:5%;right:5%;width:1px;height:'+25*s+'px;background:'+accent2+';opacity:0.15"></div>' +
+          // small app icon
+          appIcon('85%', '50%', 18*s, accent, 0.2);
+        break;
+      }
+
+      case 'blobs': {
+        canvasDecorations.innerHTML =
+          // rich blobs
+          blob('0%', '-10%', w*0.6, accent, 0.25, w*0.14) +
+          blob('50%', '55%', w*0.55, accent2, 0.22, w*0.12) +
+          blob('40%', '25%', w*0.4, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.14, w*0.09) +
+          blob('70%', '5%', w*0.25, accent, 0.1, w*0.06) +
+          blob('10%', '70%', w*0.2, accent2, 0.12, w*0.05) +
+          // floating glass cards
+          glassCard('58%', '3%', w*0.35, h*0.22, 0.4, 6) +
+          glassCard('0%', '72%', w*0.3, h*0.18, 0.3, -5) +
+          // pills
+          pill('3%', '10%', w*0.22, 14*s, 'linear-gradient(90deg,rgba('+accentRgb+',0.45),rgba('+accent2Rgb+',0.35))', 0.5, -8) +
+          pill('62%', '85%', w*0.2, 12*s, 'linear-gradient(90deg,rgba('+accent2Rgb+',0.4),rgba('+accentRgb+',0.3))', 0.4, 5) +
+          // app icon badges
+          appIcon('88%', '38%', 28*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.35) +
+          appIcon('3%', '45%', 22*s, accent2, 0.25) +
+          appIcon('85%', '82%', 18*s, accent, 0.2) +
+          // tags
+          tag('5%', '88%', w*0.16, 10*s, accent, 0.2, -4) +
+          tag('72%', '55%', w*0.14, 8*s, accent2, 0.15, 3) +
+          microDots(10, accent, 0.08);
+        break;
+      }
+
+      case 'cards': {
+        canvasDecorations.innerHTML =
+          // orbs behind card
+          blob('5%', '10%', w*0.45, accent, 0.2, w*0.1) +
+          blob('50%', '50%', w*0.4, accent2, 0.18, w*0.09) +
+          blob('60%', '5%', w*0.2, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.1, w*0.05) +
+          // main glass card panel (from CSS)
+          // additional floating cards around
+          glassCard('-5%', '-3%', w*0.3, h*0.2, 0.3, -8) +
+          glassCard('75%', '78%', w*0.28, h*0.18, 0.25, 6) +
+          // gradient pills
+          pill('3%', '65%', w*0.2, 12*s, 'linear-gradient(90deg,rgba('+accentRgb+',0.4),rgba('+accent2Rgb+',0.3))', 0.4, -10) +
+          pill('72%', '10%', w*0.18, 10*s, 'linear-gradient(90deg,rgba('+accent2Rgb+',0.35),rgba('+accentRgb+',0.25))', 0.35, 6) +
+          // app icons
+          appIcon('-3%', '30%', 24*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.35) +
+          appIcon('90%', '48%', 20*s, accent, 0.25) +
+          appIcon('88%', '5%', 18*s, accent2, 0.2) +
+          appIcon('5%', '88%', 16*s, accent, 0.18) +
+          // tags
+          tag('5%', '10%', w*0.16, 10*s, accent2, 0.2, -4) +
+          microDots(6, accent, 0.07);
+        break;
+      }
+
+      case 'grid-pattern': {
+        var dotSz = Math.max(2, w * 0.004);
+        var gapSz = Math.max(16, w * 0.04);
+        canvasDecorations.innerHTML =
+          // rounded square grid
+          roundedGrid(Math.round(30*s), Math.round(8*s), accent, 0.08) +
+          // center fade
+          '<div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(17,17,17,0.75) 15%,transparent 60%)"></div>' +
+          // glow circles
+          blob('65%', '65%', w*0.35, accent, 0.12, w*0.08) +
+          blob('5%', '5%', w*0.25, accent2, 0.08, w*0.06) +
+          // floating glass cards
+          glassCard('60%', '5%', w*0.32, h*0.22, 0.35, 5) +
+          glassCard('2%', '72%', w*0.28, h*0.16, 0.25, -4) +
+          // pills
+          pill('5%', '12%', w*0.2, 12*s, 'linear-gradient(90deg,rgba('+accentRgb+',0.3),rgba('+accent2Rgb+',0.2))', 0.35, -5) +
+          pill('65%', '82%', w*0.18, 10*s, 'linear-gradient(90deg,rgba('+accent2Rgb+',0.25),rgba('+accentRgb+',0.2))', 0.3, 4) +
+          // app icons
+          appIcon('88%', '40%', 24*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.3) +
+          appIcon('3%', '50%', 18*s, accent, 0.2) +
+          // corner frames
+          '<div style="position:absolute;top:3%;left:3%;width:'+20*s+'px;height:1px;background:'+accent+';opacity:0.25"></div>' +
+          '<div style="position:absolute;top:3%;left:3%;width:1px;height:'+20*s+'px;background:'+accent+';opacity:0.25"></div>' +
+          '<div style="position:absolute;bottom:3%;right:3%;width:'+20*s+'px;height:1px;background:'+accent2+';opacity:0.2"></div>' +
+          '<div style="position:absolute;bottom:3%;right:3%;width:1px;height:'+20*s+'px;background:'+accent2+';opacity:0.2"></div>' +
+          microDots(6, accent, 0.07);
+        break;
+      }
+
+      case 'magazine': {
+        canvasDecorations.innerHTML =
+          // thick accent bar
+          '<div style="position:absolute;top:9%;left:7%;width:'+(w*0.2)+'px;height:7px;background:linear-gradient(90deg,'+accent+','+accent2+');border-radius:3px;opacity:0.85"></div>' +
+          '<div style="position:absolute;top:calc(9% + 14px);left:7%;width:'+(w*0.1)+'px;height:2px;background:'+accent2+';opacity:0.35;border-radius:1px"></div>' +
+          // vertical rule right
+          '<div style="position:absolute;top:8%;right:11%;bottom:8%;width:1px;background:linear-gradient(180deg,transparent 5%,'+accent2+' 30%,'+accent+' 70%,transparent 95%);opacity:0.3"></div>' +
+          // bottom rule
+          '<div style="position:absolute;bottom:9%;left:7%;right:50%;height:1px;background:'+accent+';opacity:0.3"></div>' +
+          // floating glass card
+          glassCard('60%', '10%', w*0.32, h*0.25, 0.35, 4) +
+          // screen frame mockup
+          screenFrame('65%', '55%', w*0.22, h*0.28, accent, 0.2, -5) +
+          // pills
+          pill('5%', '78%', w*0.22, 12*s, 'linear-gradient(90deg,rgba('+accentRgb+',0.35),rgba('+accent2Rgb+',0.25))', 0.4, -4) +
+          // app icon
+          appIcon('88%', '8%', 22*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.3) +
+          appIcon('5%', '60%', 18*s, accent2, 0.2) +
+          // glow
+          blob('65%', '25%', w*0.25, accent, 0.05, w*0.06) +
+          // tag
+          tag('58%', '88%', w*0.18, 10*s, accent2, 0.2, 3) +
+          microDots(5, accent, 0.06);
+        break;
+      }
+
+      case 'poster': {
+        var ch = (state.headline || 'A').charAt(0).toUpperCase();
+        canvasDecorations.innerHTML =
+          // giant letter
+          '<div style="position:absolute;bottom:-12%;right:-8%;font-family:'+state.typoHeadline.font+';font-size:'+(w*1.2)+'px;font-weight:900;color:'+accent+';opacity:0.05;line-height:0.8;pointer-events:none;overflow:hidden">'+ch+'</div>' +
+          // glow behind letter
+          blob('50%', '50%', w*0.6, accent, 0.05, w*0.12) +
+          // accent bars
+          '<div style="position:absolute;top:6%;left:8%;width:'+(w*0.3)+'px;height:5px;background:linear-gradient(90deg,'+accent+','+accent2+');border-radius:3px;opacity:0.65"></div>' +
+          '<div style="position:absolute;top:calc(6% + 10px);left:8%;width:'+(w*0.15)+'px;height:2px;background:'+accent+';opacity:0.25;border-radius:1px"></div>' +
+          // floating glass cards
+          glassCard('58%', '5%', w*0.35, h*0.22, 0.3, 5) +
+          glassCard('60%', '65%', w*0.28, h*0.18, 0.25, -4) +
+          // pills
+          pill('5%', '80%', w*0.22, 12*s, 'linear-gradient(90deg,rgba('+accentRgb+',0.35),rgba('+accent2Rgb+',0.25))', 0.35, -5) +
+          // app icons
+          appIcon('88%', '40%', 24*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.3) +
+          appIcon('5%', '5%', 20*s, accent, 0.25) +
+          // corner frames
+          '<div style="position:absolute;top:5%;right:5%;width:'+35*s+'px;height:1px;background:'+accent+';opacity:0.25"></div>' +
+          '<div style="position:absolute;top:5%;right:5%;width:1px;height:'+35*s+'px;background:'+accent+';opacity:0.25"></div>' +
+          '<div style="position:absolute;bottom:5%;left:5%;width:'+35*s+'px;height:1px;background:'+accent2+';opacity:0.2"></div>' +
+          '<div style="position:absolute;bottom:5%;left:5%;width:1px;height:'+35*s+'px;background:'+accent2+';opacity:0.2"></div>' +
+          microDots(6, accent, 0.06);
+        break;
+      }
+
+      case 'layered': {
+        canvasDecorations.innerHTML =
+          // overlapping rectangles
+          '<div style="position:absolute;top:10%;left:6%;width:'+(w*0.55)+'px;height:'+(h*0.45)+'px;border:2px solid '+accent+';opacity:0.12;transform:rotate(-6deg);border-radius:12px"></div>' +
+          '<div style="position:absolute;top:16%;left:12%;width:'+(w*0.55)+'px;height:'+(h*0.45)+'px;border:2px solid '+accent2+';opacity:0.1;transform:rotate(4deg);border-radius:12px"></div>' +
+          '<div style="position:absolute;top:20%;left:16%;width:'+(w*0.52)+'px;height:'+(h*0.4)+'px;background:linear-gradient(135deg,rgba('+accentRgb+',0.06),rgba('+accent2Rgb+',0.06));transform:rotate(-1deg);border-radius:12px"></div>' +
+          // floating glass cards
+          glassCard('58%', '5%', w*0.35, h*0.22, 0.35, 6) +
+          glassCard('3%', '72%', w*0.28, h*0.16, 0.25, -5) +
+          // pills
+          pill('5%', '10%', w*0.2, 12*s, 'linear-gradient(90deg,'+accent+','+accent2+')', 0.3, -7) +
+          pill('65%', '85%', w*0.18, 10*s, 'linear-gradient(90deg,'+accent2+','+accent+')', 0.25, 4) +
+          // app icons
+          appIcon('88%', '35%', 24*s, 'linear-gradient(135deg,'+accent+','+accent2+')', 0.3) +
+          appIcon('3%', '48%', 20*s, accent, 0.25) +
+          appIcon('85%', '82%', 16*s, accent2, 0.18) +
+          // blobs
+          blob('65%', '0%', w*0.3, accent, 0.06, w*0.08) +
+          blob('0%', '65%', w*0.25, accent2, 0.05, w*0.06) +
+          microDots(7, accent, 0.07);
+        break;
+      }
+
       default:
         break;
     }
@@ -1299,6 +2006,11 @@
     document.getElementById('color-bg').value = state.bgColor;
     document.getElementById('color-text').value = state.textColor;
     document.getElementById('color-accent').value = state.accentColor;
+    const accent2El = document.getElementById('color-accent2');
+    if (accent2El) accent2El.value = state.accentColor2 || '#e8a87c';
+
+    // Style pack
+    document.querySelectorAll('.style-pack-btn').forEach(b => b.classList.toggle('active', b.dataset.pack === state.stylePack));
 
     // Gradient
     if (optGradient) optGradient.checked = state.gradient.enabled;
@@ -1317,6 +2029,17 @@
     document.getElementById('opt-border').checked = state.showBorder;
     document.getElementById('opt-grain').checked = state.showGrain;
     document.getElementById('opt-vignette').checked = state.showVignette;
+
+    // Stickers — restore counter to avoid ID conflicts
+    if (state.stickers && state.stickers.length > 0) {
+      var maxId = 0;
+      state.stickers.forEach(function(s) {
+        var num = parseInt((s.id || '').replace('stk-', ''), 10);
+        if (num > maxId) maxId = num;
+      });
+      stickerIdCounter = maxId;
+      selectedStickerId = null;
+    }
 
     // BG image
     if (state.bgImage) {
@@ -1362,6 +2085,1081 @@
     return r + ',' + g + ',' + b;
   }
 
+  // ============ STICKER SYSTEM ============
+  let selectedStickerId = null;
+  let stickerIdCounter = 0;
+
+  // Sticker library definitions — each generates html2canvas-compatible HTML
+  const stickerDefs = {
+    // ---- BADGES ----
+    'pill-gradient': {
+      name: 'Pill Gradient',
+      cat: 'badges',
+      w: 120, h: 32,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:999px;background:linear-gradient(90deg,'+accent+','+accent2+');box-shadow:0 4px 16px rgba(0,0,0,0.25)"></div>';
+      }
+    },
+    'pill-outline': {
+      name: 'Pill Outline',
+      cat: 'badges',
+      w: 110, h: 28,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:999px;border:2px solid '+accent+';display:flex;align-items:center;padding:0 12px;gap:6px"><div style="width:8px;height:8px;border-radius:50%;background:'+accent+'"></div><div style="flex:1;height:2px;background:'+accent+';opacity:0.4;border-radius:1px"></div></div>';
+      }
+    },
+    'tag-label': {
+      name: 'Tag',
+      cat: 'badges',
+      w: 80, h: 26,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:6px;background:'+accent+';display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.2)"><div style="width:50%;height:2px;background:rgba(255,255,255,0.5);border-radius:1px"></div></div>';
+      }
+    },
+    'badge-circle': {
+      name: 'Badge',
+      cat: 'badges',
+      w: 48, h: 48,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,'+accent+','+accent2+');box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center"><div style="width:40%;height:2px;background:rgba(255,255,255,0.5);border-radius:1px"></div></div>';
+      }
+    },
+    'chip-duo': {
+      name: 'Chip Duo',
+      cat: 'badges',
+      w: 100, h: 28,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:999px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;gap:4px;padding:0 6px"><div style="width:16px;height:16px;border-radius:50%;background:'+accent+'"></div><div style="flex:1;height:2px;background:rgba(255,255,255,0.2);border-radius:1px"></div></div>';
+      }
+    },
+
+    // ---- CARDS ----
+    'glass-card-sm': {
+      name: 'Glass Card',
+      cat: 'cards',
+      w: 140, h: 100,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);box-shadow:0 8px 32px rgba(0,0,0,0.3);overflow:hidden;padding:12%">' +
+          '<div style="width:60%;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;margin-bottom:10%"></div>' +
+          '<div style="width:85%;height:2px;background:rgba(255,255,255,0.08);border-radius:1px;margin-bottom:6%"></div>' +
+          '<div style="width:70%;height:2px;background:rgba(255,255,255,0.06);border-radius:1px;margin-bottom:12%"></div>' +
+          '<div style="width:40%;height:18%;border-radius:999px;background:linear-gradient(90deg,rgba('+hexToRgb(accent)+',0.35),rgba('+hexToRgb(accent2)+',0.25))"></div>' +
+        '</div>';
+      }
+    },
+    'glass-card-lg': {
+      name: 'Card Large',
+      cat: 'cards',
+      w: 180, h: 130,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);box-shadow:0 10px 40px rgba(0,0,0,0.3);overflow:hidden">' +
+          '<div style="width:100%;height:35%;background:linear-gradient(135deg,rgba('+hexToRgb(accent)+',0.15),rgba('+hexToRgb(accent2)+',0.1))"></div>' +
+          '<div style="padding:10% 12%">' +
+            '<div style="width:55%;height:3px;background:rgba(255,255,255,0.18);border-radius:2px;margin-bottom:8%"></div>' +
+            '<div style="width:80%;height:2px;background:rgba(255,255,255,0.07);border-radius:1px;margin-bottom:5%"></div>' +
+            '<div style="width:65%;height:2px;background:rgba(255,255,255,0.05);border-radius:1px"></div>' +
+          '</div>' +
+        '</div>';
+      }
+    },
+    'stat-card': {
+      name: 'Stat Card',
+      cat: 'cards',
+      w: 100, h: 70,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);box-shadow:0 4px 16px rgba(0,0,0,0.2);padding:12%">' +
+          '<div style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,'+accent+','+accent2+');margin-bottom:8%;opacity:0.6"></div>' +
+          '<div style="width:45%;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;margin-bottom:6%"></div>' +
+          '<div style="width:70%;height:2px;background:rgba(255,255,255,0.06);border-radius:1px"></div>' +
+        '</div>';
+      }
+    },
+
+    // ---- SHAPES ----
+    'blob-accent': {
+      name: 'Blob',
+      cat: 'shapes',
+      w: 120, h: 120,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:50%;background:'+accent+';opacity:0.5;filter:blur(20px)"></div>';
+      }
+    },
+    'blob-gradient': {
+      name: 'Blob Grad',
+      cat: 'shapes',
+      w: 140, h: 140,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,'+accent+','+accent2+');opacity:0.4;filter:blur(25px)"></div>';
+      }
+    },
+    'circle-outline': {
+      name: 'Cercle',
+      cat: 'shapes',
+      w: 80, h: 80,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:50%;border:2px solid '+accent+';opacity:0.4"></div>';
+      }
+    },
+    'square-rotated': {
+      name: 'Losange',
+      cat: 'shapes',
+      w: 60, h: 60,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border:2px solid '+accent+';opacity:0.3;border-radius:4px;transform:rotate(45deg)"></div>';
+      }
+    },
+    'line-h': {
+      name: 'Ligne H',
+      cat: 'shapes',
+      w: 120, h: 4,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;background:linear-gradient(90deg,'+accent+','+accent2+');border-radius:2px;opacity:0.6"></div>';
+      }
+    },
+    'line-v': {
+      name: 'Ligne V',
+      cat: 'shapes',
+      w: 4, h: 120,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;background:linear-gradient(180deg,'+accent+','+accent2+');border-radius:2px;opacity:0.6"></div>';
+      }
+    },
+    'dots-grid': {
+      name: 'Dots Grid',
+      cat: 'shapes',
+      w: 80, h: 80,
+      render: function(s, accent, accent2) {
+        var html = '';
+        for (var r = 0; r < 4; r++) for (var c = 0; c < 4; c++) {
+          html += '<div style="position:absolute;top:'+(r*33)+'%;left:'+(c*33)+'%;width:4px;height:4px;border-radius:50%;background:'+accent+';opacity:0.3"></div>';
+        }
+        return '<div style="width:100%;height:100%;position:relative">' + html + '</div>';
+      }
+    },
+
+    // ---- ICONS ----
+    'app-icon': {
+      name: 'App Icon',
+      cat: 'icons',
+      w: 50, h: 50,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:28%;background:linear-gradient(135deg,'+accent+','+accent2+');box-shadow:0 4px 20px rgba(0,0,0,0.3)"></div>';
+      }
+    },
+    'app-icon-glass': {
+      name: 'Icon Glass',
+      cat: 'icons',
+      w: 50, h: 50,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:28%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.3)"><div style="position:absolute;top:30%;left:30%;width:40%;height:40%;border-radius:50%;background:linear-gradient(135deg,'+accent+','+accent2+');opacity:0.5"></div></div>';
+      }
+    },
+    'diamond': {
+      name: 'Diamant',
+      cat: 'icons',
+      w: 30, h: 30,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;background:'+accent+';transform:rotate(45deg);border-radius:3px;opacity:0.6;box-shadow:0 2px 8px rgba(0,0,0,0.2)"></div>';
+      }
+    },
+    'star-4': {
+      name: 'Etoile',
+      cat: 'icons',
+      w: 40, h: 40,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;position:relative"><div style="position:absolute;top:35%;left:0;right:0;height:30%;background:'+accent+';border-radius:999px;opacity:0.5"></div><div style="position:absolute;left:35%;top:0;bottom:0;width:30%;background:'+accent+';border-radius:999px;opacity:0.5"></div></div>';
+      }
+    },
+
+    // ---- FRAMES ----
+    'phone-frame': {
+      name: 'Phone',
+      cat: 'frames',
+      w: 80, h: 140,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:14px;border:2px solid '+accent+';opacity:0.35;box-shadow:0 6px 24px rgba(0,0,0,0.2)">' +
+          '<div style="position:absolute;top:5%;left:50%;transform:translateX(-50%);width:30%;height:3px;border-radius:2px;background:'+accent+';opacity:0.3"></div>' +
+          '<div style="position:absolute;bottom:4%;left:50%;transform:translateX(-50%);width:22%;height:22%;border-radius:50%;border:1.5px solid '+accent+';opacity:0.2"></div>' +
+        '</div>';
+      }
+    },
+    'browser-frame': {
+      name: 'Browser',
+      cat: 'frames',
+      w: 160, h: 110,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%;border-radius:10px;border:2px solid rgba(255,255,255,0.12);box-shadow:0 6px 24px rgba(0,0,0,0.2);overflow:hidden">' +
+          '<div style="height:18%;background:rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;padding:0 8%">' +
+            '<div style="width:6px;height:6px;border-radius:50%;background:#e53e3e;margin-right:3px;opacity:0.6"></div>' +
+            '<div style="width:6px;height:6px;border-radius:50%;background:#f6ad55;margin-right:3px;opacity:0.6"></div>' +
+            '<div style="width:6px;height:6px;border-radius:50%;background:#48bb78;opacity:0.6"></div>' +
+          '</div>' +
+          '<div style="padding:8%;display:flex;flex-direction:column;gap:6%">' +
+            '<div style="width:60%;height:3px;background:rgba(255,255,255,0.1);border-radius:1px"></div>' +
+            '<div style="width:85%;height:2px;background:rgba(255,255,255,0.06);border-radius:1px"></div>' +
+            '<div style="width:40%;height:12%;border-radius:999px;background:linear-gradient(90deg,rgba('+hexToRgb(accent)+',0.2),rgba('+hexToRgb(accent2)+',0.15))"></div>' +
+          '</div>' +
+        '</div>';
+      }
+    },
+    'bracket-tl': {
+      name: 'Bracket',
+      cat: 'frames',
+      w: 40, h: 40,
+      render: function(s, accent, accent2) {
+        return '<div style="width:100%;height:100%">' +
+          '<div style="position:absolute;top:0;left:0;width:100%;height:2px;background:'+accent+';opacity:0.5"></div>' +
+          '<div style="position:absolute;top:0;left:0;width:2px;height:100%;background:'+accent+';opacity:0.5"></div>' +
+        '</div>';
+      }
+    },
+    'rounded-grid': {
+      name: 'Grid BG',
+      cat: 'frames',
+      w: 150, h: 150,
+      render: function(s, accent, accent2) {
+        var html = '';
+        for (var r = 0; r < 5; r++) for (var c = 0; c < 5; c++) {
+          html += '<div style="position:absolute;top:'+(r*22)+'%;left:'+(c*22)+'%;width:18%;height:18%;border-radius:25%;border:1px solid '+accent+';opacity:0.1"></div>';
+        }
+        return '<div style="width:100%;height:100%;position:relative">' + html + '</div>';
+      }
+    },
+  };
+
+  // Populate sticker library in sidebar
+  const stickerLibrary = document.getElementById('sticker-library');
+  const placedList = document.getElementById('placed-stickers-list');
+  const stickerEmpty = document.getElementById('sticker-empty');
+  const btnClearStickers = document.getElementById('btn-clear-stickers');
+
+  function populateStickerLibrary(filter) {
+    if (!stickerLibrary) return;
+    stickerLibrary.innerHTML = '';
+    Object.keys(stickerDefs).forEach(function(key) {
+      var def = stickerDefs[key];
+      if (filter && filter !== 'all' && def.cat !== filter) return;
+      var item = document.createElement('div');
+      item.className = 'sticker-lib-item';
+      item.dataset.sticker = key;
+      // Mini preview using the render function
+      var previewHtml = def.render(1, state.accentColor, state.accentColor2 || '#e8a87c');
+      item.innerHTML = '<div class="sticker-lib-item__preview" style="position:relative">' + previewHtml + '</div>' +
+        '<span class="sticker-lib-item__name">' + def.name + '</span>';
+      item.addEventListener('click', function() { addSticker(key); });
+      stickerLibrary.appendChild(item);
+    });
+  }
+
+  // Category filter buttons
+  document.querySelectorAll('.sticker-cat-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.sticker-cat-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      populateStickerLibrary(btn.dataset.cat);
+    });
+  });
+
+  populateStickerLibrary('all');
+
+  function addSticker(defKey) {
+    var def = stickerDefs[defKey];
+    if (!def) return;
+    var cw = canvas.offsetWidth;
+    var ch = canvas.offsetHeight;
+    var sScale = cw / 540;
+    var sw = def.w * sScale;
+    var sh = def.h * sScale;
+    // Place near center with slight randomization
+    var x = ((cw - sw) / 2 + (Math.random() - 0.5) * cw * 0.2) / cw * 100;
+    var y = ((ch - sh) / 2 + (Math.random() - 0.5) * ch * 0.2) / ch * 100;
+    var sticker = {
+      id: 'stk-' + (++stickerIdCounter),
+      type: defKey,
+      x: Math.max(0, Math.min(90, x)),
+      y: Math.max(0, Math.min(90, y)),
+      w: sw,
+      h: sh,
+      rotation: 0,
+      opacity: 1,
+      layer: 'above',
+    };
+    state.stickers.push(sticker);
+    renderStickers();
+    selectSticker(sticker.id);
+    pushHistory();
+    scheduleAutoSave();
+  }
+
+  function renderStickers() {
+    if (!canvasStickers) return;
+    canvasStickers.innerHTML = '';
+    if (canvasStickersBelow) canvasStickersBelow.innerHTML = '';
+    var accent = state.accentColor;
+    var accent2 = state.accentColor2 || '#e8a87c';
+    var cw = canvas.offsetWidth;
+    var sScale = cw / 540;
+
+    state.stickers.forEach(function(stk) {
+      // Migration: default layer to 'above'
+      if (!stk.layer) stk.layer = 'above';
+
+      var def = stickerDefs[stk.type];
+      var isAiImage = stk.type === 'ai-image';
+      var isSvgAnim = stk.type === 'svg-animation';
+      var isSvgUpload = stk.type === 'svg-upload';
+      if (!def && !isAiImage && !isSvgAnim && !isSvgUpload) return;
+
+      var el = document.createElement('div');
+      el.className = 'sticker-item' + (stk.id === selectedStickerId ? ' selected' : '');
+      el.dataset.stickerId = stk.id;
+      el.style.left = stk.x + '%';
+      el.style.top = stk.y + '%';
+      el.style.width = stk.w + 'px';
+      el.style.height = stk.h + 'px';
+      el.style.transform = 'rotate(' + (stk.rotation || 0) + 'deg)';
+      el.style.opacity = stk.opacity;
+
+      // Render content — AI images use <img>, SVG animations/uploads use inline SVG, others use CSS-only render
+      var contentHtml;
+      if (isSvgAnim || isSvgUpload) {
+        contentHtml = '<div class="svg-anim-wrapper" style="width:100%;height:100%;pointer-events:none;overflow:hidden">' + (stk.svgCode || '') + '</div>';
+      } else if (isAiImage) {
+        contentHtml = '<img src="' + stk.imageUrl + '" style="width:100%;height:100%;object-fit:contain;pointer-events:none" crossorigin="anonymous">';
+      } else {
+        contentHtml = def.render(sScale, accent, accent2);
+      }
+
+      el.innerHTML = contentHtml +
+        '<div class="sticker-handle sticker-handle--tl" data-handle="tl"></div>' +
+        '<div class="sticker-handle sticker-handle--tr" data-handle="tr"></div>' +
+        '<div class="sticker-handle sticker-handle--bl" data-handle="bl"></div>' +
+        '<div class="sticker-handle sticker-handle--br" data-handle="br"></div>' +
+        '<div class="sticker-handle--rotate" data-handle="rotate"></div>' +
+        '<div class="sticker-delete" data-action="delete">&times;</div>';
+
+      // Drag
+      el.addEventListener('mousedown', function(e) {
+        if (e.target.dataset.handle || e.target.dataset.action) return;
+        e.preventDefault();
+        selectSticker(stk.id);
+        startDrag(stk, e);
+      });
+
+      // Resize handles
+      el.querySelectorAll('.sticker-handle').forEach(function(handle) {
+        handle.addEventListener('mousedown', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          startResize(stk, e, handle.dataset.handle);
+        });
+      });
+
+      // Rotate handle
+      var rotHandle = el.querySelector('.sticker-handle--rotate');
+      if (rotHandle) {
+        rotHandle.addEventListener('mousedown', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          startRotate(stk, e);
+        });
+      }
+
+      // Delete
+      var delBtn = el.querySelector('.sticker-delete');
+      if (delBtn) {
+        delBtn.addEventListener('mousedown', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          removeSticker(stk.id);
+        });
+      }
+
+      // Append to correct container based on layer
+      if (stk.layer === 'below' && canvasStickersBelow) {
+        canvasStickersBelow.appendChild(el);
+      } else {
+        canvasStickers.appendChild(el);
+      }
+    });
+
+    updatePlacedList();
+    updateLayersPanel();
+  }
+
+  function selectSticker(id) {
+    selectedStickerId = id;
+    // Update classes in both containers
+    [canvasStickers, canvasStickersBelow].forEach(function(container) {
+      if (!container) return;
+      container.querySelectorAll('.sticker-item').forEach(function(el) {
+        el.classList.toggle('selected', el.dataset.stickerId === id);
+      });
+    });
+    // Elevate below-stickers container if selected sticker is below
+    var stk = id ? state.stickers.find(function(s) { return s.id === id; }) : null;
+    if (canvasStickersBelow) {
+      canvasStickersBelow.classList.toggle('elevated', !!(stk && stk.layer === 'below'));
+    }
+    // Update placed list
+    document.querySelectorAll('.placed-sticker-row').forEach(function(row) {
+      row.classList.toggle('active', row.dataset.stickerId === id);
+    });
+    // Update layers panel
+    document.querySelectorAll('.layer-row').forEach(function(row) {
+      row.classList.toggle('active', row.dataset.stickerId === id);
+    });
+  }
+
+  function deselectStickers() {
+    selectedStickerId = null;
+    [canvasStickers, canvasStickersBelow].forEach(function(container) {
+      if (!container) return;
+      container.querySelectorAll('.sticker-item').forEach(function(el) {
+        el.classList.remove('selected');
+      });
+    });
+    if (canvasStickersBelow) canvasStickersBelow.classList.remove('elevated');
+    document.querySelectorAll('.placed-sticker-row').forEach(function(row) {
+      row.classList.remove('active');
+    });
+    document.querySelectorAll('.layer-row').forEach(function(row) {
+      row.classList.remove('active');
+    });
+  }
+
+  function removeSticker(id) {
+    state.stickers = state.stickers.filter(function(s) { return s.id !== id; });
+    if (selectedStickerId === id) selectedStickerId = null;
+    renderStickers();
+    pushHistory();
+    scheduleAutoSave();
+  }
+
+  // Find sticker element across both containers
+  function findStickerEl(id) {
+    var el = canvasStickers ? canvasStickers.querySelector('[data-sticker-id="' + id + '"]') : null;
+    if (!el && canvasStickersBelow) el = canvasStickersBelow.querySelector('[data-sticker-id="' + id + '"]');
+    return el;
+  }
+
+  // Drag sticker
+  function startDrag(stk, startEvt) {
+    var el = findStickerEl(stk.id);
+    if (!el) return;
+    el.classList.add('dragging');
+
+    var cRect = canvas.getBoundingClientRect();
+    var startX = startEvt.clientX;
+    var startY = startEvt.clientY;
+    var origX = stk.x;
+    var origY = stk.y;
+
+    function onMove(e) {
+      var dx = (e.clientX - startX) / cRect.width * 100;
+      var dy = (e.clientY - startY) / cRect.height * 100;
+      stk.x = Math.max(-20, Math.min(120, origX + dx));
+      stk.y = Math.max(-20, Math.min(120, origY + dy));
+      el.style.left = stk.x + '%';
+      el.style.top = stk.y + '%';
+    }
+    function onUp() {
+      el.classList.remove('dragging');
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      pushHistory();
+      scheduleAutoSave();
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }
+
+  // Resize sticker
+  function startResize(stk, startEvt, handle) {
+    var el = findStickerEl(stk.id);
+    if (!el) return;
+
+    var startX = startEvt.clientX;
+    var startY = startEvt.clientY;
+    var origW = stk.w;
+    var origH = stk.h;
+    var aspect = origW / origH;
+
+    function onMove(e) {
+      var dx = e.clientX - startX;
+      var dy = e.clientY - startY;
+      var delta;
+      if (handle === 'br') delta = Math.max(dx, dy);
+      else if (handle === 'bl') delta = Math.max(-dx, dy);
+      else if (handle === 'tr') delta = Math.max(dx, -dy);
+      else delta = Math.max(-dx, -dy);
+
+      var newW = Math.max(20, origW + delta);
+      var newH = newW / aspect;
+      stk.w = newW;
+      stk.h = newH;
+      el.style.width = newW + 'px';
+      el.style.height = newH + 'px';
+    }
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      pushHistory();
+      scheduleAutoSave();
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }
+
+  // Rotate sticker
+  function startRotate(stk, startEvt) {
+    var el = findStickerEl(stk.id);
+    if (!el) return;
+
+    var rect = el.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2;
+    var cy = rect.top + rect.height / 2;
+    var startAngle = Math.atan2(startEvt.clientY - cy, startEvt.clientX - cx) * 180 / Math.PI;
+    var origRot = stk.rotation || 0;
+
+    function onMove(e) {
+      var angle = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI;
+      var diff = angle - startAngle;
+      stk.rotation = Math.round(origRot + diff);
+      el.style.transform = 'rotate(' + stk.rotation + 'deg)';
+    }
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      pushHistory();
+      scheduleAutoSave();
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }
+
+  // Update placed stickers list in sidebar
+  function updatePlacedList() {
+    if (!placedList) return;
+    var stickers = state.stickers;
+    if (stickers.length === 0) {
+      placedList.innerHTML = '<p class="sticker-empty">Aucun sticker place</p>';
+      if (btnClearStickers) btnClearStickers.style.display = 'none';
+      return;
+    }
+    if (btnClearStickers) btnClearStickers.style.display = '';
+    placedList.innerHTML = '';
+    stickers.forEach(function(stk) {
+      var def = stickerDefs[stk.type];
+      var stickerName = stk.type === 'ai-image' ? 'AI Image' : (def ? def.name : stk.type);
+      var row = document.createElement('div');
+      row.className = 'placed-sticker-row' + (stk.id === selectedStickerId ? ' active' : '');
+      row.dataset.stickerId = stk.id;
+      row.innerHTML = '<span class="placed-sticker-row__name">' + stickerName + '</span>' +
+        '<span style="font-size:9px;color:var(--text-muted)">' + Math.round(stk.rotation || 0) + '°</span>' +
+        '<button class="placed-sticker-row__delete" data-del="' + stk.id + '">&times;</button>';
+      row.addEventListener('click', function(e) {
+        if (e.target.dataset.del) return;
+        selectSticker(stk.id);
+      });
+      row.querySelector('.placed-sticker-row__delete').addEventListener('click', function(e) {
+        e.stopPropagation();
+        removeSticker(stk.id);
+      });
+      placedList.appendChild(row);
+    });
+  }
+
+  // ---- LAYERS PANEL ----
+  function getStickerName(stk) {
+    if (stk.type === 'ai-image') return 'AI Image';
+    if (stk.type === 'svg-animation') return 'SVG Anim';
+    if (stk.type === 'svg-upload') return 'SVG Import';
+    var def = stickerDefs[stk.type];
+    return def ? def.name : stk.type;
+  }
+
+  function updateLayersPanel() {
+    if (!layersPanelBody) return;
+    var stickers = state.stickers;
+    if (stickers.length === 0) {
+      layersPanelBody.innerHTML = '<div class="layers-panel__empty">Aucun element</div>';
+      return;
+    }
+
+    var aboveStickers = [];
+    var belowStickers = [];
+    stickers.forEach(function(stk, idx) {
+      if (!stk.layer) stk.layer = 'above';
+      var obj = { stk: stk, idx: idx };
+      if (stk.layer === 'below') belowStickers.push(obj);
+      else aboveStickers.push(obj);
+    });
+
+    layersPanelBody.innerHTML = '';
+
+    // Section: Above text
+    var labelAbove = document.createElement('div');
+    labelAbove.className = 'layers-panel__section-label';
+    labelAbove.textContent = 'Devant le texte';
+    layersPanelBody.appendChild(labelAbove);
+
+    if (aboveStickers.length === 0) {
+      var emptyAbove = document.createElement('div');
+      emptyAbove.className = 'layers-panel__empty';
+      emptyAbove.textContent = '\u2014';
+      emptyAbove.style.padding = '4px 12px';
+      layersPanelBody.appendChild(emptyAbove);
+    } else {
+      aboveStickers.forEach(function(item) { buildLayerRow(item.stk, item.idx, 'above'); });
+    }
+
+    // Separator: text content
+    var sep = document.createElement('div');
+    sep.className = 'layers-panel__separator';
+    sep.textContent = 'Contenu texte';
+    layersPanelBody.appendChild(sep);
+
+    // Section: Below text
+    var labelBelow = document.createElement('div');
+    labelBelow.className = 'layers-panel__section-label';
+    labelBelow.textContent = 'Derriere le texte';
+    layersPanelBody.appendChild(labelBelow);
+
+    if (belowStickers.length === 0) {
+      var emptyBelow = document.createElement('div');
+      emptyBelow.className = 'layers-panel__empty';
+      emptyBelow.textContent = '\u2014';
+      emptyBelow.style.padding = '4px 12px';
+      layersPanelBody.appendChild(emptyBelow);
+    } else {
+      belowStickers.forEach(function(item) { buildLayerRow(item.stk, item.idx, 'below'); });
+    }
+  }
+
+  function buildLayerRow(stk, globalIdx, group) {
+    var row = document.createElement('div');
+    row.className = 'layer-row' + (stk.id === selectedStickerId ? ' active' : '');
+    row.dataset.stickerId = stk.id;
+
+    // Up button
+    var btnUp = document.createElement('button');
+    btnUp.className = 'layer-row__btn';
+    btnUp.title = 'Monter';
+    btnUp.innerHTML = '<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 2v6M2.5 4.5L5 2l2.5 2.5"/></svg>';
+    btnUp.addEventListener('click', function(e) { e.stopPropagation(); moveLayerInGroup(stk.id, -1); });
+
+    // Down button
+    var btnDown = document.createElement('button');
+    btnDown.className = 'layer-row__btn';
+    btnDown.title = 'Descendre';
+    btnDown.innerHTML = '<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 8V2M2.5 5.5L5 8l2.5-2.5"/></svg>';
+    btnDown.addEventListener('click', function(e) { e.stopPropagation(); moveLayerInGroup(stk.id, 1); });
+
+    // Name
+    var name = document.createElement('span');
+    name.className = 'layer-row__name';
+    name.textContent = getStickerName(stk);
+
+    // Swap layer button (above<->below)
+    var btnSwap = document.createElement('button');
+    btnSwap.className = 'layer-row__btn layer-row__btn--swap';
+    btnSwap.title = group === 'above' ? 'Passer derriere le texte' : 'Passer devant le texte';
+    btnSwap.innerHTML = group === 'above'
+      ? '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 2v8M3 7l3 3 3-3"/></svg>'
+      : '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 10V2M3 5l3-3 3 3"/></svg>';
+    btnSwap.addEventListener('click', function(e) { e.stopPropagation(); toggleStickerLayer(stk.id); });
+
+    // Delete button
+    var btnDel = document.createElement('button');
+    btnDel.className = 'layer-row__btn layer-row__btn--del';
+    btnDel.title = 'Supprimer';
+    btnDel.innerHTML = '&times;';
+    btnDel.addEventListener('click', function(e) { e.stopPropagation(); removeSticker(stk.id); });
+
+    row.appendChild(btnUp);
+    row.appendChild(btnDown);
+    row.appendChild(name);
+    row.appendChild(btnSwap);
+    row.appendChild(btnDel);
+
+    row.addEventListener('click', function() { selectSticker(stk.id); });
+
+    layersPanelBody.appendChild(row);
+  }
+
+  function moveLayerInGroup(id, direction) {
+    var stk = state.stickers.find(function(s) { return s.id === id; });
+    if (!stk) return;
+    var layer = stk.layer || 'above';
+
+    // Get indices of stickers in same layer group (in global array order)
+    var groupIndices = [];
+    state.stickers.forEach(function(s, i) {
+      if ((s.layer || 'above') === layer) groupIndices.push(i);
+    });
+
+    var posInGroup = -1;
+    for (var g = 0; g < groupIndices.length; g++) {
+      if (state.stickers[groupIndices[g]].id === id) { posInGroup = g; break; }
+    }
+    if (posInGroup < 0) return;
+
+    var targetPosInGroup = posInGroup + direction;
+    if (targetPosInGroup < 0 || targetPosInGroup >= groupIndices.length) return;
+
+    // Swap in global array
+    var fromIdx = groupIndices[posInGroup];
+    var toIdx = groupIndices[targetPosInGroup];
+    var tmp = state.stickers[fromIdx];
+    state.stickers[fromIdx] = state.stickers[toIdx];
+    state.stickers[toIdx] = tmp;
+
+    renderStickers();
+    selectSticker(id);
+    pushHistory();
+    scheduleAutoSave();
+  }
+
+  function toggleStickerLayer(id) {
+    var stk = state.stickers.find(function(s) { return s.id === id; });
+    if (!stk) return;
+    stk.layer = (stk.layer === 'below') ? 'above' : 'below';
+    renderStickers();
+    selectSticker(id);
+    pushHistory();
+    scheduleAutoSave();
+  }
+
+  // Layers panel toggle
+  if (btnLayers) btnLayers.addEventListener('click', function() {
+    if (layersPanel) layersPanel.classList.toggle('open');
+  });
+  if (layersPanelClose) layersPanelClose.addEventListener('click', function() {
+    if (layersPanel) layersPanel.classList.remove('open');
+  });
+
+  // Clear all stickers
+  if (btnClearStickers) btnClearStickers.addEventListener('click', function() {
+    state.stickers = [];
+    selectedStickerId = null;
+    renderStickers();
+    pushHistory();
+    scheduleAutoSave();
+  });
+
+  // Click on canvas area (not on sticker) deselects
+  canvas.addEventListener('mousedown', function(e) {
+    if (!e.target.closest('.sticker-item') && !e.target.closest('.canvas__content')) {
+      deselectStickers();
+    }
+  });
+
+  // Delete key removes selected sticker
+  document.addEventListener('keydown', function(e) {
+    if (selectedStickerId && (e.key === 'Delete' || e.key === 'Backspace')) {
+      var tag = e.target.tagName.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || e.target.contentEditable === 'true') return;
+      e.preventDefault();
+      removeSticker(selectedStickerId);
+    }
+  });
+
+  // ============ AI STICKER GENERATION ============
+  let aiStickerCat = 'icon';
+  let aiStickerTone = 'flat';
+  const aiStickerPromptInput = document.getElementById('ai-sticker-prompt');
+  const btnAiStickerGen = document.getElementById('btn-ai-sticker-gen');
+  const aiStickerStatus = document.getElementById('ai-sticker-status');
+  const aiStickerError = document.getElementById('ai-sticker-error');
+  const aiStickerResults = document.getElementById('ai-sticker-results');
+  const aiColor1 = document.getElementById('ai-sticker-color1');
+  const aiColor2 = document.getElementById('ai-sticker-color2');
+  const aiColorSync = document.getElementById('ai-color-sync');
+
+  // Sync colors from style pack
+  function syncAiColors() {
+    if (aiColor1) aiColor1.value = state.accentColor;
+    if (aiColor2) aiColor2.value = state.accentColor2 || '#e8a87c';
+  }
+  syncAiColors();
+  if (aiColorSync) aiColorSync.addEventListener('click', syncAiColors);
+
+  // Category buttons
+  document.querySelectorAll('.ai-sticker-cat').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.ai-sticker-cat').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      aiStickerCat = btn.dataset.aiCat;
+    });
+  });
+
+  // Tone buttons
+  document.querySelectorAll('.ai-tone-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.ai-tone-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      aiStickerTone = btn.dataset.tone;
+    });
+  });
+
+  // Preset chips
+  document.querySelectorAll('.ai-preset-chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      if (aiStickerPromptInput) {
+        aiStickerPromptInput.value = chip.dataset.prompt;
+        aiStickerPromptInput.focus();
+      }
+    });
+  });
+
+  // Generate AI sticker
+  async function generateAiSticker() {
+    if (!aiStickerPromptInput || !aiStickerPromptInput.value.trim()) {
+      if (aiStickerPromptInput) aiStickerPromptInput.focus();
+      return;
+    }
+
+    if (btnAiStickerGen) btnAiStickerGen.disabled = true;
+    if (aiStickerStatus) aiStickerStatus.style.display = 'flex';
+    if (aiStickerError) aiStickerError.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/branding/generate-sticker', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: aiStickerPromptInput.value.trim(),
+          category: aiStickerCat,
+          tone: aiStickerTone,
+          color1: aiColor1 ? aiColor1.value : state.accentColor,
+          color2: aiColor2 ? aiColor2.value : state.accentColor2,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur de generation');
+      }
+
+      // Add result to results grid
+      if (aiStickerResults) {
+        var resultDiv = document.createElement('div');
+        resultDiv.className = 'ai-sticker-result';
+        resultDiv.innerHTML = '<img src="' + data.url + '" alt="AI Sticker">' +
+          '<div class="ai-sticker-result__add">+ Ajouter</div>';
+        resultDiv.addEventListener('click', function() {
+          addAiImageSticker(data.url);
+        });
+        aiStickerResults.prepend(resultDiv);
+      }
+
+      // Auto-add to canvas immediately
+      addAiImageSticker(data.url);
+
+    } catch (err) {
+      console.error('AI Sticker error:', err);
+      if (aiStickerError) {
+        aiStickerError.textContent = err.message || 'Erreur lors de la generation';
+        aiStickerError.style.display = '';
+      }
+    }
+
+    if (btnAiStickerGen) btnAiStickerGen.disabled = false;
+    if (aiStickerStatus) aiStickerStatus.style.display = 'none';
+  }
+
+  if (btnAiStickerGen) btnAiStickerGen.addEventListener('click', generateAiSticker);
+  if (aiStickerPromptInput) aiStickerPromptInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); generateAiSticker(); }
+  });
+
+  // Add AI-generated image as a draggable sticker
+  function addAiImageSticker(imageUrl) {
+    var cw = canvas.offsetWidth;
+    var ch = canvas.offsetHeight;
+    var sScale = cw / 540;
+    var size = 100 * sScale;
+    var x = ((cw - size) / 2 + (Math.random() - 0.5) * cw * 0.15) / cw * 100;
+    var y = ((ch - size) / 2 + (Math.random() - 0.5) * ch * 0.15) / ch * 100;
+
+    var sticker = {
+      id: 'stk-' + (++stickerIdCounter),
+      type: 'ai-image',
+      imageUrl: imageUrl,
+      x: Math.max(0, Math.min(85, x)),
+      y: Math.max(0, Math.min(85, y)),
+      w: size,
+      h: size,
+      rotation: 0,
+      opacity: 1,
+      layer: 'above',
+    };
+    state.stickers.push(sticker);
+    renderStickers();
+    selectSticker(sticker.id);
+    pushHistory();
+    scheduleAutoSave();
+  }
+
+  // ============ SVG ANIMATION GENERATION ============
+  let svgAnimType = 'illustration';
+  let svgAnimStyle = 'organic';
+  const svgAnimPromptInput = document.getElementById('svg-anim-prompt');
+  const btnSvgAnimGen = document.getElementById('btn-svg-anim-gen');
+  const svgAnimStatus = document.getElementById('svg-anim-status');
+  const svgAnimError = document.getElementById('svg-anim-error');
+  const svgAnimResults = document.getElementById('svg-anim-results');
+  const svgAnimEmpty = document.getElementById('svg-anim-empty');
+  const svgAnimColor1 = document.getElementById('svg-anim-color1');
+  const svgAnimColor2 = document.getElementById('svg-anim-color2');
+  const svgColorSync = document.getElementById('svg-color-sync');
+  const svgTransparentBg = document.getElementById('svg-transparent-bg');
+
+  // Sync colors from style pack
+  function syncSvgColors() {
+    if (svgAnimColor1) svgAnimColor1.value = state.accentColor;
+    if (svgAnimColor2) svgAnimColor2.value = state.accentColor2 || '#e8a87c';
+  }
+  syncSvgColors();
+  if (svgColorSync) svgColorSync.addEventListener('click', syncSvgColors);
+
+  // Type buttons
+  document.querySelectorAll('.svg-type-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.svg-type-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      svgAnimType = btn.dataset.svgType;
+    });
+  });
+
+  // Style buttons
+  document.querySelectorAll('.svg-style-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.svg-style-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      svgAnimStyle = btn.dataset.svgStyle;
+    });
+  });
+
+  // Preset chips
+  document.querySelectorAll('[data-svg-prompt]').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      if (svgAnimPromptInput) {
+        svgAnimPromptInput.value = chip.dataset.svgPrompt;
+        svgAnimPromptInput.focus();
+      }
+    });
+  });
+
+  // Generate SVG animation
+  async function generateSvgAnimation() {
+    if (!svgAnimPromptInput || !svgAnimPromptInput.value.trim()) {
+      if (svgAnimPromptInput) svgAnimPromptInput.focus();
+      return;
+    }
+
+    if (btnSvgAnimGen) btnSvgAnimGen.disabled = true;
+    if (svgAnimStatus) svgAnimStatus.style.display = 'flex';
+    if (svgAnimError) svgAnimError.style.display = 'none';
+
+    try {
+      var res = await fetch('/api/branding/generate-svg-animation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: svgAnimPromptInput.value.trim(),
+          type: svgAnimType,
+          style: svgAnimStyle,
+          color1: svgAnimColor1 ? svgAnimColor1.value : state.accentColor,
+          color2: svgAnimColor2 ? svgAnimColor2.value : state.accentColor2,
+          bgColor: (svgTransparentBg && svgTransparentBg.checked) ? 'transparent' : state.bgColor,
+        }),
+      });
+
+      var data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur de generation SVG');
+      }
+
+      // Hide empty message
+      if (svgAnimEmpty) svgAnimEmpty.style.display = 'none';
+
+      // Create result card
+      var card = document.createElement('div');
+      card.className = 'svg-anim-result-card';
+      card.innerHTML =
+        '<div class="svg-anim-result-card__preview">' + data.svg + '</div>' +
+        '<div class="svg-anim-result-card__actions">' +
+        '<button class="btn btn--primary btn--sm svg-add-to-canvas">+ Sur le canvas</button>' +
+        '<button class="btn btn--ghost btn--sm svg-download">Telecharger</button>' +
+        '</div>';
+
+      // Add to canvas button
+      card.querySelector('.svg-add-to-canvas').addEventListener('click', function() {
+        addSvgAnimationSticker(data.svg, data.url);
+      });
+
+      // Download button
+      card.querySelector('.svg-download').addEventListener('click', function() {
+        var blob = new Blob([data.svg], { type: 'image/svg+xml' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'animation-' + Date.now() + '.svg';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      if (svgAnimResults) svgAnimResults.prepend(card);
+
+    } catch (err) {
+      console.error('SVG Animation error:', err);
+      if (svgAnimError) {
+        svgAnimError.textContent = err.message || 'Erreur lors de la generation';
+        svgAnimError.style.display = '';
+      }
+    }
+
+    if (btnSvgAnimGen) btnSvgAnimGen.disabled = false;
+    if (svgAnimStatus) svgAnimStatus.style.display = 'none';
+  }
+
+  if (btnSvgAnimGen) btnSvgAnimGen.addEventListener('click', generateSvgAnimation);
+  if (svgAnimPromptInput) svgAnimPromptInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); generateSvgAnimation(); }
+  });
+
+  // Add SVG animation as a draggable sticker on canvas
+  function addSvgAnimationSticker(svgCode, svgUrl) {
+    var cw = canvas.offsetWidth;
+    var ch = canvas.offsetHeight;
+    var sScale = cw / 540;
+    var size = 150 * sScale;
+    var x = ((cw - size) / 2 + (Math.random() - 0.5) * cw * 0.1) / cw * 100;
+    var y = ((ch - size) / 2 + (Math.random() - 0.5) * ch * 0.1) / ch * 100;
+
+    var sticker = {
+      id: 'stk-' + (++stickerIdCounter),
+      type: 'svg-animation',
+      svgCode: svgCode,
+      svgUrl: svgUrl || '',
+      x: Math.max(0, Math.min(75, x)),
+      y: Math.max(0, Math.min(75, y)),
+      w: size,
+      h: size,
+      rotation: 0,
+      opacity: 1,
+      layer: 'above',
+    };
+    state.stickers.push(sticker);
+    renderStickers();
+    selectSticker(sticker.id);
+    pushHistory();
+    scheduleAutoSave();
+  }
+
   // ============ INIT ============
   async function initPubs() {
     const lastId = localStorage.getItem('branding_last_pub');
@@ -1393,6 +3191,382 @@
     resizeTimer = setTimeout(() => updateCanvas(), 100);
   });
 
+  // ============ AI GENERATOR ============
+  const aiModalOverlay = document.getElementById('ai-modal-overlay');
+  const btnOpenAi = document.getElementById('btn-open-ai');
+  const btnCloseAi = document.getElementById('ai-modal-close');
+  const btnAiGenAll = document.getElementById('btn-ai-generate-all');
+  const btnImprovePrompt = document.getElementById('btn-improve-prompt');
+  const aiGenPrompt = document.getElementById('ai-gen-prompt');
+  const aiGenError = document.getElementById('ai-gen-error');
+
+  if (btnOpenAi) btnOpenAi.addEventListener('click', () => {
+    aiModalOverlay.classList.add('visible');
+    setTimeout(() => aiGenPrompt && aiGenPrompt.focus(), 200);
+  });
+
+  function closeAiModal() {
+    aiModalOverlay.classList.remove('visible');
+  }
+
+  if (btnCloseAi) btnCloseAi.addEventListener('click', closeAiModal);
+  if (aiModalOverlay) aiModalOverlay.addEventListener('click', (e) => {
+    if (e.target === aiModalOverlay) closeAiModal();
+  });
+
+  // Improve prompt with AI
+  if (btnImprovePrompt) btnImprovePrompt.addEventListener('click', async () => {
+    if (!aiGenPrompt || !aiGenPrompt.value.trim()) {
+      aiGenPrompt && aiGenPrompt.focus();
+      return;
+    }
+
+    btnImprovePrompt.disabled = true;
+    const origText = btnImprovePrompt.querySelector('span');
+    if (origText) origText.textContent = 'Reflexion...';
+
+    try {
+      const res = await fetch('/api/branding/ai-improve-prompt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: aiGenPrompt.value.trim() }),
+      });
+      const data = await res.json();
+      if (data.success && data.improved) {
+        aiGenPrompt.value = data.improved;
+        aiGenPrompt.style.height = 'auto';
+        aiGenPrompt.style.height = aiGenPrompt.scrollHeight + 'px';
+      }
+    } catch (err) {
+      console.error('Improve prompt error:', err);
+    }
+
+    btnImprovePrompt.disabled = false;
+    if (origText) origText.textContent = 'Booster le prompt';
+  });
+
+  // Generate everything with AI
+  if (btnAiGenAll) btnAiGenAll.addEventListener('click', async () => {
+    if (!aiGenPrompt || !aiGenPrompt.value.trim()) {
+      aiGenPrompt && aiGenPrompt.focus();
+      return;
+    }
+
+    btnAiGenAll.disabled = true;
+    btnAiGenAll.classList.add('loading');
+    const genText = btnAiGenAll.querySelector('.ai-gen-text');
+    if (genText) genText.textContent = 'Generation en cours...';
+    if (aiGenError) aiGenError.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/branding/ai-generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: aiGenPrompt.value.trim() }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur inconnue');
+      }
+
+      const r = data.result;
+
+      // Apply the AI-generated design
+      historyPaused = true;
+
+      // 1. Apply style pack if valid
+      if (r.stylePack && stylePacks[r.stylePack]) {
+        state.stylePack = r.stylePack;
+        const pack = stylePacks[r.stylePack];
+        state.bgColor = pack.bg;
+        state.textColor = pack.text;
+        state.accentColor = pack.accent;
+        state.accentColor2 = pack.accent2;
+        state.typoHeadline.font = pack.headlineFont;
+        state.typoBody.font = pack.bodyFont;
+      }
+
+      // 2. Apply template
+      if (r.template && templateDefaults[r.template]) {
+        state.template = r.template;
+      }
+
+      // 3. Apply text content
+      if (r.headline) state.headline = r.headline;
+      if (r.subline) state.subline = r.subline;
+      if (r.body) state.body = r.body;
+      if (r.cta) state.cta = r.cta;
+
+      // 4. Apply typography options
+      if (r.headlineSize) state.typoHeadline.size = Math.max(24, Math.min(100, r.headlineSize));
+      if (r.headlineWeight) state.typoHeadline.weight = r.headlineWeight;
+      if (r.headlineCase) state.typoHeadline.case = r.headlineCase;
+      if (r.headlineAlign) state.typoHeadline.align = r.headlineAlign;
+      if (r.bodySize) state.typoBody.size = Math.max(8, Math.min(24, r.bodySize));
+
+      // 5. Apply options
+      if (typeof r.showBorder === 'boolean') state.showBorder = r.showBorder;
+      if (typeof r.showGrain === 'boolean') state.showGrain = r.showGrain;
+
+      // 6. Clear existing stickers for a fresh design
+      state.stickers = [];
+      selectedStickerId = null;
+
+      // Restore all UI from the new state
+      restoreFromState();
+      historyPaused = false;
+      pushHistory();
+
+      // Close modal
+      closeAiModal();
+
+      // 7. Generate AI stickers in background
+      if (r.stickers && Array.isArray(r.stickers) && r.stickers.length > 0) {
+        if (genText) genText.textContent = 'Stickers IA...';
+        const pack = r.stylePack && stylePacks[r.stylePack] ? stylePacks[r.stylePack] : null;
+        const c1 = pack ? pack.accent : state.accentColor;
+        const c2 = pack ? pack.accent2 : state.accentColor2;
+
+        for (const stickerSpec of r.stickers) {
+          try {
+            const stkRes = await fetch('/api/branding/generate-sticker', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                prompt: stickerSpec.prompt,
+                category: stickerSpec.category || 'icon',
+                tone: stickerSpec.tone || 'flat',
+                color1: c1,
+                color2: c2,
+              }),
+            });
+            const stkData = await stkRes.json();
+            if (stkData.success && stkData.url) {
+              // Place at the position suggested by AI
+              var cw = canvas.offsetWidth;
+              var ch = canvas.offsetHeight;
+              var sScale = cw / 540;
+              var sz = (stickerSpec.size || 90) * sScale;
+              var sticker = {
+                id: 'stk-' + (++stickerIdCounter),
+                type: 'ai-image',
+                imageUrl: stkData.url,
+                x: Math.max(0, Math.min(85, stickerSpec.x || 50)),
+                y: Math.max(0, Math.min(85, stickerSpec.y || 50)),
+                w: sz,
+                h: sz,
+                rotation: 0,
+                opacity: 1,
+                layer: 'above',
+              };
+              state.stickers.push(sticker);
+              renderStickers();
+              scheduleAutoSave();
+            }
+          } catch (stkErr) {
+            console.warn('AI sticker generation failed:', stkErr);
+          }
+        }
+        pushHistory();
+      }
+
+    } catch (err) {
+      if (aiGenError) {
+        aiGenError.textContent = err.message;
+        aiGenError.style.display = '';
+      }
+    }
+
+    btnAiGenAll.disabled = false;
+    btnAiGenAll.classList.remove('loading');
+    if (genText) genText.textContent = 'Generer le design';
+  });
+
+  // Enter key in AI prompt triggers generate
+  if (aiGenPrompt) aiGenPrompt.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'Enter') {
+      e.preventDefault();
+      btnAiGenAll && btnAiGenAll.click();
+    }
+  });
+
+  // ============ AI MODAL TABS ============
+  document.querySelectorAll('.ai-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.ai-tab-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      const target = tab.getAttribute('data-ai-tab');
+      const content = document.querySelector(`[data-ai-tab-content="${target}"]`);
+      if (content) content.classList.add('active');
+    });
+  });
+
+  // ============ AI URL SCRAPER ============
+  const btnScrapeUrl = document.getElementById('btn-scrape-url');
+  const aiUrlInput = document.getElementById('ai-url-input');
+  const aiUrlError = document.getElementById('ai-url-error');
+  const aiUrlBusiness = document.getElementById('ai-url-business');
+  const aiBizName = document.getElementById('ai-biz-name');
+  const aiBizIndustry = document.getElementById('ai-biz-industry');
+  const aiBizVibe = document.getElementById('ai-biz-vibe');
+  const aiIdeasGrid = document.getElementById('ai-ideas-grid');
+
+  const formatMap = {
+    post: { w: 1080, h: 1080, label: 'Post' },
+    story: { w: 1080, h: 1920, label: 'Story' },
+    banner: { w: 1200, h: 628, label: 'Banniere' },
+    cover: { w: 1920, h: 1080, label: 'Cover' },
+    portrait: { w: 1080, h: 1350, label: 'Portrait' },
+    linkedin: { w: 1080, h: 566, label: 'LinkedIn' },
+  };
+
+  if (btnScrapeUrl) btnScrapeUrl.addEventListener('click', async () => {
+    const url = aiUrlInput ? aiUrlInput.value.trim() : '';
+    if (!url) { aiUrlInput && aiUrlInput.focus(); return; }
+
+    // Basic URL validation
+    try { new URL(url); } catch {
+      if (aiUrlError) { aiUrlError.textContent = 'URL invalide'; aiUrlError.style.display = ''; }
+      return;
+    }
+
+    btnScrapeUrl.disabled = true;
+    btnScrapeUrl.classList.add('loading');
+    const analyzeText = btnScrapeUrl.querySelector('.ai-url__analyze-text');
+    if (analyzeText) analyzeText.textContent = 'Analyse...';
+    if (aiUrlError) aiUrlError.style.display = 'none';
+    if (aiIdeasGrid) { aiIdeasGrid.style.display = 'none'; aiIdeasGrid.innerHTML = ''; }
+    if (aiUrlBusiness) aiUrlBusiness.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/branding/ai-scrape-ideas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur inconnue');
+      }
+
+      // Show business info
+      if (data.business && aiUrlBusiness) {
+        if (aiBizName) aiBizName.textContent = data.business.name || '';
+        if (aiBizIndustry) aiBizIndustry.textContent = data.business.industry || '';
+        if (aiBizVibe) aiBizVibe.textContent = data.business.vibe || '';
+        aiUrlBusiness.style.display = '';
+      }
+
+      // Render idea cards
+      if (data.ideas && data.ideas.length > 0 && aiIdeasGrid) {
+        aiIdeasGrid.innerHTML = '';
+        data.ideas.forEach(idea => {
+          const card = document.createElement('div');
+          card.className = 'ai-idea-card';
+          card.innerHTML = `
+            <div class="ai-idea-card__top">
+              <span class="ai-idea-card__title">${escapeHtml(idea.title)}</span>
+              <div class="ai-idea-card__badges">
+                <span class="ai-idea-card__type">${escapeHtml(idea.type)}</span>
+                <span class="ai-idea-card__format">${escapeHtml((formatMap[idea.format] || formatMap.post).label)}</span>
+              </div>
+            </div>
+            <div class="ai-idea-card__desc">${escapeHtml(idea.description)}</div>
+            <div class="ai-idea-card__action">
+              <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 1v5M5 10v1M1 5h3M9 5h2M2 2l1.5 1.5M7 7l1.5 1.5"/></svg>
+              Appliquer ce visuel
+            </div>
+          `;
+
+          card.addEventListener('click', () => {
+            // Apply the pre-generated design directly (no extra AI call)
+            historyPaused = true;
+
+            // 1. Format
+            if (idea.format && formatMap[idea.format]) {
+              const fmt = formatMap[idea.format];
+              state.format = { w: fmt.w, h: fmt.h, label: fmt.label };
+              document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+              const fmtBtn = document.querySelector(`.format-btn[data-w="${fmt.w}"][data-h="${fmt.h}"]`);
+              if (fmtBtn) fmtBtn.classList.add('active');
+            }
+
+            // 2. Style pack
+            if (idea.stylePack && stylePacks[idea.stylePack]) {
+              state.stylePack = idea.stylePack;
+              const pack = stylePacks[idea.stylePack];
+              state.bgColor = pack.bg;
+              state.textColor = pack.text;
+              state.accentColor = pack.accent;
+              state.accentColor2 = pack.accent2;
+              state.typoHeadline.font = pack.headlineFont;
+              state.typoBody.font = pack.bodyFont;
+            }
+
+            // 3. Template
+            if (idea.template && templateDefaults[idea.template]) {
+              state.template = idea.template;
+            }
+
+            // 4. Text content
+            if (idea.headline) state.headline = idea.headline;
+            if (idea.subline) state.subline = idea.subline;
+            if (idea.body) state.body = idea.body;
+            if (idea.cta) state.cta = idea.cta;
+
+            // 5. Typography
+            if (idea.headlineSize) state.typoHeadline.size = Math.max(24, Math.min(100, idea.headlineSize));
+            if (idea.headlineWeight) state.typoHeadline.weight = idea.headlineWeight;
+            if (idea.headlineCase) state.typoHeadline.case = idea.headlineCase;
+            if (idea.headlineAlign) state.typoHeadline.align = idea.headlineAlign;
+            if (idea.bodySize) state.typoBody.size = Math.max(8, Math.min(24, idea.bodySize));
+
+            // 6. Options
+            if (typeof idea.showBorder === 'boolean') state.showBorder = idea.showBorder;
+            if (typeof idea.showGrain === 'boolean') state.showGrain = idea.showGrain;
+
+            // Restore UI and close modal
+            restoreFromState();
+            historyPaused = false;
+            pushHistory();
+            closeAiModal();
+
+            // Visual feedback on card
+            card.style.borderColor = '#8b5cf6';
+            card.style.background = 'rgba(139,92,246,0.1)';
+          });
+
+          aiIdeasGrid.appendChild(card);
+        });
+        aiIdeasGrid.style.display = '';
+      }
+
+    } catch (err) {
+      if (aiUrlError) {
+        aiUrlError.textContent = err.message;
+        aiUrlError.style.display = '';
+      }
+    }
+
+    btnScrapeUrl.disabled = false;
+    btnScrapeUrl.classList.remove('loading');
+    if (analyzeText) analyzeText.textContent = 'Analyser';
+  });
+
+  // Enter in URL input triggers analyze
+  if (aiUrlInput) aiUrlInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); btnScrapeUrl && btnScrapeUrl.click(); }
+  });
+
+  // Helper: escape HTML in idea cards
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   // Save before leaving
   window.addEventListener('beforeunload', () => {
     if (currentPubId) {
@@ -1403,5 +3577,106 @@
       navigator.sendBeacon('/api/brandings/' + currentPubId, new Blob([body], { type: 'application/json' }));
     }
   });
+
+  // ============ COLLAPSIBLE PANELS (Accordion) ============
+  document.querySelectorAll('.panel__title--toggle').forEach(function(title) {
+    title.addEventListener('click', function() {
+      var isCollapsed = this.getAttribute('data-collapsed') === 'true';
+      this.setAttribute('data-collapsed', isCollapsed ? 'false' : 'true');
+    });
+  });
+
+  // ============ AI COMMAND BAR ============
+  var aiBarInput = document.getElementById('ai-bar-input');
+  var aiBarSubmit = document.getElementById('ai-bar-submit');
+  var aiBarBoost = document.getElementById('ai-bar-boost');
+
+  function triggerAiBarGenerate() {
+    if (!aiBarInput || !aiBarInput.value.trim()) return;
+    var prompt = aiBarInput.value.trim();
+    // Pre-fill the modal prompt and open it
+    if (aiGenPrompt) aiGenPrompt.value = prompt;
+    if (aiModalOverlay) aiModalOverlay.classList.add('visible');
+    // Auto-trigger generation
+    setTimeout(function() {
+      if (btnAiGenAll && !btnAiGenAll.disabled) btnAiGenAll.click();
+    }, 300);
+  }
+
+  if (aiBarSubmit) aiBarSubmit.addEventListener('click', triggerAiBarGenerate);
+  if (aiBarInput) aiBarInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      triggerAiBarGenerate();
+    }
+  });
+
+  // Boost prompt from bar
+  if (aiBarBoost) aiBarBoost.addEventListener('click', async function() {
+    if (!aiBarInput || !aiBarInput.value.trim()) { aiBarInput && aiBarInput.focus(); return; }
+    aiBarBoost.disabled = true;
+    try {
+      var res = await fetch('/api/branding/ai-improve-prompt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: aiBarInput.value.trim() }),
+      });
+      var data = await res.json();
+      if (data.success && data.improved) {
+        aiBarInput.value = data.improved;
+      }
+    } catch (e) {}
+    aiBarBoost.disabled = false;
+  });
+
+  // Quick chips
+  document.querySelectorAll('.ai-bar__chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      var prompt = this.getAttribute('data-prompt');
+      if (aiBarInput) aiBarInput.value = prompt;
+      triggerAiBarGenerate();
+    });
+  });
+
+  // Hide AI bar when AI modal is open
+  var aiBar = document.getElementById('ai-bar');
+  if (aiModalOverlay && aiBar) {
+    var observer = new MutationObserver(function() {
+      var isOpen = aiModalOverlay.classList.contains('visible');
+      aiBar.style.opacity = isOpen ? '0' : '';
+      aiBar.style.pointerEvents = isOpen ? 'none' : '';
+    });
+    observer.observe(aiModalOverlay, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  // ============ AGENT HOOKS ============
+  // Expose state and pubId for the creative agent
+  window.__brandingState = function () {
+    // Return a clean copy without circular refs
+    var s = JSON.parse(JSON.stringify(state));
+    // Don't send large base64 bg images to the agent
+    if (s.bgImage && s.bgImage.length > 200) {
+      s.bgImage = '[image présente]';
+    }
+    return s;
+  };
+
+  window.__brandingPubId = function () {
+    return currentPubId;
+  };
+
+  window.__brandingNewPub = async function (name) {
+    await autoSave();
+    await createNewPub(name);
+    closePubDropdown();
+  };
+
+  // Notify agent when pub changes
+  var _origLoadPub = loadPub;
+  loadPub = async function (id) {
+    var result = await _origLoadPub(id);
+    window.dispatchEvent(new Event('branding-pub-changed'));
+    return result;
+  };
 
 })();

@@ -71,6 +71,13 @@
     <button class="topbar-btn" id="btn-grid" title="Grille">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="8" y1="2" x2="8" y2="14"/></svg>
     </button>
+    <button class="btn btn--ai-topbar" id="btn-open-ai" title="Generateur IA">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7.5 1v2.5M7.5 11v2.5M1 7.5h2.5M11 7.5h2.5M3 3l1.5 1.5M10 10l1.5 1.5M3 12l1.5-1.5M10 5l1.5-1.5"/></svg>
+      IA
+    </button>
+    <button class="topbar-btn" id="btn-layers" title="Calques">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 1L1 5l7 4 7-4-7-4z"/><path d="M1 8l7 4 7-4"/><path d="M1 11l7 4 7-4"/></svg>
+    </button>
     <button class="btn btn--ghost" id="btn-reset">Reset</button>
     <button class="btn btn--primary" id="btn-export">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7.5 2v7m0 0L4.5 6m3 3l3-3M2 11v1.5a1 1 0 001 1h9a1 1 0 001-1V11"/></svg>
@@ -80,31 +87,43 @@
 </header>
 
 <main class="workspace">
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <nav class="sidebar__tabs">
-      <button class="tab active" data-tab="design" title="Design">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12"/></svg>
-        <span>Design</span>
+  <!-- ICON RAIL -->
+  <nav class="rail" id="studio-rail">
+    <button class="rail__btn active" data-tab="design" title="Design">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="14" height="14" rx="2.5"/><path d="M2 7h14"/></svg>
+    </button>
+    <button class="rail__btn" data-tab="text" title="Texte">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3h10M9 3v12M6 15h6"/></svg>
+    </button>
+    <button class="rail__btn" data-tab="style" title="Style">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="6"/><path d="M9 3v1.5M9 13.5V15M3 9h1.5M13.5 9H15"/></svg>
+    </button>
+    <button class="rail__btn" data-tab="stickers" title="Stickers">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h5v5H3zM10 3h5v5H10zM3 10h5v5H3z"/><circle cx="12.5" cy="12.5" r="2.5"/></svg>
+    </button>
+    <button class="rail__btn" data-tab="media" title="Medias">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="14" height="12" rx="1.5"/><circle cx="7" cy="8" r="1.5"/><path d="M16 13l-4-4L7 14"/></svg>
+    </button>
+    <button class="rail__btn" data-tab="animations" title="Animations SVG">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9a7 7 0 0114 0"/><path d="M5 9a4 4 0 018 0"/><circle cx="9" cy="9" r="1.5" fill="currentColor"/><path d="M9 12v4M7 14l2 2 2-2"/></svg>
+    </button>
+  </nav>
+
+  <!-- SLIDE PANEL -->
+  <aside class="panel-drawer open" id="sidebar">
+    <div class="panel-drawer__head">
+      <h3 class="panel-drawer__title" id="panel-title">Design</h3>
+      <button class="panel-drawer__close" id="panel-close" title="Fermer">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 3L3 11M3 3l8 8"/></svg>
       </button>
-      <button class="tab" data-tab="text" title="Texte">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3h8M8 3v10M5.5 13h5"/></svg>
-        <span>Texte</span>
-      </button>
-      <button class="tab" data-tab="style" title="Style">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/><path d="M8 3v1M8 12v1M3 8h1M12 8h1"/></svg>
-        <span>Style</span>
-      </button>
-      <button class="tab" data-tab="media" title="Medias">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><circle cx="6" cy="7" r="1.5"/><path d="M14 11l-3.5-3.5L6 12"/></svg>
-        <span>Medias</span>
-      </button>
-    </nav>
+    </div>
+    <div class="panel-drawer__scroll">
 
     <!-- TAB: Design -->
     <div class="tab-content active" data-tab-content="design">
-      <section class="panel">
-        <h3 class="panel__title">Format</h3>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="false">Format <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
         <div class="format-grid">
           <button class="format-btn active" data-w="1080" data-h="1080" data-label="Post"><div class="format-btn__icon" style="width:26px;height:26px"></div><span>Post</span><small>1080x1080</small></button>
           <button class="format-btn" data-w="1080" data-h="1920" data-label="Story"><div class="format-btn__icon" style="width:18px;height:32px"></div><span>Story</span><small>1080x1920</small></button>
@@ -115,10 +134,53 @@
           <button class="format-btn" data-w="1500" data-h="500" data-label="Twitter"><div class="format-btn__icon" style="width:40px;height:13px"></div><span>Twitter</span><small>1500x500</small></button>
           <button class="format-btn" data-w="1080" data-h="566" data-label="LinkedIn"><div class="format-btn__icon" style="width:34px;height:18px"></div><span>LinkedIn</span><small>1080x566</small></button>
         </div>
+        </div>
       </section>
 
-      <section class="panel">
-        <h3 class="panel__title">Templates</h3>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="false">Style Packs <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
+        <div class="style-packs-grid">
+          <button class="style-pack-btn" data-pack="traverse">
+            <div class="style-pack-swatch__bg" style="background:#1a1714"><div class="style-pack-swatch__accent" style="background:#c4622a"></div><div class="style-pack-swatch__accent2" style="background:#e8a87c"></div></div>
+            <span>Traverse</span>
+          </button>
+          <button class="style-pack-btn" data-pack="tech">
+            <div class="style-pack-swatch__bg" style="background:#0e0b1a"><div class="style-pack-swatch__accent" style="background:#8b5cf6"></div><div class="style-pack-swatch__accent2" style="background:#a78bfa"></div></div>
+            <span>Tech</span>
+          </button>
+          <button class="style-pack-btn" data-pack="ocean">
+            <div class="style-pack-swatch__bg" style="background:#0a1628"><div class="style-pack-swatch__accent" style="background:#38bdf8"></div><div class="style-pack-swatch__accent2" style="background:#7dd3fc"></div></div>
+            <span>Ocean</span>
+          </button>
+          <button class="style-pack-btn" data-pack="neonpop">
+            <div class="style-pack-swatch__bg" style="background:#000000"><div class="style-pack-swatch__accent" style="background:#22d3ee"></div><div class="style-pack-swatch__accent2" style="background:#f43f5e"></div></div>
+            <span>Neon Pop</span>
+          </button>
+          <button class="style-pack-btn" data-pack="light">
+            <div class="style-pack-swatch__bg" style="background:#fafaf8;border-color:rgba(0,0,0,0.1)"><div class="style-pack-swatch__accent" style="background:#6b7280"></div><div class="style-pack-swatch__accent2" style="background:#9ca3af"></div></div>
+            <span>Light</span>
+          </button>
+          <button class="style-pack-btn" data-pack="sunset">
+            <div class="style-pack-swatch__bg" style="background:#1a0a14"><div class="style-pack-swatch__accent" style="background:#f97316"></div><div class="style-pack-swatch__accent2" style="background:#ec4899"></div></div>
+            <span>Sunset</span>
+          </button>
+          <button class="style-pack-btn" data-pack="corporate">
+            <div class="style-pack-swatch__bg" style="background:#0f172a"><div class="style-pack-swatch__accent" style="background:#3b82f6"></div><div class="style-pack-swatch__accent2" style="background:#60a5fa"></div></div>
+            <span>Corporate</span>
+          </button>
+          <button class="style-pack-btn" data-pack="creative">
+            <div class="style-pack-swatch__bg" style="background:#1a0a20"><div class="style-pack-swatch__accent" style="background:#e879f9"></div><div class="style-pack-swatch__accent2" style="background:#f472b6"></div></div>
+            <span>Creative</span>
+          </button>
+        </div>
+        </div>
+      </section>
+
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="false">Templates <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
+        <div class="template-scroll">
         <div class="template-grid">
           <button class="template-btn active" data-template="minimal"><div class="tmpl tmpl--minimal"></div><span>Minimal</span></button>
           <button class="template-btn" data-template="bold"><div class="tmpl tmpl--bold"></div><span>Bold</span></button>
@@ -132,6 +194,14 @@
           <button class="template-btn" data-template="duotone"><div class="tmpl tmpl--duotone"></div><span>Duotone</span></button>
           <button class="template-btn" data-template="geometric"><div class="tmpl tmpl--geometric"></div><span>Geometric</span></button>
           <button class="template-btn" data-template="typewriter"><div class="tmpl tmpl--typewriter"></div><span>Typewriter</span></button>
+          <button class="template-btn" data-template="blobs"><div class="tmpl tmpl--blobs"></div><span>Blobs</span></button>
+          <button class="template-btn" data-template="cards"><div class="tmpl tmpl--cards"></div><span>Cards</span></button>
+          <button class="template-btn" data-template="grid-pattern"><div class="tmpl tmpl--grid-pattern"></div><span>Grid</span></button>
+          <button class="template-btn" data-template="magazine"><div class="tmpl tmpl--magazine"></div><span>Magazine</span></button>
+          <button class="template-btn" data-template="poster"><div class="tmpl tmpl--poster"></div><span>Poster</span></button>
+          <button class="template-btn" data-template="layered"><div class="tmpl tmpl--layered"></div><span>Layered</span></button>
+        </div>
+        </div>
         </div>
       </section>
     </div>
@@ -139,7 +209,15 @@
     <!-- TAB: Texte -->
     <div class="tab-content" data-tab-content="text">
       <section class="panel">
-        <h3 class="panel__title">Contenu</h3>
+        <div class="field field--check field--toggle-free">
+          <input type="checkbox" id="opt-free-layout">
+          <label for="opt-free-layout">Disposition libre</label>
+          <span class="hint" style="font-size:11px;color:var(--text-muted);margin-left:4px">(deplacer les textes)</span>
+        </div>
+      </section>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="false">Contenu <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
         <div class="field">
           <label>Titre principal</label>
           <input type="text" id="input-headline" value="Studio digital" placeholder="Titre...">
@@ -156,10 +234,12 @@
           <label>CTA / Bas de page</label>
           <input type="text" id="input-cta" value="latraverse.studio" placeholder="CTA ou URL...">
         </div>
+        </div>
       </section>
 
-      <section class="panel">
-        <h3 class="panel__title">Typographie — Titre</h3>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="true">Typographie — Titre <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
         <div class="field">
           <label>Police</label>
           <select id="typo-headline-font" class="select-input">
@@ -236,10 +316,12 @@
             </div>
           </div>
         </div>
+        </div>
       </section>
 
-      <section class="panel">
-        <h3 class="panel__title">Typographie — Corps</h3>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="true">Typographie — Corps <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
         <div class="field">
           <label>Police</label>
           <select id="typo-body-font" class="select-input">
@@ -271,13 +353,15 @@
             </select>
           </div>
         </div>
+        </div>
       </section>
     </div>
 
     <!-- TAB: Style -->
     <div class="tab-content" data-tab-content="style">
-      <section class="panel">
-        <h3 class="panel__title">Couleurs</h3>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="false">Couleurs <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
         <div class="color-row">
           <label>Fond</label>
           <div class="color-presets" data-target="bg">
@@ -317,10 +401,24 @@
           </div>
           <input type="color" id="color-accent" value="#c4622a" class="color-input">
         </div>
+        <div class="color-row">
+          <label>Accent 2</label>
+          <div class="color-presets" data-target="accent2">
+            <button class="color-dot active" style="background:#e8a87c" data-color="#e8a87c"></button>
+            <button class="color-dot" style="background:#f472b6" data-color="#f472b6"></button>
+            <button class="color-dot" style="background:#a78bfa" data-color="#a78bfa"></button>
+            <button class="color-dot" style="background:#7dd3fc" data-color="#7dd3fc"></button>
+            <button class="color-dot" style="background:#fbbf24" data-color="#fbbf24"></button>
+            <button class="color-dot" style="background:#34d399" data-color="#34d399"></button>
+          </div>
+          <input type="color" id="color-accent2" value="#e8a87c" class="color-input">
+        </div>
+        </div>
       </section>
 
-      <section class="panel">
-        <h3 class="panel__title">Fond gradient</h3>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="true">Fond gradient <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
         <div class="field field--check">
           <input type="checkbox" id="opt-gradient">
           <label for="opt-gradient">Activer le gradient</label>
@@ -349,10 +447,12 @@
             <button class="gradient-preset" data-start="#0c0c0c" data-end="#313131" data-angle="180" style="background:linear-gradient(180deg,#0c0c0c,#313131)"></button>
           </div>
         </div>
+        </div>
       </section>
 
-      <section class="panel">
-        <h3 class="panel__title">Effets texte</h3>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="true">Effets texte <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
         <div class="field">
           <label>Ombre du titre <span id="fx-shadow-val">0</span></label>
           <input type="range" id="fx-shadow" min="0" max="30" value="0">
@@ -365,10 +465,12 @@
           <input type="checkbox" id="fx-outline">
           <label for="fx-outline">Contour texte (stroke)</label>
         </div>
+        </div>
       </section>
 
-      <section class="panel">
-        <h3 class="panel__title">Options</h3>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="true">Options <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
         <div class="field field--check">
           <input type="checkbox" id="opt-logo" checked>
           <label for="opt-logo">Logo La Traverse</label>
@@ -385,13 +487,143 @@
           <input type="checkbox" id="opt-vignette">
           <label for="opt-vignette">Vignette</label>
         </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB: Stickers -->
+    <div class="tab-content" data-tab-content="stickers">
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="true">Composants <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
+        <p class="sticker-hint">Cliquez pour ajouter sur le canvas. Glissez, redimensionnez et pivotez.</p>
+        <div class="sticker-categories">
+          <button class="sticker-cat-btn active" data-cat="all">Tous</button>
+          <button class="sticker-cat-btn" data-cat="badges">Badges</button>
+          <button class="sticker-cat-btn" data-cat="cards">Cards</button>
+          <button class="sticker-cat-btn" data-cat="shapes">Formes</button>
+          <button class="sticker-cat-btn" data-cat="icons">Icons</button>
+          <button class="sticker-cat-btn" data-cat="frames">Frames</button>
+        </div>
+        <div class="sticker-library" id="sticker-library"></div>
+        </div>
+      </section>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="false">Generer avec l'IA <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
+        <p class="sticker-hint">Decrivez ce que vous voulez. Choisissez le type, le style et les couleurs.</p>
+
+        <label class="ai-section-label">Type</label>
+        <div class="ai-sticker-categories">
+          <button class="ai-sticker-cat active" data-ai-cat="icon">Icone</button>
+          <button class="ai-sticker-cat" data-ai-cat="badge">Badge</button>
+          <button class="ai-sticker-cat" data-ai-cat="illustration">Illustration</button>
+          <button class="ai-sticker-cat" data-ai-cat="3d">3D</button>
+          <button class="ai-sticker-cat" data-ai-cat="mascot">Mascotte</button>
+          <button class="ai-sticker-cat" data-ai-cat="abstract">Abstrait</button>
+          <button class="ai-sticker-cat" data-ai-cat="emoji">Emoji</button>
+          <button class="ai-sticker-cat" data-ai-cat="logo">Logo</button>
+        </div>
+
+        <label class="ai-section-label">Style visuel</label>
+        <div class="ai-sticker-tones">
+          <button class="ai-tone-btn active" data-tone="flat">
+            <span class="ai-tone-icon" style="background:linear-gradient(135deg,#3b82f6 50%,#60a5fa 50%)"></span>
+            <span>Flat</span>
+          </button>
+          <button class="ai-tone-btn" data-tone="glossy">
+            <span class="ai-tone-icon" style="background:radial-gradient(circle at 30% 30%,#fff 0%,#a78bfa 40%,#7c3aed 100%)"></span>
+            <span>Glossy</span>
+          </button>
+          <button class="ai-tone-btn" data-tone="neon">
+            <span class="ai-tone-icon" style="background:#0a0a0a;box-shadow:inset 0 0 8px #22d3ee,0 0 4px #22d3ee"></span>
+            <span>Neon</span>
+          </button>
+          <button class="ai-tone-btn" data-tone="watercolor">
+            <span class="ai-tone-icon" style="background:radial-gradient(circle at 40% 40%,#fda4af 0%,#f9a8d4 40%,#e9d5ff 100%)"></span>
+            <span>Aquarelle</span>
+          </button>
+          <button class="ai-tone-btn" data-tone="line">
+            <span class="ai-tone-icon" style="background:#fafaf8;border:1.5px solid #374151"></span>
+            <span>Ligne</span>
+          </button>
+          <button class="ai-tone-btn" data-tone="isometric">
+            <span class="ai-tone-icon" style="background:linear-gradient(135deg,#6366f1 33%,#818cf8 33%,#818cf8 66%,#a5b4fc 66%)"></span>
+            <span>Iso 3D</span>
+          </button>
+          <button class="ai-tone-btn" data-tone="gradient">
+            <span class="ai-tone-icon" style="background:linear-gradient(135deg,#f472b6,#8b5cf6,#06b6d4)"></span>
+            <span>Gradient</span>
+          </button>
+          <button class="ai-tone-btn" data-tone="pixel">
+            <span class="ai-tone-icon" style="background:repeating-conic-gradient(#4ade80 0% 25%,#22c55e 0% 50%) 0 0/6px 6px"></span>
+            <span>Pixel</span>
+          </button>
+        </div>
+
+        <label class="ai-section-label">Couleurs</label>
+        <div class="ai-color-controls">
+          <div class="ai-color-pick">
+            <label>Principale</label>
+            <input type="color" id="ai-sticker-color1" value="#c4622a" class="color-input">
+          </div>
+          <div class="ai-color-pick">
+            <label>Secondaire</label>
+            <input type="color" id="ai-sticker-color2" value="#e8a87c" class="color-input">
+          </div>
+          <button class="ai-color-sync" id="ai-color-sync" title="Synchro avec le style pack">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 7a6 6 0 0111.2-3M13 7A6 6 0 011.8 10"/><path d="M1 1v3h3M13 13v-3h-3"/></svg>
+          </button>
+        </div>
+
+        <label class="ai-section-label">Idees rapides</label>
+        <div class="ai-sticker-presets" id="ai-sticker-presets">
+          <button class="ai-preset-chip" data-prompt="fusee decollage spatiale">fusee</button>
+          <button class="ai-preset-chip" data-prompt="etoile scintillante premium">etoile</button>
+          <button class="ai-preset-chip" data-prompt="eclair electrique energie">eclair</button>
+          <button class="ai-preset-chip" data-prompt="couronne royale luxe doree avec pierres precieuses">couronne</button>
+          <button class="ai-preset-chip" data-prompt="diamant taille brillant cristal reflets">diamant</button>
+          <button class="ai-preset-chip" data-prompt="coeur anatomique stylise">coeur</button>
+          <button class="ai-preset-chip" data-prompt="fleche ascendante croissance dynamique">fleche</button>
+          <button class="ai-preset-chip" data-prompt="trophee dore champion victoire">trophee</button>
+          <button class="ai-preset-chip" data-prompt="plante monstera tropicale">plante</button>
+          <button class="ai-preset-chip" data-prompt="medaille or premium badge recompense">medaille</button>
+          <button class="ai-preset-chip" data-prompt="cerveau intelligence artificielle neural">IA</button>
+          <button class="ai-preset-chip" data-prompt="engrenage mecanique precision tech">gear</button>
+        </div>
+
+        <div class="ai-sticker-input-row">
+          <input type="text" id="ai-sticker-prompt" class="ai-sticker-input" placeholder="Decrivez votre composant..." spellcheck="false">
+          <button class="btn btn--accent btn--sm ai-sticker-generate" id="btn-ai-sticker-gen">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2L2 7l3.5 1.5M12 2l-5 10-1.5-3.5M12 2L8.5 8.5"/><circle cx="3" cy="11" r="1"/></svg>
+            <span>Generer</span>
+          </button>
+        </div>
+        <div class="ai-sticker-status" id="ai-sticker-status" style="display:none">
+          <div class="ai-sticker-spinner"></div>
+          <span>Generation en cours...</span>
+        </div>
+        <div class="ai-sticker-error" id="ai-sticker-error" style="display:none"></div>
+        <div class="ai-sticker-results" id="ai-sticker-results"></div>
+        </div>
+      </section>
+
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="true">Stickers places <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
+        <div class="placed-stickers-list" id="placed-stickers-list">
+          <p class="sticker-empty" id="sticker-empty">Aucun sticker place</p>
+        </div>
+        <button class="btn btn--ghost btn--sm btn--full" id="btn-clear-stickers" style="display:none">Supprimer tous les stickers</button>
+        </div>
       </section>
     </div>
 
     <!-- TAB: Medias -->
     <div class="tab-content" data-tab-content="media">
-      <section class="panel">
-        <h3 class="panel__title">Image de fond</h3>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="false">Image de fond <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
         <div class="upload-zone" id="upload-zone-bg">
           <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
           <span>Glisser ou cliquer</span>
@@ -408,19 +640,23 @@
             <input type="range" id="input-blur" min="0" max="20" value="0">
           </div>
         </div>
+        </div>
       </section>
 
-      <section class="panel">
-        <h3 class="panel__title">Galerie d'images</h3>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="true">Galerie d'images <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
         <div class="field">
           <input type="file" id="input-add-image" accept="image/*" class="file-input">
         </div>
         <div class="image-gallery" id="image-gallery"></div>
         <p class="gallery-hint" id="gallery-hint">Uploadez des images pour les utiliser</p>
+        </div>
       </section>
 
-      <section class="panel">
-        <h3 class="panel__title">Generation IA</h3>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="false">Generation IA <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
         <div class="field">
           <label>Prompt</label>
           <textarea id="ai-prompt" rows="3" placeholder="Decrivez l'image souhaitee..."></textarea>
@@ -437,8 +673,125 @@
             <button class="btn btn--ghost btn--sm" id="btn-ai-save">Sauvegarder</button>
           </div>
         </div>
+        </div>
+      </section>
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="false">Importer un SVG <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
+        <p class="sticker-hint">Importez vos propres fichiers SVG comme stickers sur le canvas.</p>
+        <label class="btn btn--ghost btn--sm btn--full svg-import-btn">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 1v9M3.5 6.5L7 10l3.5-3.5"/><path d="M1 11v2h12v-2"/></svg>
+          Choisir un fichier SVG
+          <input type="file" id="input-svg-upload" accept=".svg" style="display:none">
+        </label>
+        </div>
       </section>
     </div>
+    <!-- TAB: Animations SVG -->
+    <div class="tab-content" data-tab-content="animations">
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="false">Animations SVG <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
+        <p class="sticker-hint">Generez des illustrations animees avec l'IA. Les SVG sont interactifs et animes directement sur le canvas.</p>
+
+        <label class="ai-section-label">Type</label>
+        <div class="ai-sticker-categories">
+          <button class="svg-type-btn active" data-svg-type="illustration">Illustration</button>
+          <button class="svg-type-btn" data-svg-type="icon">Icone</button>
+          <button class="svg-type-btn" data-svg-type="logo">Logo</button>
+          <button class="svg-type-btn" data-svg-type="pattern">Motif</button>
+          <button class="svg-type-btn" data-svg-type="decoration">Deco</button>
+          <button class="svg-type-btn" data-svg-type="infographic">Infographie</button>
+        </div>
+
+        <label class="ai-section-label">Style d'animation</label>
+        <div class="svg-anim-styles">
+          <button class="svg-style-btn active" data-svg-style="organic">
+            <span class="svg-style-icon">~</span>
+            <span>Organique</span>
+          </button>
+          <button class="svg-style-btn" data-svg-style="geometric">
+            <span class="svg-style-icon">&diamond;</span>
+            <span>Geometrique</span>
+          </button>
+          <button class="svg-style-btn" data-svg-style="playful">
+            <span class="svg-style-icon">&cir;</span>
+            <span>Ludique</span>
+          </button>
+          <button class="svg-style-btn" data-svg-style="minimal">
+            <span class="svg-style-icon">&mdash;</span>
+            <span>Minimal</span>
+          </button>
+          <button class="svg-style-btn" data-svg-style="energetic">
+            <span class="svg-style-icon">&zigrarr;</span>
+            <span>Energique</span>
+          </button>
+          <button class="svg-style-btn" data-svg-style="loop">
+            <span class="svg-style-icon">&orarr;</span>
+            <span>Boucle</span>
+          </button>
+        </div>
+
+        <label class="ai-section-label">Couleurs</label>
+        <div class="ai-color-controls">
+          <div class="ai-color-pick">
+            <label>Principale</label>
+            <input type="color" id="svg-anim-color1" value="#c4622a" class="color-input">
+          </div>
+          <div class="ai-color-pick">
+            <label>Secondaire</label>
+            <input type="color" id="svg-anim-color2" value="#e8a87c" class="color-input">
+          </div>
+          <button class="ai-color-sync" id="svg-color-sync" title="Synchro avec le style pack">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 7a6 6 0 0111.2-3M13 7A6 6 0 011.8 10"/><path d="M1 1v3h3M13 13v-3h-3"/></svg>
+          </button>
+        </div>
+
+        <div class="field field--check">
+          <input type="checkbox" id="svg-transparent-bg" checked>
+          <label for="svg-transparent-bg">Fond transparent</label>
+        </div>
+
+        <label class="ai-section-label">Idees rapides</label>
+        <div class="ai-sticker-presets" id="svg-anim-presets">
+          <button class="ai-preset-chip" data-svg-prompt="plante qui pousse dans un pot en terre cuite avec des feuilles qui se deploient">plante</button>
+          <button class="ai-preset-chip" data-svg-prompt="etoile filante traversant le ciel avec trainee lumineuse">etoile</button>
+          <button class="ai-preset-chip" data-svg-prompt="onde sonore pulsante comme un equalizer audio">onde</button>
+          <button class="ai-preset-chip" data-svg-prompt="engrenages mecaniques qui tournent en synchronisation">engrenages</button>
+          <button class="ai-preset-chip" data-svg-prompt="coeur qui bat avec pulsation rythmique">coeur</button>
+          <button class="ai-preset-chip" data-svg-prompt="fusee qui decolle avec flammes et fumee animees">fusee</button>
+          <button class="ai-preset-chip" data-svg-prompt="cercles concentriques qui se propagent comme une onde">ondes</button>
+          <button class="ai-preset-chip" data-svg-prompt="horloge avec aiguilles qui tournent et pendule">horloge</button>
+          <button class="ai-preset-chip" data-svg-prompt="constellation d'etoiles reliees par des lignes qui scintillent">constellation</button>
+          <button class="ai-preset-chip" data-svg-prompt="flamme de bougie qui vacille et danse">flamme</button>
+        </div>
+
+        <div class="ai-sticker-input-row">
+          <input type="text" id="svg-anim-prompt" class="ai-sticker-input" placeholder="Decrivez votre animation SVG..." spellcheck="false">
+          <button class="btn btn--accent btn--sm ai-sticker-generate" id="btn-svg-anim-gen">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 9a7 7 0 0114 0"/><circle cx="9" cy="9" r="1.5"/></svg>
+            <span>Generer</span>
+          </button>
+        </div>
+        <div class="ai-sticker-status" id="svg-anim-status" style="display:none">
+          <div class="ai-sticker-spinner"></div>
+          <span>Generation SVG en cours...</span>
+        </div>
+        <div class="ai-sticker-error" id="svg-anim-error" style="display:none"></div>
+        </div>
+      </section>
+
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="true">Resultats <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
+        <div class="svg-anim-results" id="svg-anim-results">
+          <p class="sticker-empty" id="svg-anim-empty">Generez votre premiere animation</p>
+        </div>
+        </div>
+      </section>
+    </div>
+
+    </div><!-- /panel-drawer__scroll -->
   </aside>
 
   <!-- CANVAS AREA -->
@@ -451,20 +804,23 @@
         <div class="canvas__bgimage" id="canvas-bgimage"></div>
         <div class="canvas__vignette" id="canvas-vignette"></div>
         <div class="canvas__decorations" id="canvas-decorations"></div>
+        <div class="canvas__stickers-below" id="canvas-stickers-below"></div>
         <div class="canvas__glass-panel" id="canvas-glass-panel"></div>
         <div class="canvas__content">
           <div class="canvas__logo" id="canvas-logo">
+            <div class="text-drag-handle" data-drag-key="logo">&#x2807;</div>
             <svg viewBox="0 0 40 40" width="28" height="28" fill="none">
               <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="1.5"/>
               <path d="M12 20h16M20 12v16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
             <span>La Traverse</span>
           </div>
-          <div class="canvas__headline" id="canvas-headline" contenteditable="true" spellcheck="false">Studio digital</div>
-          <div class="canvas__subline" id="canvas-subline" contenteditable="true" spellcheck="false">Marseille</div>
-          <div class="canvas__body" id="canvas-body" contenteditable="true" spellcheck="false">Sites, apps et outils sur-mesure pour artisans, commercants et independants.</div>
-          <div class="canvas__cta" id="canvas-cta" contenteditable="true" spellcheck="false">latraverse.studio</div>
+          <div class="canvas__headline" id="canvas-headline" contenteditable="true" spellcheck="false"><div class="text-drag-handle" data-drag-key="headline">&#x2807;</div>Studio digital</div>
+          <div class="canvas__subline" id="canvas-subline" contenteditable="true" spellcheck="false"><div class="text-drag-handle" data-drag-key="subline">&#x2807;</div>Marseille</div>
+          <div class="canvas__body" id="canvas-body" contenteditable="true" spellcheck="false"><div class="text-drag-handle" data-drag-key="body">&#x2807;</div>Sites, apps et outils sur-mesure pour artisans, commercants et independants.</div>
+          <div class="canvas__cta" id="canvas-cta" contenteditable="true" spellcheck="false"><div class="text-drag-handle" data-drag-key="cta">&#x2807;</div>latraverse.studio</div>
         </div>
+        <div class="canvas__stickers" id="canvas-stickers"></div>
       </div>
     </div>
     <div class="canvas-info">
@@ -474,7 +830,44 @@
       <span class="canvas-info__sep">|</span>
       <span id="info-shortcuts">Ctrl+Z Annuler &middot; Ctrl+E Exporter</span>
     </div>
+
+    <!-- AI COMMAND BAR (permanent, bottom of canvas) -->
+    <div class="ai-bar" id="ai-bar">
+      <div class="ai-bar__glow"></div>
+      <div class="ai-bar__inner">
+        <div class="ai-bar__icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v2.5M8 12.5V15M1 8h2.5M12.5 8H15M3 3l1.8 1.8M11.2 11.2L13 13M3 13l1.8-1.8M11.2 4.8L13 3"/></svg>
+        </div>
+        <input type="text" id="ai-bar-input" class="ai-bar__input" placeholder="Decris ta pub... (Ex: Promo ete restaurant, ambiance chaleureuse)" spellcheck="false" autocomplete="off">
+        <div class="ai-bar__actions">
+          <button class="ai-bar__boost" id="ai-bar-boost" title="Booster le prompt">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1l1.5 3 3.5.5-2.5 2.5.5 3.5L7 9 4 10.5l.5-3.5L2 4.5l3.5-.5z"/></svg>
+          </button>
+          <button class="ai-bar__submit" id="ai-bar-submit" title="Generer le design">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8h9m0 0L7.5 4.5M11 8l-3.5 3.5"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="ai-bar__chips">
+        <button class="ai-bar__chip" data-prompt="Promo ete -30% restaurant italien, chaleureux et gourmand">Promo Restaurant</button>
+        <button class="ai-bar__chip" data-prompt="Lancement produit tech innovant, style premium et futuriste">Lancement Tech</button>
+        <button class="ai-bar__chip" data-prompt="Evenement festival musique, vibes festives et colorees">Festival</button>
+        <button class="ai-bar__chip" data-prompt="Coaching bien-etre meditation, ambiance zen et naturelle">Bien-etre</button>
+        <button class="ai-bar__chip" data-prompt="Agence immobiliere luxe, prestige et elegance">Immobilier</button>
+      </div>
+    </div>
   </div>
+
+  <!-- LAYERS PANEL -->
+  <aside class="layers-panel" id="layers-panel">
+    <div class="layers-panel__header">
+      <span class="layers-panel__title">Calques</span>
+      <button class="layers-panel__close" id="layers-panel-close">&times;</button>
+    </div>
+    <div class="layers-panel__body" id="layers-panel-body">
+      <!-- Populated by JS -->
+    </div>
+  </aside>
 </main>
 
 <!-- Export overlay -->
@@ -485,6 +878,84 @@
   </div>
 </div>
 
+<!-- AI Generator Modal -->
+<div class="ai-modal-overlay" id="ai-modal-overlay">
+  <div class="ai-modal">
+    <div class="ai-modal__header">
+      <div class="ai-modal__title-row">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v3M8 12v3M1 8h3M12 8h3M3 3l2 2M11 11l2 2M3 13l2-2M11 5l2-2"/></svg>
+        <h3>Generateur IA</h3>
+      </div>
+      <div class="ai-modal__tabs">
+        <button class="ai-tab active" data-ai-tab="prompt">Prompt libre</button>
+        <button class="ai-tab" data-ai-tab="url">Depuis un site</button>
+      </div>
+      <button class="ai-modal__close" id="ai-modal-close">&times;</button>
+    </div>
+
+    <!-- Tab: Prompt libre -->
+    <div class="ai-modal__body ai-tab-content active" data-ai-tab-content="prompt">
+      <p class="ai-modal__desc">Decris ta pub en quelques mots. L'IA genere tout : texte, style, template et mise en page.</p>
+      <div class="ai-modal__field">
+        <textarea id="ai-gen-prompt" rows="3" placeholder="Ex: Promo ete -30% pour un restaurant italien a Marseille, ambiance chaleureuse et gourmande..."></textarea>
+        <button class="ai-modal__improve" id="btn-improve-prompt" title="Ameliorer le prompt avec l'IA">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v3M8 10v3M1 7h3M10 7h3M3.5 3.5l1.5 1.5M9 9l1.5 1.5M3.5 10.5l1.5-1.5M9 5l1.5-1.5"/></svg>
+          <span>Booster le prompt</span>
+        </button>
+      </div>
+      <div class="ai-modal__error" id="ai-gen-error" style="display:none"></div>
+      <button class="ai-modal__generate" id="btn-ai-generate-all">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v3M8 12v3M1 8h3M12 8h3M3 3l2 2M11 11l2 2M3 13l2-2M11 5l2-2"/></svg>
+        <span class="ai-gen-text">Generer le design</span>
+      </button>
+    </div>
+
+    <!-- Tab: Depuis un site -->
+    <div class="ai-modal__body ai-tab-content" data-ai-tab-content="url">
+      <p class="ai-modal__desc">Colle l'URL d'un site web. L'IA l'analyse et propose des idees de campagnes visuelles adaptees.</p>
+      <div class="ai-url__input-row">
+        <div class="ai-url__field">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6.5 11.5a4 4 0 01-1-7.9M9.5 4.5a4 4 0 011 7.9M6 8h4"/></svg>
+          <input type="url" id="ai-url-input" placeholder="https://example.com" spellcheck="false">
+        </div>
+        <button class="ai-url__analyze" id="btn-scrape-url">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12l4-4m0 0l4 4m-4-4v9M21 3H3"/><circle cx="12" cy="8" r="3"/></svg>
+          <span class="ai-url__analyze-text">Analyser</span>
+        </button>
+      </div>
+      <div class="ai-url__error" id="ai-url-error" style="display:none"></div>
+
+      <!-- Business info (shown after scrape) -->
+      <div class="ai-url__business" id="ai-url-business" style="display:none">
+        <div class="ai-url__business-info">
+          <span class="ai-url__business-name" id="ai-biz-name"></span>
+          <span class="ai-url__business-badge" id="ai-biz-industry"></span>
+          <span class="ai-url__business-vibe" id="ai-biz-vibe"></span>
+        </div>
+      </div>
+
+      <!-- Ideas grid (shown after scrape) -->
+      <div class="ai-ideas-grid" id="ai-ideas-grid" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATIVE AGENT -->
+<button id="agent-btn" class="agent-fab" title="Agent Créatif (vocal)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg><span class="agent-fab__pulse"></span></button>
+<div id="agent-panel" class="agent-panel">
+  <div class="agent-panel__header">
+    <div class="agent-panel__title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg> Agent Créatif</div>
+    <div class="agent-panel__actions"><span id="agent-status" class="agent-panel__status"></span><button id="agent-clear" class="agent-panel__btn" title="Effacer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button><button id="agent-close" class="agent-panel__btn" title="Fermer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button></div>
+  </div>
+  <div id="agent-messages" class="agent-panel__messages"></div>
+  <div class="agent-panel__input">
+    <button id="agent-mic" class="agent-input__mic" title="Parler"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button>
+    <input type="text" id="agent-input" class="agent-input__field" placeholder="Dis quelque chose..." autocomplete="off">
+    <button id="agent-send" class="agent-input__send" title="Envoyer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+  </div>
+</div>
+
 <script src="/js/branding.js?v=<%= Date.now() %>"></script>
+<script src="/js/branding-agent.js?v=<%= Date.now() %>"></script>
 </body>
 </html>
