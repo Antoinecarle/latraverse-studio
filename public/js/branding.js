@@ -2291,42 +2291,25 @@
     if (exportQualityVal) exportQualityVal.textContent = exportQuality;
   });
 
-  /** Temporarily resize canvas to native resolution for crisp export.
-   *  Instead of capturing at ~500px and upscaling (blurry), we blow the
-   *  canvas up to the real target size so html2canvas renders text, SVG
-   *  and CSS effects at full resolution. */
+  /** Prepare canvas for export: remove transform, clip overflow, deselect.
+   *  Canvas stays at REF_BASE size — html2canvas `scale` handles resolution.
+   *  This ensures ALL CSS (shadows, margins, glow, borders, offsets) scales
+   *  proportionally, not just fonts. */
   function prepareCanvasForExport(targetW) {
     canvasWrapper.style.transform = '';
     canvas.classList.add('exporting');
     canvasWrapper.style.overflow = 'hidden';
     deselectStickers();
 
-    // Save reference dimensions
     var refW = state._refW || REF_BASE;
     var refH = state._refH || REF_BASE;
-
-    // Resize canvas to native export resolution
-    var nativeW = targetW;
-    var nativeH = Math.round(nativeW * (state.format.h / state.format.w));
-    canvas.style.width = nativeW + 'px';
-    canvas.style.height = nativeH + 'px';
-    canvasWrapper.style.width = nativeW + 'px';
-    canvasWrapper.style.height = nativeH + 'px';
-
-    // Re-apply typography at native scale so fonts are crisp
-    var exportFontScale = Math.max(nativeW, nativeH) / REF_BASE;
-    applyTypography(exportFontScale);
+    var exportScale = targetW / refW;
 
     return {
+      scale: exportScale,
       restore: function() {
-        // Restore to fixed reference dimensions
-        canvas.style.width = refW + 'px';
-        canvas.style.height = refH + 'px';
-        canvasWrapper.style.width = refW + 'px';
-        canvasWrapper.style.height = refH + 'px';
         canvasWrapper.style.overflow = '';
         canvas.classList.remove('exporting');
-        applyTypography(Math.max(refW, refH) / REF_BASE);
         fitCanvasToViewport();
       }
     };
@@ -2338,12 +2321,11 @@
     exportOverlay.classList.add('visible');
     if (exportDropdown) exportDropdown.style.display = 'none';
 
-    // Resize canvas to native export resolution for crisp rendering
     var snapshot = prepareCanvasForExport(exportW);
 
     setTimeout(() => {
       html2canvas(canvas, {
-        scale: 1,
+        scale: snapshot.scale,
         width: canvas.offsetWidth,
         height: canvas.offsetHeight,
         useCORS: true,
@@ -2388,12 +2370,11 @@
     var origText = btn.innerHTML;
     btn.disabled = true;
 
-    // Resize canvas to native resolution for crisp copy
     var snapshot = prepareCanvasForExport(exportW);
 
     setTimeout(function() {
       html2canvas(canvas, {
-        scale: 1,
+        scale: snapshot.scale,
         width: canvas.offsetWidth,
         height: canvas.offsetHeight,
         useCORS: true,
@@ -3627,7 +3608,7 @@
   // ============ KEYBOARD SHORTCUTS ============
   document.addEventListener('keydown', e => {
     // Don't capture when typing in inputs
-    const tag = e.target.tagName.toLowerCase();
+    const tag = (e.target.tagName || '').toLowerCase();
     const isEditable = e.target.contentEditable === 'true';
     const isInput = tag === 'input' || tag === 'textarea' || tag === 'select';
 
@@ -3656,6 +3637,12 @@
     if (e.ctrlKey && e.key === '-' && !isInput) {
       e.preventDefault();
       state.zoom = Math.max(30, (state.zoom || 100) - 10);
+      applyZoom();
+    }
+    // Ctrl+0 reset zoom
+    if (e.ctrlKey && e.key === '0' && !isInput) {
+      e.preventDefault();
+      state.zoom = 100;
       applyZoom();
     }
     // ? key opens shortcuts modal
@@ -5703,7 +5690,8 @@
   }
 
   /** Capture N frames using html2canvas, toggling hover according to timeline */
-  function captureFrames(totalFrames, fps, onProgress) {
+  function captureFrames(totalFrames, fps, onProgress, exportScale) {
+    var scl = exportScale || 1;
     return new Promise(function(resolve) {
       var frames = [];
       var frameIndex = 0;
@@ -5723,7 +5711,7 @@
         setTimeout(function() {
           var t0 = performance.now();
           html2canvas(canvas, {
-            scale: 1,
+            scale: scl,
             width: canvas.offsetWidth,
             height: canvas.offsetHeight,
             useCORS: true,
@@ -5855,7 +5843,6 @@
     if (progressWrap) progressWrap.style.display = 'block';
     if (progressBar) progressBar.style.width = '0%';
 
-    // Resize canvas to native resolution for crisp frames
     var snapshot = prepareCanvasForExport(state.format.w);
 
     // Inject hover simulation CSS
@@ -5865,12 +5852,12 @@
       // Wait a beat for layout/CSS to settle
       await new Promise(function(r) { setTimeout(r, 250); });
 
-      // Capture frames
+      // Capture frames at export scale
       var frames = await captureFrames(totalFrames, fps, function(done, total) {
         var pct = Math.round((done / total) * 70); // 0-70% for frame capture
         if (progressBar) progressBar.style.width = pct + '%';
         if (overlayText) overlayText.textContent = 'Capture ' + done + '/' + total + '...';
-      });
+      }, snapshot.scale);
 
       // Assemble
       if (overlayText) overlayText.textContent = 'Assemblage ' + exportFormat.toUpperCase() + '...';
