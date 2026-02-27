@@ -843,6 +843,11 @@
             <label>Couleur ombre</label>
             <input type="color" id="shadow-color" value="#000000" class="color-input color-input--lg">
           </div>
+          <label class="mini-toggle" style="margin-top:6px">
+            <input type="checkbox" id="fx-shadow-all">
+            <span class="mini-toggle__track"></span>
+            <span class="mini-toggle__label">Tout le texte</span>
+          </label>
         </div>
         <div class="field">
           <label>Glow accent <span id="fx-glow-val">0</span></label>
@@ -936,6 +941,15 @@
             <button class="border-style-btn" data-bstyle="double" title="Double"><span class="bstyle-prev bstyle-prev--double"></span></button>
             <button class="border-style-btn" data-bstyle="dashed" title="Tirets"><span class="bstyle-prev bstyle-prev--dashed"></span></button>
             <button class="border-style-btn" data-bstyle="inset" title="Retrait"><span class="bstyle-prev bstyle-prev--inset"></span></button>
+          </div>
+          <div class="color-field-row" style="margin-top:8px">
+            <label>Couleur</label>
+            <input type="color" id="border-color" value="#c4622a" class="color-mini">
+            <button type="button" class="color-reset-btn" id="border-color-reset" title="Reset">&times;</button>
+          </div>
+          <div class="field" style="margin-top:6px">
+            <label>Retrait <span id="border-offset-val">12</span>px</label>
+            <input type="range" id="border-offset" min="4" max="40" value="12" step="1">
           </div>
         </div>
         <div class="field field--check">

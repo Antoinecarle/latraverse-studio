@@ -59,6 +59,8 @@
       showLogo: true,
       showBorder: true,
       borderStyle: 'classic',
+      borderColor: '',
+      borderOffset: 12,
       logoScale: 100,
       showGrain: false,
       showVignette: false,
@@ -74,6 +76,7 @@
       typoBody: { font: "'Libre Baskerville', serif", size: 15, weight: '400', align: 'left', lh: 160, case: 'none' },
       typoCta: { font: '', size: 12, weight: '500', ls: 0, case: 'none' },
       fxShadow: 0,
+      fxShadowAll: false,
       fxGlow: 0,
       fxOutline: false,
       fxGradientText: false,
@@ -118,6 +121,10 @@
         cta:      { x: 0, y: 0 },
         logo:     { x: 0, y: 0 }
       },
+      innerBorder: false,
+      innerBorderWidth: 2,
+      innerBorderColor: '',
+      innerBorderOffset: 16,
       freeLayout: false,
       textPositions: {
         logo:     { x: 10, y: 5 },
@@ -1673,6 +1680,14 @@
   });
   if (shadowColorInput) shadowColorInput.addEventListener('change', function() { pushHistory(); });
 
+  // Shadow applies to all text toggle
+  var fxShadowAll = document.getElementById('fx-shadow-all');
+  if (fxShadowAll) fxShadowAll.addEventListener('change', function() {
+    state.fxShadowAll = fxShadowAll.checked;
+    pushHistory();
+    applyEffects();
+  });
+
   if (fxGlow) fxGlow.addEventListener('input', () => {
     state.fxGlow = parseInt(fxGlow.value);
     if (fxGlowVal) fxGlowVal.textContent = fxGlow.value;
@@ -1762,6 +1777,31 @@
     });
   });
 
+  // Border color
+  var borderColorInput = document.getElementById('border-color');
+  var borderColorReset = document.getElementById('border-color-reset');
+  if (borderColorInput) borderColorInput.addEventListener('input', function() {
+    state.borderColor = borderColorInput.value;
+    applyBorderStyle();
+  });
+  if (borderColorInput) borderColorInput.addEventListener('change', function() { pushHistory(); });
+  if (borderColorReset) borderColorReset.addEventListener('click', function() {
+    state.borderColor = '';
+    if (borderColorInput) borderColorInput.value = state.accentColor || '#c4622a';
+    applyBorderStyle();
+    pushHistory();
+  });
+
+  // Border offset
+  var borderOffsetSlider = document.getElementById('border-offset');
+  var borderOffsetVal = document.getElementById('border-offset-val');
+  if (borderOffsetSlider) borderOffsetSlider.addEventListener('input', function() {
+    state.borderOffset = parseInt(borderOffsetSlider.value);
+    if (borderOffsetVal) borderOffsetVal.textContent = borderOffsetSlider.value;
+    applyBorderStyle();
+  });
+  if (borderOffsetSlider) borderOffsetSlider.addEventListener('change', function() { pushHistory(); });
+
   function applyBorderStyle() {
     if (!canvasBorder) return;
     var s = state.borderStyle || 'classic';
@@ -1771,7 +1811,9 @@
     canvasBorder.style.outline = '';
     canvasBorder.style.outlineOffset = '';
     canvasBorder.style.boxShadow = '';
-    var col = state.accentColor || '#c4622a';
+    var col = state.borderColor || state.accentColor || '#c4622a';
+    var offset = (state.borderOffset != null ? state.borderOffset : 12) + 'px';
+    canvasBorder.style.inset = offset;
     switch (s) {
       case 'thin':
         canvasBorder.style.border = '1px solid ' + col;
@@ -2822,7 +2864,34 @@
       }
     }
 
-    canvasHeadline.style.textShadow = shadows.length > 0 ? shadows.join(', ') : '';
+    var shadowStr = shadows.length > 0 ? shadows.join(', ') : '';
+    canvasHeadline.style.textShadow = shadowStr;
+    // Apply proportional shadow to other text layers (50% intensity)
+    if (shadowStr && state.fxShadowAll) {
+      var halfShadows = [];
+      if (state.template !== 'neon') {
+        if (state.fxShadow > 0) {
+          var sx2 = Math.round((state.textShadowX || 0) * 0.5);
+          var sy2 = Math.round(((state.textShadowY != null ? state.textShadowY : 2)) * 0.5);
+          var sb2 = Math.round(state.fxShadow * 0.5);
+          halfShadows.push(sx2 + 'px ' + sy2 + 'px ' + sb2 + 'px ' + (state.textShadowColor || '#000000') + '80');
+        }
+        if (state.fxGlow > 0) {
+          halfShadows.push('0 0 ' + Math.round(state.fxGlow * 0.5) + 'px ' + state.accentColor);
+        }
+      } else {
+        halfShadows.push('0 0 10px ' + state.accentColor);
+        halfShadows.push('0 0 20px ' + state.accentColor + '60');
+      }
+      var halfStr = halfShadows.length > 0 ? halfShadows.join(', ') : '';
+      canvasSubline.style.textShadow = halfStr;
+      canvasBody.style.textShadow = halfStr;
+      if (canvasCta) canvasCta.style.textShadow = halfStr;
+    } else {
+      canvasSubline.style.textShadow = '';
+      canvasBody.style.textShadow = '';
+      if (canvasCta) canvasCta.style.textShadow = '';
+    }
 
     // Outline
     if (state.fxOutline) {
@@ -3521,6 +3590,8 @@
     document.querySelectorAll('.border-style-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.bstyle === (state.borderStyle || 'classic')); });
     var bsf = document.getElementById('border-style-field');
     if (bsf) bsf.style.display = state.showBorder ? '' : 'none';
+    if (borderColorInput) borderColorInput.value = state.borderColor || state.accentColor || '#c4622a';
+    if (borderOffsetSlider) { borderOffsetSlider.value = state.borderOffset != null ? state.borderOffset : 12; if (borderOffsetVal) borderOffsetVal.textContent = state.borderOffset != null ? state.borderOffset : 12; }
 
     // Logo scale
     if (logoScaleSlider) { logoScaleSlider.value = state.logoScale || 100; if (logoScaleVal) logoScaleVal.textContent = state.logoScale || 100; }
@@ -3551,6 +3622,7 @@
     if (shadowXSlider) { shadowXSlider.value = state.textShadowX || 0; if (shadowXVal) shadowXVal.textContent = state.textShadowX || 0; }
     if (shadowYSlider) { shadowYSlider.value = state.textShadowY != null ? state.textShadowY : 2; if (shadowYVal) shadowYVal.textContent = state.textShadowY != null ? state.textShadowY : 2; }
     if (shadowColorInput) shadowColorInput.value = state.textShadowColor || '#000000';
+    if (fxShadowAll) fxShadowAll.checked = !!state.fxShadowAll;
 
     // Vertical content alignment
     document.querySelectorAll('.valign-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.valign === (state.contentAlign || 'start')); });
