@@ -64,7 +64,9 @@
       bgSaturation: 100,
       gradient: { enabled: false, angle: 135, start: '#c4622a', end: '#1a1714' },
       typoHeadline: { font: "'Playfair Display', serif", size: 48, weight: '700', align: 'left', case: 'none', lh: 110, ls: 0 },
+      typoSubline: { size: 14, weight: '400', ls: 0 },
       typoBody: { font: "'Libre Baskerville', serif", size: 15, weight: '400' },
+      typoCta: { size: 12, weight: '500' },
       fxShadow: 0,
       fxGlow: 0,
       fxOutline: false,
@@ -709,6 +711,12 @@
   setupContentEditable(canvasBody, 'input-body', 'body');
   setupContentEditable(canvasCta, 'input-cta', 'cta');
 
+  // Toggle overflow visible on canvas when editing text so overflowing text is accessible
+  [canvasHeadline, canvasSubline, canvasBody, canvasCta].forEach(function(el) {
+    el.addEventListener('focus', function() { canvasWrapper.classList.add('editing-text'); });
+    el.addEventListener('blur', function() { canvasWrapper.classList.remove('editing-text'); });
+  });
+
   // ============ CTA STYLE ============
   document.querySelectorAll('.cta-style-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
@@ -932,6 +940,51 @@
 
   if (typoBodyWeight) typoBodyWeight.addEventListener('change', () => {
     state.typoBody.weight = typoBodyWeight.value;
+    pushHistory();
+    applyTypography();
+  });
+
+  // ============ SUBLINE TYPOGRAPHY ============
+  var typoSublineSize = document.getElementById('typo-subline-size');
+  var typoSublineSizeVal = document.getElementById('typo-subline-size-val');
+  var typoSublineWeight = document.getElementById('typo-subline-weight');
+  var typoSublineLs = document.getElementById('typo-subline-ls');
+  var typoSublineLsVal = document.getElementById('typo-subline-ls-val');
+
+  if (typoSublineSize) typoSublineSize.addEventListener('input', function() {
+    state.typoSubline.size = parseInt(typoSublineSize.value);
+    if (typoSublineSizeVal) typoSublineSizeVal.textContent = typoSublineSize.value;
+    applyTypography();
+  });
+  if (typoSublineSize) typoSublineSize.addEventListener('change', function() { pushHistory(); });
+
+  if (typoSublineWeight) typoSublineWeight.addEventListener('change', function() {
+    state.typoSubline.weight = typoSublineWeight.value;
+    pushHistory();
+    applyTypography();
+  });
+
+  if (typoSublineLs) typoSublineLs.addEventListener('input', function() {
+    state.typoSubline.ls = parseInt(typoSublineLs.value);
+    if (typoSublineLsVal) typoSublineLsVal.textContent = typoSublineLs.value;
+    applyTypography();
+  });
+  if (typoSublineLs) typoSublineLs.addEventListener('change', function() { pushHistory(); });
+
+  // ============ CTA TYPOGRAPHY ============
+  var typoCtaSize = document.getElementById('typo-cta-size');
+  var typoCtaSizeVal = document.getElementById('typo-cta-size-val');
+  var typoCtaWeight = document.getElementById('typo-cta-weight');
+
+  if (typoCtaSize) typoCtaSize.addEventListener('input', function() {
+    state.typoCta.size = parseInt(typoCtaSize.value);
+    if (typoCtaSizeVal) typoCtaSizeVal.textContent = typoCtaSize.value;
+    applyTypography();
+  });
+  if (typoCtaSize) typoCtaSize.addEventListener('change', function() { pushHistory(); });
+
+  if (typoCtaWeight) typoCtaWeight.addEventListener('change', function() {
+    state.typoCta.weight = typoCtaWeight.value;
     pushHistory();
     applyTypography();
   });
@@ -2425,9 +2478,16 @@
     canvasBody.style.fontSize = (state.typoBody.size * fs * shrinkRatio) + 'px';
     canvasBody.style.fontWeight = state.typoBody.weight;
 
-    // Subline & CTA scale — also proportional
-    canvasSubline.style.fontSize = (14 * fs * shrinkRatio) + 'px';
-    canvasCta.style.fontSize = (12 * fs * shrinkRatio) + 'px';
+    // Subline — customizable size, weight, letter-spacing
+    var subSize = (state.typoSubline && state.typoSubline.size) || 14;
+    canvasSubline.style.fontSize = (subSize * fs * shrinkRatio) + 'px';
+    canvasSubline.style.fontWeight = (state.typoSubline && state.typoSubline.weight) || '400';
+    canvasSubline.style.letterSpacing = ((state.typoSubline && state.typoSubline.ls) || 0) + 'px';
+
+    // CTA — customizable size, weight
+    var ctaSize = (state.typoCta && state.typoCta.size) || 12;
+    canvasCta.style.fontSize = (ctaSize * fs * shrinkRatio) + 'px';
+    canvasCta.style.fontWeight = (state.typoCta && state.typoCta.weight) || '500';
 
     // Logo scale
     const logoSpan = canvasLogo.querySelector('span');
@@ -3073,6 +3133,17 @@
     if (typoBodyFont) typoBodyFont.value = state.typoBody.font;
     if (typoBodySize) { typoBodySize.value = state.typoBody.size; if (typoBodySizeVal) typoBodySizeVal.textContent = state.typoBody.size; }
     if (typoBodyWeight) typoBodyWeight.value = state.typoBody.weight;
+
+    // Typography subline
+    var ss = state.typoSubline || { size: 14, weight: '400', ls: 0 };
+    if (typoSublineSize) { typoSublineSize.value = ss.size; if (typoSublineSizeVal) typoSublineSizeVal.textContent = ss.size; }
+    if (typoSublineWeight) typoSublineWeight.value = ss.weight;
+    if (typoSublineLs) { typoSublineLs.value = ss.ls || 0; if (typoSublineLsVal) typoSublineLsVal.textContent = ss.ls || 0; }
+
+    // Typography CTA
+    var cs = state.typoCta || { size: 12, weight: '500' };
+    if (typoCtaSize) { typoCtaSize.value = cs.size; if (typoCtaSizeVal) typoCtaSizeVal.textContent = cs.size; }
+    if (typoCtaWeight) typoCtaWeight.value = cs.weight;
 
     // CTA style
     document.querySelectorAll('.cta-style-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.style === (state.ctaStyle || 'text')); });
