@@ -73,6 +73,7 @@
       bgPattern: 'none',
       bgPatternOpacity: 15,
       bgPatternScale: 20,
+      ctaStyle: 'text',
       zoom: 100,
       gridVisible: false,
       stickers: [],
@@ -687,6 +688,39 @@
   setupContentEditable(canvasSubline, 'input-subline', 'subline');
   setupContentEditable(canvasBody, 'input-body', 'body');
   setupContentEditable(canvasCta, 'input-cta', 'cta');
+
+  // ============ CTA STYLE ============
+  document.querySelectorAll('.cta-style-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.cta-style-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.ctaStyle = btn.dataset.style;
+      pushHistory();
+      updateCanvas();
+    });
+  });
+
+  function applyCtaStyle() {
+    if (!canvasCta) return;
+    canvasCta.setAttribute('data-cta-style', state.ctaStyle || 'text');
+    if (state.ctaStyle === 'filled') {
+      canvasCta.style.background = state.accentColor;
+      canvasCta.style.color = '#fff';
+      canvasCta.style.borderColor = '';
+    } else if (state.ctaStyle === 'outline') {
+      canvasCta.style.background = 'transparent';
+      canvasCta.style.color = state.accentColor;
+      canvasCta.style.borderColor = state.accentColor;
+    } else if (state.ctaStyle === 'pill') {
+      canvasCta.style.background = state.accentColor;
+      canvasCta.style.color = '#fff';
+      canvasCta.style.borderColor = '';
+    } else {
+      canvasCta.style.background = '';
+      canvasCta.style.color = '';
+      canvasCta.style.borderColor = '';
+    }
+  }
 
   // ============ TYPO PRESETS ============
   var typoPresetDefs = {
@@ -1852,6 +1886,7 @@
     applyColors();
     applyTypography(fontScale);
     applyEffects();
+    applyCtaStyle();
     applyBgImage();
     applyPattern();
     applyDecorations();
@@ -2620,6 +2655,9 @@
     if (typoBodyFont) typoBodyFont.value = state.typoBody.font;
     if (typoBodySize) { typoBodySize.value = state.typoBody.size; if (typoBodySizeVal) typoBodySizeVal.textContent = state.typoBody.size; }
     if (typoBodyWeight) typoBodyWeight.value = state.typoBody.weight;
+
+    // CTA style
+    document.querySelectorAll('.cta-style-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.style === (state.ctaStyle || 'text')); });
 
     // Colors
     document.getElementById('color-bg').value = state.bgColor;

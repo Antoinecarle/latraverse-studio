@@ -3735,5 +3735,28 @@ input[type="range"]::-webkit-slider-thumb {
 .typo-preset__preview { height: 28px; display: flex; align-items: center; justify-content: center; line-height: 1; color: var(--text); }
 .typo-preset__name { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
+/* ── CTA Style Buttons ── */
+.cta-style-btns { display: flex; gap: 6px; }
+.cta-style-btn { width: 40px; height: 28px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; transition: all .15s; }
+.cta-style-btn:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: var(--text); }
+.cta-style-btn.active { border-color: var(--accent); background: rgba(196,98,42,0.12); color: var(--accent); }
+.cta-style-btn__filled { width: 24px; height: 12px; border-radius: 3px; background: currentColor; }
+.cta-style-btn__outline { width: 24px; height: 12px; border-radius: 3px; border: 1.5px solid currentColor; }
+.cta-style-btn__pill { width: 24px; height: 14px; border-radius: 999px; background: currentColor; }
+
+/* ── CTA Canvas Styles ── */
+.canvas__cta[data-cta-style="filled"] {
+  display: inline-block; padding: 0.5em 1.2em; border-radius: 6px; opacity: 1;
+  font-family: inherit; font-weight: 600; letter-spacing: 0.04em;
+}
+.canvas__cta[data-cta-style="outline"] {
+  display: inline-block; padding: 0.45em 1.1em; border-radius: 6px; border-width: 2px; border-style: solid; opacity: 1;
+  font-family: inherit; font-weight: 600; letter-spacing: 0.04em; background: transparent !important;
+}
+.canvas__cta[data-cta-style="pill"] {
+  display: inline-block; padding: 0.5em 1.5em; border-radius: 999px; opacity: 1;
+  font-family: inherit; font-weight: 600; letter-spacing: 0.04em;
+}
+
 /* ── Canvas Pattern Overlay ── */
 .canvas__pattern { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
