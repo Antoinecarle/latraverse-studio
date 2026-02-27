@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400;1,500;1,700&family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800;900&family=Bebas+Neue&family=Poppins:wght@300;400;500;600;700;800;900&family=Oswald:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Montserrat:wght@300;400;500;600;700;800;900&family=Raleway:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/branding.css?v=<%= Date.now() %>">
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
 </head>
 <body>
 
@@ -90,11 +91,21 @@
           <div class="export-dropdown__toggle" id="export-format-toggle">
             <button class="export-dropdown__opt active" data-val="png">PNG</button>
             <button class="export-dropdown__opt" data-val="jpeg">JPEG</button>
+            <button class="export-dropdown__opt" data-val="gif">GIF</button>
+            <button class="export-dropdown__opt" data-val="webm">Video</button>
           </div>
         </div>
         <div class="export-dropdown__row" id="export-quality-row" style="display:none">
           <span class="export-dropdown__label">Qualite <span id="export-quality-val">92</span>%</span>
           <input type="range" id="export-quality" min="50" max="100" value="92" class="export-dropdown__range">
+        </div>
+        <div class="export-dropdown__row" id="export-duration-row" style="display:none">
+          <span class="export-dropdown__label">Duree <span id="export-duration-val">3</span>s</span>
+          <input type="range" id="export-duration" min="2" max="6" value="3" step="1" class="export-dropdown__range">
+        </div>
+        <div class="export-dropdown__row" id="export-fps-row" style="display:none">
+          <span class="export-dropdown__label">FPS <span id="export-fps-val">10</span></span>
+          <input type="range" id="export-fps" min="5" max="15" value="10" step="1" class="export-dropdown__range">
         </div>
         <div class="export-dropdown__row">
           <span class="export-dropdown__label">Resolution</span>
@@ -448,6 +459,12 @@
           </div>
           <input type="color" id="color-accent2" value="#e8a87c" class="color-input">
         </div>
+        <div class="color-actions">
+          <button class="btn btn--ghost btn--xs" id="btn-color-swap" title="Inverser fond / texte">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 4h10M8 1l3 3-3 3"/><path d="M11 8H1M4 5l-3 3 3 3"/></svg>
+            Inverser
+          </button>
+        </div>
         <div class="color-history" id="color-history">
           <label class="color-history__label">Recents</label>
           <div class="color-history__dots" id="color-history-dots"></div>
@@ -489,6 +506,37 @@
             <button class="gradient-preset" data-start="#a18cd1" data-end="#fbc2eb" data-angle="135" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)"></button>
             <button class="gradient-preset" data-start="#0c0c0c" data-end="#313131" data-angle="180" style="background:linear-gradient(180deg,#0c0c0c,#313131)"></button>
           </div>
+        </div>
+        </div>
+      </section>
+
+      <section class="panel panel--collapsible">
+        <h3 class="panel__title panel__title--toggle" data-collapsed="true">Motif de fond <svg class="panel__chevron" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l4 4 4-4"/></svg></h3>
+        <div class="panel__body">
+        <div class="pattern-grid" id="pattern-grid">
+          <button class="pattern-opt active" data-pattern="none" title="Aucun">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/></svg>
+          </button>
+          <button class="pattern-opt" data-pattern="dots" title="Points">
+            <svg width="20" height="20" fill="currentColor"><circle cx="5" cy="5" r="1.2"/><circle cx="10" cy="5" r="1.2"/><circle cx="15" cy="5" r="1.2"/><circle cx="5" cy="10" r="1.2"/><circle cx="10" cy="10" r="1.2"/><circle cx="15" cy="10" r="1.2"/><circle cx="5" cy="15" r="1.2"/><circle cx="10" cy="15" r="1.2"/><circle cx="15" cy="15" r="1.2"/></svg>
+          </button>
+          <button class="pattern-opt" data-pattern="lines" title="Lignes horizontales">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="2" y1="5" x2="18" y2="5"/><line x1="2" y1="10" x2="18" y2="10"/><line x1="2" y1="15" x2="18" y2="15"/></svg>
+          </button>
+          <button class="pattern-opt" data-pattern="cross" title="Quadrillage">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="0.8"><line x1="5" y1="2" x2="5" y2="18"/><line x1="10" y1="2" x2="10" y2="18"/><line x1="15" y1="2" x2="15" y2="18"/><line x1="2" y1="5" x2="18" y2="5"/><line x1="2" y1="10" x2="18" y2="10"/><line x1="2" y1="15" x2="18" y2="15"/></svg>
+          </button>
+          <button class="pattern-opt" data-pattern="diagonal" title="Diagonales">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="0.8"><line x1="0" y1="5" x2="5" y2="0"/><line x1="0" y1="10" x2="10" y2="0"/><line x1="0" y1="15" x2="15" y2="0"/><line x1="0" y1="20" x2="20" y2="0"/><line x1="5" y1="20" x2="20" y2="5"/><line x1="10" y1="20" x2="20" y2="10"/><line x1="15" y1="20" x2="20" y2="15"/></svg>
+          </button>
+        </div>
+        <div class="field" id="pattern-opacity-field" style="display:none">
+          <label>Opacite motif <span id="pattern-opacity-val">15</span>%</label>
+          <input type="range" id="pattern-opacity" min="3" max="40" value="15">
+        </div>
+        <div class="field" id="pattern-scale-field" style="display:none">
+          <label>Taille motif <span id="pattern-scale-val">20</span>px</label>
+          <input type="range" id="pattern-scale" min="8" max="60" value="20">
         </div>
         </div>
       </section>
@@ -884,6 +932,7 @@
         <div class="canvas__border" id="canvas-border"></div>
         <div class="canvas__bgimage" id="canvas-bgimage"></div>
         <div class="canvas__vignette" id="canvas-vignette"></div>
+        <div class="canvas__pattern" id="canvas-pattern"></div>
         <div class="canvas__decorations" id="canvas-decorations"></div>
         <div class="canvas__stickers-below" id="canvas-stickers-below"></div>
         <div class="canvas__glass-panel" id="canvas-glass-panel"></div>
@@ -984,7 +1033,10 @@
 <div class="export-overlay" id="export-overlay">
   <div class="export-overlay__inner">
     <div class="spinner"></div>
-    <p>Export en cours...</p>
+    <p id="export-overlay-text">Export en cours...</p>
+    <div class="export-progress" id="export-progress" style="display:none">
+      <div class="export-progress__bar" id="export-progress-bar"></div>
+    </div>
   </div>
 </div>
 

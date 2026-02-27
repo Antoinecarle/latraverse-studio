@@ -70,6 +70,9 @@
       fxGradientStart: '#c4622a',
       fxGradientEnd: '#e8a87c',
       fxGradientAngle: 135,
+      bgPattern: 'none',
+      bgPatternOpacity: 15,
+      bgPatternScale: 20,
       zoom: 100,
       gridVisible: false,
       stickers: [],
@@ -981,6 +984,93 @@
     return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
   }
 
+  // ============ COLOR SWAP ============
+  var btnColorSwap = document.getElementById('btn-color-swap');
+  if (btnColorSwap) btnColorSwap.addEventListener('click', function() {
+    var tmpBg = state.bgColor;
+    state.bgColor = state.textColor;
+    state.textColor = tmpBg;
+    document.getElementById('color-bg').value = state.bgColor;
+    document.getElementById('color-text').value = state.textColor;
+    clearPresetActive('bg');
+    clearPresetActive('text');
+    document.querySelectorAll('.style-pack-btn').forEach(function(b) { b.classList.remove('active'); });
+    state.stylePack = null;
+    pushHistory();
+    updateCanvas();
+    scheduleColorHistoryUpdate();
+  });
+
+  // ============ BACKGROUND PATTERN ============
+  var canvasPattern = document.getElementById('canvas-pattern');
+  var patternOpacity = document.getElementById('pattern-opacity');
+  var patternOpacityVal = document.getElementById('pattern-opacity-val');
+  var patternScale = document.getElementById('pattern-scale');
+  var patternScaleVal = document.getElementById('pattern-scale-val');
+  var patternOpacityField = document.getElementById('pattern-opacity-field');
+  var patternScaleField = document.getElementById('pattern-scale-field');
+
+  document.querySelectorAll('.pattern-opt').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.pattern-opt').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.bgPattern = btn.dataset.pattern;
+      var show = state.bgPattern !== 'none';
+      if (patternOpacityField) patternOpacityField.style.display = show ? '' : 'none';
+      if (patternScaleField) patternScaleField.style.display = show ? '' : 'none';
+      pushHistory();
+      applyPattern();
+    });
+  });
+
+  if (patternOpacity) patternOpacity.addEventListener('input', function() {
+    state.bgPatternOpacity = parseInt(patternOpacity.value);
+    if (patternOpacityVal) patternOpacityVal.textContent = patternOpacity.value;
+    applyPattern();
+  });
+  if (patternOpacity) patternOpacity.addEventListener('change', function() { pushHistory(); });
+
+  if (patternScale) patternScale.addEventListener('input', function() {
+    state.bgPatternScale = parseInt(patternScale.value);
+    if (patternScaleVal) patternScaleVal.textContent = patternScale.value;
+    applyPattern();
+  });
+  if (patternScale) patternScale.addEventListener('change', function() { pushHistory(); });
+
+  function applyPattern() {
+    if (!canvasPattern) return;
+    if (state.bgPattern === 'none' || !state.bgPattern) {
+      canvasPattern.style.backgroundImage = '';
+      canvasPattern.style.opacity = '';
+      return;
+    }
+    var opacity = (state.bgPatternOpacity || 15) / 100;
+    var scale = state.bgPatternScale || 20;
+    var textCol = state.textColor || '#ffffff';
+    canvasPattern.style.opacity = opacity;
+
+    switch (state.bgPattern) {
+      case 'dots':
+        canvasPattern.style.backgroundImage = 'radial-gradient(circle, ' + textCol + ' 1px, transparent 1px)';
+        canvasPattern.style.backgroundSize = scale + 'px ' + scale + 'px';
+        break;
+      case 'lines':
+        canvasPattern.style.backgroundImage = 'repeating-linear-gradient(0deg, ' + textCol + ' 0px, ' + textCol + ' 1px, transparent 1px, transparent ' + scale + 'px)';
+        canvasPattern.style.backgroundSize = '';
+        break;
+      case 'cross':
+        canvasPattern.style.backgroundImage =
+          'linear-gradient(0deg, ' + textCol + ' 1px, transparent 1px),' +
+          'linear-gradient(90deg, ' + textCol + ' 1px, transparent 1px)';
+        canvasPattern.style.backgroundSize = scale + 'px ' + scale + 'px';
+        break;
+      case 'diagonal':
+        canvasPattern.style.backgroundImage = 'repeating-linear-gradient(45deg, ' + textCol + ' 0px, ' + textCol + ' 1px, transparent 1px, transparent ' + scale + 'px)';
+        canvasPattern.style.backgroundSize = '';
+        break;
+    }
+  }
+
   // ============ GRADIENT ============
   const optGradient = document.getElementById('opt-gradient');
   const gradientControls = document.getElementById('gradient-controls');
@@ -1364,13 +1454,35 @@
     }
   });
 
+  var exportDurationRow = document.getElementById('export-duration-row');
+  var exportFpsRow = document.getElementById('export-fps-row');
+  var exportDurationSlider = document.getElementById('export-duration');
+  var exportFpsSlider = document.getElementById('export-fps');
+  var exportDurationVal = document.getElementById('export-duration-val');
+  var exportFpsVal = document.getElementById('export-fps-val');
+
+  if (exportDurationSlider) exportDurationSlider.addEventListener('input', function() {
+    if (exportDurationVal) exportDurationVal.textContent = this.value;
+  });
+  if (exportFpsSlider) exportFpsSlider.addEventListener('input', function() {
+    if (exportFpsVal) exportFpsVal.textContent = this.value;
+  });
+
   if (exportFormatToggle) exportFormatToggle.addEventListener('click', function(e) {
     var btn = e.target.closest('.export-dropdown__opt');
     if (!btn) return;
     exportFormatToggle.querySelectorAll('.export-dropdown__opt').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
     exportFormat = btn.dataset.val;
+    var isAnimated = exportFormat === 'gif' || exportFormat === 'webm';
     if (exportQualityRow) exportQualityRow.style.display = exportFormat === 'jpeg' ? 'flex' : 'none';
+    if (exportDurationRow) exportDurationRow.style.display = isAnimated ? 'flex' : 'none';
+    if (exportFpsRow) exportFpsRow.style.display = isAnimated ? 'flex' : 'none';
+    if (btnCopyClipboard) {
+      btnCopyClipboard.disabled = isAnimated;
+      btnCopyClipboard.style.opacity = isAnimated ? '0.4' : '1';
+      btnCopyClipboard.title = isAnimated ? 'Non disponible pour les formats animes' : '';
+    }
   });
 
   if (exportScaleToggle) exportScaleToggle.addEventListener('click', function(e) {
@@ -1435,7 +1547,13 @@
     }, 100);
   }
 
-  document.getElementById('btn-export').addEventListener('click', exportCanvas);
+  document.getElementById('btn-export').addEventListener('click', function() {
+    if (exportFormat === 'gif' || exportFormat === 'webm') {
+      exportAnimated();
+    } else {
+      exportCanvas();
+    }
+  });
 
   // Copy to clipboard
   var btnCopyClipboard = document.getElementById('btn-copy-clipboard');
@@ -1699,6 +1817,7 @@
     applyTypography(fontScale);
     applyEffects();
     applyBgImage();
+    applyPattern();
     applyDecorations();
     renderStickers();
     applyZoom();
@@ -2497,6 +2616,14 @@
     if (fxGradientEnd) fxGradientEnd.value = state.fxGradientEnd;
     if (fxGradientAngle) { fxGradientAngle.value = state.fxGradientAngle; if (fxGradientAngleVal) fxGradientAngleVal.textContent = state.fxGradientAngle; }
 
+    // Background pattern
+    document.querySelectorAll('.pattern-opt').forEach(function(b) { b.classList.toggle('active', b.dataset.pattern === (state.bgPattern || 'none')); });
+    var showPatternControls = state.bgPattern && state.bgPattern !== 'none';
+    if (patternOpacityField) patternOpacityField.style.display = showPatternControls ? '' : 'none';
+    if (patternScaleField) patternScaleField.style.display = showPatternControls ? '' : 'none';
+    if (patternOpacity) { patternOpacity.value = state.bgPatternOpacity || 15; if (patternOpacityVal) patternOpacityVal.textContent = state.bgPatternOpacity || 15; }
+    if (patternScale) { patternScale.value = state.bgPatternScale || 20; if (patternScaleVal) patternScaleVal.textContent = state.bgPatternScale || 20; }
+
     // Options
     document.getElementById('opt-logo').checked = state.showLogo;
     document.getElementById('opt-border').checked = state.showBorder;
@@ -2552,7 +2679,11 @@
     }
     if (e.ctrlKey && e.key === 'e' && !isInput && !isEditable) {
       e.preventDefault();
-      exportCanvas();
+      if (exportFormat === 'gif' || exportFormat === 'webm') {
+        exportAnimated();
+      } else {
+        exportCanvas();
+      }
     }
     // ? key opens shortcuts modal
     if (e.key === '?' && !isInput && !isEditable) {
@@ -4522,5 +4653,292 @@
     window.dispatchEvent(new Event('branding-pub-changed'));
     return result;
   };
+
+  // ============ ANIMATED EXPORT (GIF / WebM) ============
+
+  // Hide Video button if MediaRecorder not supported
+  (function() {
+    if (typeof MediaRecorder === 'undefined' || typeof HTMLCanvasElement.prototype.captureStream === 'undefined') {
+      var webmBtn = document.querySelector('.export-dropdown__opt[data-val="webm"]');
+      if (webmBtn) webmBtn.style.display = 'none';
+    }
+  })();
+
+  /** Inject .recording-hover rules by duplicating :hover rules from SVG <style> tags */
+  function injectHoverSimulation() {
+    var svgs = canvas.querySelectorAll('.svg-anim-wrapper svg');
+    svgs.forEach(function(svg) {
+      var styles = svg.querySelectorAll('style');
+      styles.forEach(function(styleEl) {
+        var origCss = styleEl.textContent;
+        styleEl.dataset.origCss = origCss;
+
+        // Find all :hover rules and duplicate them with .recording-hover
+        var hoverRules = [];
+        // Pattern: selector:hover { ... }  or  selector:hover selector { ... }
+        var regex = /([^{}]*):hover([^{]*)\{([^}]*)\}/g;
+        var match;
+        while ((match = regex.exec(origCss)) !== null) {
+          var before = match[1].trim();
+          var after = match[2];
+          var body = match[3];
+          // e.g. ".robot:hover { ... }" → ".robot.recording-hover { ... }"
+          // e.g. "svg:hover .child { ... }" → "svg.recording-hover .child { ... }"
+          // e.g. ".scene:hover .child { ... }" → ".scene.recording-hover .child { ... }"
+          hoverRules.push(before + '.recording-hover' + after + '{' + body + '}');
+        }
+
+        if (hoverRules.length > 0) {
+          styleEl.textContent = origCss + '\n/* recording-hover */\n' + hoverRules.join('\n');
+        }
+      });
+    });
+  }
+
+  /** Remove injected .recording-hover rules, restore original CSS */
+  function removeHoverSimulation() {
+    var svgs = canvas.querySelectorAll('.svg-anim-wrapper svg');
+    svgs.forEach(function(svg) {
+      var styles = svg.querySelectorAll('style');
+      styles.forEach(function(styleEl) {
+        if (styleEl.dataset.origCss !== undefined) {
+          styleEl.textContent = styleEl.dataset.origCss;
+          delete styleEl.dataset.origCss;
+        }
+      });
+    });
+  }
+
+  /** Toggle .recording-hover class on SVG elements */
+  function toggleHoverClass(enabled) {
+    var svgs = canvas.querySelectorAll('.svg-anim-wrapper svg');
+    svgs.forEach(function(svg) {
+      if (enabled) {
+        svg.classList.add('recording-hover');
+      } else {
+        svg.classList.remove('recording-hover');
+      }
+      // Also toggle on direct <g> children for patterns like .scene:hover .child
+      svg.querySelectorAll(':scope > g').forEach(function(g) {
+        if (enabled) {
+          g.classList.add('recording-hover');
+        } else {
+          g.classList.remove('recording-hover');
+        }
+      });
+    });
+  }
+
+  /** Capture N frames using html2canvas, toggling hover according to timeline */
+  function captureFrames(totalFrames, fps, onProgress) {
+    return new Promise(function(resolve) {
+      var frames = [];
+      var frameIndex = 0;
+
+      function captureNext() {
+        if (frameIndex >= totalFrames) {
+          resolve(frames);
+          return;
+        }
+
+        // Hover timeline: ON from 25% to 55% of the cycle
+        var pct = frameIndex / totalFrames;
+        var hoverOn = pct >= 0.25 && pct <= 0.55;
+        toggleHoverClass(hoverOn);
+
+        // Small delay to let CSS transitions apply
+        setTimeout(function() {
+          var t0 = performance.now();
+          html2canvas(canvas, {
+            scale: 1,
+            width: canvas.offsetWidth,
+            height: canvas.offsetHeight,
+            useCORS: true,
+            backgroundColor: null,
+            logging: false,
+          }).then(function(frameCanvas) {
+            frames.push(frameCanvas);
+            frameIndex++;
+            if (onProgress) onProgress(frameIndex, totalFrames);
+
+            // Delay to approximate target FPS
+            var elapsed = performance.now() - t0;
+            var frameDelay = Math.max(0, (1000 / fps) - elapsed);
+            setTimeout(captureNext, frameDelay);
+          }).catch(function(err) {
+            console.error('Frame capture error:', err);
+            frameIndex++;
+            if (onProgress) onProgress(frameIndex, totalFrames);
+            setTimeout(captureNext, 0);
+          });
+        }, 50);
+      }
+
+      captureNext();
+    });
+  }
+
+  /** Assemble frames into a GIF blob using gif.js */
+  function assembleGIF(frames, fps) {
+    return new Promise(function(resolve, reject) {
+      var gif = new GIF({
+        workers: 2,
+        quality: 10,
+        workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js',
+        width: frames[0].width,
+        height: frames[0].height,
+      });
+
+      var delay = Math.round(1000 / fps);
+      frames.forEach(function(frameCanvas) {
+        gif.addFrame(frameCanvas, { delay: delay, copy: true });
+      });
+
+      gif.on('finished', function(blob) {
+        resolve(blob);
+      });
+
+      gif.on('error', function(err) {
+        reject(err);
+      });
+
+      gif.render();
+    });
+  }
+
+  /** Assemble frames into a WebM blob using MediaRecorder + captureStream */
+  function assembleWebM(frames, fps) {
+    return new Promise(function(resolve, reject) {
+      var w = frames[0].width;
+      var h = frames[0].height;
+      var offscreen = document.createElement('canvas');
+      offscreen.width = w;
+      offscreen.height = h;
+      var ctx = offscreen.getContext('2d');
+
+      var stream = offscreen.captureStream(0);
+      var track = stream.getVideoTracks()[0];
+
+      var mimeType = 'video/webm;codecs=vp9';
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'video/webm;codecs=vp8';
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          mimeType = 'video/webm';
+        }
+      }
+
+      var recorder = new MediaRecorder(stream, { mimeType: mimeType, videoBitsPerSecond: 5000000 });
+      var chunks = [];
+
+      recorder.ondataavailable = function(e) {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = function() {
+        var blob = new Blob(chunks, { type: 'video/webm' });
+        resolve(blob);
+      };
+
+      recorder.onerror = function(e) {
+        reject(e.error || new Error('MediaRecorder error'));
+      };
+
+      recorder.start();
+
+      var frameIndex = 0;
+      var delay = Math.round(1000 / fps);
+
+      function drawNext() {
+        if (frameIndex >= frames.length) {
+          // Add a small delay before stopping to ensure last frame is captured
+          setTimeout(function() { recorder.stop(); }, 100);
+          return;
+        }
+        ctx.clearRect(0, 0, w, h);
+        ctx.drawImage(frames[frameIndex], 0, 0);
+        if (track.requestFrame) track.requestFrame();
+        frameIndex++;
+        setTimeout(drawNext, delay);
+      }
+
+      drawNext();
+    });
+  }
+
+  /** Main orchestrator for animated export (GIF or WebM) */
+  async function exportAnimated() {
+    var duration = exportDurationSlider ? parseInt(exportDurationSlider.value) : 3;
+    var fps = exportFpsSlider ? parseInt(exportFpsSlider.value) : 10;
+    var totalFrames = duration * fps;
+
+    var overlayText = document.getElementById('export-overlay-text');
+    var progressWrap = document.getElementById('export-progress');
+    var progressBar = document.getElementById('export-progress-bar');
+
+    // Show overlay
+    exportOverlay.classList.add('visible');
+    if (exportDropdown) exportDropdown.style.display = 'none';
+    if (overlayText) overlayText.textContent = 'Capture des frames...';
+    if (progressWrap) progressWrap.style.display = 'block';
+    if (progressBar) progressBar.style.width = '0%';
+
+    // Prepare canvas for export
+    var prevTransform = canvasWrapper.style.transform;
+    canvasWrapper.style.transform = '';
+    canvas.classList.add('exporting');
+    deselectStickers();
+
+    // Inject hover simulation CSS
+    injectHoverSimulation();
+
+    try {
+      // Wait a beat for layout/CSS to settle
+      await new Promise(function(r) { setTimeout(r, 150); });
+
+      // Capture frames
+      var frames = await captureFrames(totalFrames, fps, function(done, total) {
+        var pct = Math.round((done / total) * 70); // 0-70% for frame capture
+        if (progressBar) progressBar.style.width = pct + '%';
+        if (overlayText) overlayText.textContent = 'Capture ' + done + '/' + total + '...';
+      });
+
+      // Assemble
+      if (overlayText) overlayText.textContent = 'Assemblage ' + exportFormat.toUpperCase() + '...';
+      if (progressBar) progressBar.style.width = '75%';
+
+      var blob;
+      if (exportFormat === 'gif') {
+        blob = await assembleGIF(frames, fps);
+      } else {
+        blob = await assembleWebM(frames, fps);
+      }
+
+      if (progressBar) progressBar.style.width = '100%';
+      if (overlayText) overlayText.textContent = 'Telechargement...';
+
+      // Download
+      var ext = exportFormat === 'gif' ? 'gif' : 'webm';
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.download = 'latraverse-' + state.template + '-' + state.format.label.toLowerCase() + '-' + Date.now() + '.' + ext;
+      link.href = url;
+      link.click();
+      setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+
+    } catch (err) {
+      console.error('Animated export error:', err);
+      alert('Erreur lors de l\'export anime: ' + err.message);
+    } finally {
+      // Cleanup
+      removeHoverSimulation();
+      toggleHoverClass(false);
+      canvasWrapper.style.transform = prevTransform;
+      canvas.classList.remove('exporting');
+      exportOverlay.classList.remove('visible');
+      if (progressWrap) progressWrap.style.display = 'none';
+      if (progressBar) progressBar.style.width = '0%';
+      if (overlayText) overlayText.textContent = 'Export en cours...';
+    }
+  }
 
 })();

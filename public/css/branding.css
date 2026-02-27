@@ -1753,6 +1753,8 @@ input[type="range"]::-webkit-slider-thumb {
   margin: 0 auto 12px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+.export-progress { width: 200px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; margin: 12px auto 0; }
+.export-progress__bar { height: 100%; width: 0%; background: var(--accent); border-radius: 2px; transition: width 0.1s linear; }
 
 /* ---- AI TOPBAR BUTTON ---- */
 .btn--ai-topbar {
@@ -3005,7 +3007,7 @@ input[type="range"]::-webkit-slider-thumb {
   overflow: hidden;
 }
 .export-dropdown__opt {
-  padding: 4px 12px;
+  padding: 4px 10px;
   font-size: 11px;
   font-weight: 600;
   color: rgba(255,255,255,0.5);
@@ -3713,3 +3715,17 @@ input[type="range"]::-webkit-slider-thumb {
   opacity: 0;
   cursor: pointer;
 }
+
+/* ── Color Actions (swap button) ── */
+.color-actions { display: flex; gap: 6px; margin-top: 8px; }
+.color-actions .btn--xs { font-size: 10px; padding: 3px 8px; gap: 4px; display: inline-flex; align-items: center; }
+.color-actions .btn--xs svg { flex-shrink: 0; }
+
+/* ── Pattern Grid ── */
+.pattern-grid { display: flex; gap: 6px; flex-wrap: wrap; }
+.pattern-opt { width: 36px; height: 36px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.pattern-opt:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: var(--text); }
+.pattern-opt.active { border-color: var(--accent); background: rgba(196,98,42,0.12); color: var(--accent); }
+
+/* ── Canvas Pattern Overlay ── */
+.canvas__pattern { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
