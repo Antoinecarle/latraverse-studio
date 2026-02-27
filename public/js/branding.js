@@ -70,9 +70,9 @@
       bgSaturation: 100,
       gradient: { enabled: false, angle: 135, start: '#c4622a', end: '#1a1714' },
       typoHeadline: { font: "'Playfair Display', serif", size: 48, weight: '700', align: 'left', case: 'none', lh: 110, ls: 0 },
-      typoSubline: { size: 14, weight: '400', ls: 0, case: 'none' },
+      typoSubline: { font: '', size: 14, weight: '400', ls: 0, case: 'none' },
       typoBody: { font: "'Libre Baskerville', serif", size: 15, weight: '400', align: 'left', lh: 160, case: 'none' },
-      typoCta: { size: 12, weight: '500', ls: 0, case: 'none' },
+      typoCta: { font: '', size: 12, weight: '500', ls: 0, case: 'none' },
       fxShadow: 0,
       fxGlow: 0,
       fxOutline: false,
@@ -1070,11 +1070,18 @@
   });
 
   // ============ SUBLINE TYPOGRAPHY ============
+  var typoSublineFont = document.getElementById('typo-subline-font');
   var typoSublineSize = document.getElementById('typo-subline-size');
   var typoSublineSizeVal = document.getElementById('typo-subline-size-val');
   var typoSublineWeight = document.getElementById('typo-subline-weight');
   var typoSublineLs = document.getElementById('typo-subline-ls');
   var typoSublineLsVal = document.getElementById('typo-subline-ls-val');
+
+  if (typoSublineFont) typoSublineFont.addEventListener('change', function() {
+    state.typoSubline.font = typoSublineFont.value;
+    pushHistory();
+    applyTypography();
+  });
 
   if (typoSublineSize) typoSublineSize.addEventListener('input', function() {
     state.typoSubline.size = parseInt(typoSublineSize.value);
@@ -1108,9 +1115,16 @@
   });
 
   // ============ CTA TYPOGRAPHY ============
+  var typoCtaFont = document.getElementById('typo-cta-font');
   var typoCtaSize = document.getElementById('typo-cta-size');
   var typoCtaSizeVal = document.getElementById('typo-cta-size-val');
   var typoCtaWeight = document.getElementById('typo-cta-weight');
+
+  if (typoCtaFont) typoCtaFont.addEventListener('change', function() {
+    state.typoCta.font = typoCtaFont.value;
+    pushHistory();
+    applyTypography();
+  });
 
   if (typoCtaSize) typoCtaSize.addEventListener('input', function() {
     state.typoCta.size = parseInt(typoCtaSize.value);
@@ -2771,7 +2785,9 @@
       canvasBody.style.textAlign = state.typoBody.align;
     }
 
-    // Subline — customizable size, weight, letter-spacing
+    // Subline — customizable font, size, weight, letter-spacing
+    if (state.typoSubline && state.typoSubline.font) canvasSubline.style.fontFamily = state.typoSubline.font;
+    else canvasSubline.style.fontFamily = '';
     var subSize = (state.typoSubline && state.typoSubline.size) || 14;
     canvasSubline.style.fontSize = (subSize * fs * shrinkRatio) + 'px';
     canvasSubline.style.fontWeight = (state.typoSubline && state.typoSubline.weight) || '400';
@@ -2779,7 +2795,9 @@
     var subCase = (state.typoSubline && state.typoSubline.case) || 'none';
     canvasSubline.style.textTransform = subCase === 'none' ? '' : subCase;
 
-    // CTA — customizable size, weight, letter-spacing
+    // CTA — customizable font, size, weight, letter-spacing
+    if (state.typoCta && state.typoCta.font) canvasCta.style.fontFamily = state.typoCta.font;
+    else canvasCta.style.fontFamily = '';
     var ctaSize = (state.typoCta && state.typoCta.size) || 12;
     canvasCta.style.fontSize = (ctaSize * fs * shrinkRatio) + 'px';
     canvasCta.style.fontWeight = (state.typoCta && state.typoCta.weight) || '500';
@@ -3439,13 +3457,15 @@
     if (typoBodyLh) { typoBodyLh.value = state.typoBody.lh || 160; if (typoBodyLhVal) typoBodyLhVal.textContent = ((state.typoBody.lh || 160) / 100).toFixed(1); }
 
     // Typography subline
-    var ss = state.typoSubline || { size: 14, weight: '400', ls: 0 };
+    var ss = state.typoSubline || { font: '', size: 14, weight: '400', ls: 0 };
+    if (typoSublineFont) typoSublineFont.value = ss.font || '';
     if (typoSublineSize) { typoSublineSize.value = ss.size; if (typoSublineSizeVal) typoSublineSizeVal.textContent = ss.size; }
     if (typoSublineWeight) typoSublineWeight.value = ss.weight;
     if (typoSublineLs) { typoSublineLs.value = ss.ls || 0; if (typoSublineLsVal) typoSublineLsVal.textContent = ss.ls || 0; }
 
     // Typography CTA
-    var cs = state.typoCta || { size: 12, weight: '500' };
+    var cs = state.typoCta || { font: '', size: 12, weight: '500' };
+    if (typoCtaFont) typoCtaFont.value = cs.font || '';
     if (typoCtaSize) { typoCtaSize.value = cs.size; if (typoCtaSizeVal) typoCtaSizeVal.textContent = cs.size; }
     if (typoCtaWeight) typoCtaWeight.value = cs.weight;
 
@@ -3626,6 +3646,17 @@
       } else {
         exportCanvas();
       }
+    }
+    // Ctrl+= zoom in, Ctrl+- zoom out
+    if (e.ctrlKey && (e.key === '=' || e.key === '+') && !isInput) {
+      e.preventDefault();
+      state.zoom = Math.min(200, (state.zoom || 100) + 10);
+      applyZoom();
+    }
+    if (e.ctrlKey && e.key === '-' && !isInput) {
+      e.preventDefault();
+      state.zoom = Math.max(30, (state.zoom || 100) - 10);
+      applyZoom();
     }
     // ? key opens shortcuts modal
     if (e.key === '?' && !isInput && !isEditable) {
