@@ -77,6 +77,9 @@
       bgPatternScale: 20,
       ctaStyle: 'text',
       canvasPadding: 10,
+      opacitySubline: 100,
+      opacityBody: 100,
+      opacityCta: 100,
       zoom: 100,
       gridVisible: false,
       stickers: [],
@@ -1385,6 +1388,34 @@
     canvasContent.style.padding = (state.canvasPadding || 10) + '%';
   }
 
+  // Element opacity controls
+  var opSliders = [
+    { id: 'opacity-subline', valId: 'opacity-subline-val', key: 'opacitySubline', el: canvasSubline },
+    { id: 'opacity-body',    valId: 'opacity-body-val',    key: 'opacityBody',    el: canvasBody },
+    { id: 'opacity-cta',     valId: 'opacity-cta-val',     key: 'opacityCta',     el: canvasCta }
+  ];
+  opSliders.forEach(function(cfg) {
+    var slider = document.getElementById(cfg.id);
+    var valEl = document.getElementById(cfg.valId);
+    if (!slider) return;
+    slider.addEventListener('input', function() {
+      state[cfg.key] = parseInt(slider.value);
+      if (valEl) valEl.textContent = slider.value + '%';
+      applyElementOpacities();
+    });
+    slider.addEventListener('change', function() { pushHistory(); });
+  });
+
+  function applyElementOpacities() {
+    if (canvasSubline) canvasSubline.style.opacity = (state.opacitySubline != null ? state.opacitySubline : 100) / 100;
+    if (canvasBody) canvasBody.style.opacity = (state.opacityBody != null ? state.opacityBody : 100) / 100;
+    // CTA opacity: only override if not already styled by template (some set opacity)
+    if (canvasCta) {
+      var ctaOp = (state.opacityCta != null ? state.opacityCta : 100) / 100;
+      canvasCta.style.opacity = ctaOp;
+    }
+  }
+
   document.getElementById('opt-grain').addEventListener('change', e => {
     state.showGrain = e.target.checked;
     canvasGrain.classList.toggle('visible', state.showGrain);
@@ -1994,6 +2025,7 @@
     applyBorderStyle();
     applyLogoScale();
     applyCanvasPadding();
+    applyElementOpacities();
     applyDecorations();
     renderStickers();
     applyZoom();
@@ -2820,6 +2852,15 @@
     var padVal = state.canvasPadding || 10;
     if (canvasPaddingSlider) { canvasPaddingSlider.value = padVal; if (canvasPaddingVal) canvasPaddingVal.textContent = padVal + '%'; }
     document.querySelectorAll('.padding-preset').forEach(function(b) { b.classList.toggle('active', parseInt(b.dataset.pad) === padVal); });
+
+    // Element opacities
+    opSliders.forEach(function(cfg) {
+      var slider = document.getElementById(cfg.id);
+      var valEl = document.getElementById(cfg.valId);
+      var v = state[cfg.key] != null ? state[cfg.key] : 100;
+      if (slider) slider.value = v;
+      if (valEl) valEl.textContent = v + '%';
+    });
 
     // Stickers — restore counter to avoid ID conflicts
     if (state.stickers && state.stickers.length > 0) {
