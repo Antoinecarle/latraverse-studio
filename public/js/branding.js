@@ -89,6 +89,8 @@
       bgPatternColor: '',
       ctaStyle: 'text',
       canvasPadding: 10,
+      contentGap: 0,
+      headlineMaxW: 100,
       opacitySubline: 100,
       opacityBody: 100,
       opacityCta: 100,
@@ -1885,9 +1887,36 @@
   });
   if (canvasPaddingSlider) canvasPaddingSlider.addEventListener('change', function() { pushHistory(); });
 
+  // Content gap
+  var contentGapSlider = document.getElementById('content-gap');
+  var contentGapVal = document.getElementById('content-gap-val');
+  if (contentGapSlider) contentGapSlider.addEventListener('input', function() {
+    state.contentGap = parseInt(contentGapSlider.value);
+    if (contentGapVal) contentGapVal.textContent = contentGapSlider.value;
+    applyCanvasPadding();
+  });
+  if (contentGapSlider) contentGapSlider.addEventListener('change', function() { pushHistory(); });
+
+  // Headline max width
+  var headlineMaxWSlider = document.getElementById('headline-max-w');
+  var headlineMaxWVal = document.getElementById('headline-max-w-val');
+  if (headlineMaxWSlider) headlineMaxWSlider.addEventListener('input', function() {
+    state.headlineMaxW = parseInt(headlineMaxWSlider.value);
+    if (headlineMaxWVal) headlineMaxWVal.textContent = headlineMaxWSlider.value;
+    applyHeadlineMaxW();
+  });
+  if (headlineMaxWSlider) headlineMaxWSlider.addEventListener('change', function() { pushHistory(); });
+
   function applyCanvasPadding() {
     if (!canvasContent) return;
     canvasContent.style.padding = (state.canvasPadding || 10) + '%';
+    canvasContent.style.gap = state.contentGap > 0 ? state.contentGap + 'px' : '';
+  }
+
+  function applyHeadlineMaxW() {
+    if (!canvasHeadline) return;
+    var pct = state.headlineMaxW != null ? state.headlineMaxW : 100;
+    canvasHeadline.style.maxWidth = pct < 100 ? pct + '%' : '';
   }
 
   function applyContentAlign() {
@@ -2673,6 +2702,7 @@
     applyBorderStyle();
     applyLogoScale();
     applyCanvasPadding();
+    applyHeadlineMaxW();
     applyContentAlign();
     applyBgOverlay();
     applyElementOpacities();
@@ -3600,6 +3630,8 @@
     var padVal = state.canvasPadding || 10;
     if (canvasPaddingSlider) { canvasPaddingSlider.value = padVal; if (canvasPaddingVal) canvasPaddingVal.textContent = padVal + '%'; }
     document.querySelectorAll('.padding-preset').forEach(function(b) { b.classList.toggle('active', parseInt(b.dataset.pad) === padVal); });
+    if (contentGapSlider) { contentGapSlider.value = state.contentGap || 0; if (contentGapVal) contentGapVal.textContent = state.contentGap || 0; }
+    if (headlineMaxWSlider) { headlineMaxWSlider.value = state.headlineMaxW != null ? state.headlineMaxW : 100; if (headlineMaxWVal) headlineMaxWVal.textContent = state.headlineMaxW != null ? state.headlineMaxW : 100; }
 
     // Element opacities
     opSliders.forEach(function(cfg) {
