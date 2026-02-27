@@ -80,6 +80,7 @@
       opacitySubline: 100,
       opacityBody: 100,
       opacityCta: 100,
+      headlineRotation: 0,
       zoom: 100,
       gridVisible: false,
       stickers: [],
@@ -1416,6 +1417,23 @@
     }
   }
 
+  // Headline rotation
+  var headlineRotSlider = document.getElementById('headline-rotation');
+  var headlineRotVal = document.getElementById('headline-rotation-val');
+  if (headlineRotSlider) headlineRotSlider.addEventListener('input', function() {
+    state.headlineRotation = parseInt(headlineRotSlider.value);
+    if (headlineRotVal) headlineRotVal.textContent = headlineRotSlider.value + '\u00b0';
+    applyHeadlineRotation();
+  });
+  if (headlineRotSlider) headlineRotSlider.addEventListener('change', function() { pushHistory(); });
+
+  function applyHeadlineRotation() {
+    if (!canvasHeadline) return;
+    var deg = state.headlineRotation || 0;
+    canvasHeadline.style.transform = deg !== 0 ? 'rotate(' + deg + 'deg)' : '';
+    canvasHeadline.style.transformOrigin = 'center center';
+  }
+
   document.getElementById('opt-grain').addEventListener('change', e => {
     state.showGrain = e.target.checked;
     canvasGrain.classList.toggle('visible', state.showGrain);
@@ -2026,6 +2044,7 @@
     applyLogoScale();
     applyCanvasPadding();
     applyElementOpacities();
+    applyHeadlineRotation();
     applyDecorations();
     renderStickers();
     applyZoom();
@@ -2861,6 +2880,9 @@
       if (slider) slider.value = v;
       if (valEl) valEl.textContent = v + '%';
     });
+
+    // Headline rotation
+    if (headlineRotSlider) { headlineRotSlider.value = state.headlineRotation || 0; if (headlineRotVal) headlineRotVal.textContent = (state.headlineRotation || 0) + '\u00b0'; }
 
     // Stickers — restore counter to avoid ID conflicts
     if (state.stickers && state.stickers.length > 0) {
