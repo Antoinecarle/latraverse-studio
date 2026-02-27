@@ -389,10 +389,18 @@
 
   // Keyboard shortcut: Escape to close panel
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && panelDrawer && panelDrawer.classList.contains('open')) {
-      panelDrawer.classList.remove('open');
-      document.querySelectorAll('.rail__btn').forEach(t => t.classList.remove('active'));
-      activeTab = null;
+    if (e.key === 'Escape') {
+      // Close shortcuts modal first if open
+      var scOverlay = document.getElementById('shortcuts-overlay');
+      if (scOverlay && scOverlay.classList.contains('visible')) {
+        scOverlay.classList.remove('visible');
+        return;
+      }
+      if (panelDrawer && panelDrawer.classList.contains('open')) {
+        panelDrawer.classList.remove('open');
+        document.querySelectorAll('.rail__btn').forEach(t => t.classList.remove('active'));
+        activeTab = null;
+      }
     }
   });
 
@@ -2264,6 +2272,22 @@
       e.preventDefault();
       exportCanvas();
     }
+    // ? key opens shortcuts modal
+    if (e.key === '?' && !isInput && !isEditable) {
+      e.preventDefault();
+      var overlay = document.getElementById('shortcuts-overlay');
+      if (overlay) overlay.classList.toggle('visible');
+    }
+  });
+
+  // Shortcuts modal close
+  var shortcutsOverlay = document.getElementById('shortcuts-overlay');
+  var shortcutsClose = document.getElementById('shortcuts-close');
+  if (shortcutsClose) shortcutsClose.addEventListener('click', function() {
+    if (shortcutsOverlay) shortcutsOverlay.classList.remove('visible');
+  });
+  if (shortcutsOverlay) shortcutsOverlay.addEventListener('click', function(e) {
+    if (e.target === shortcutsOverlay) shortcutsOverlay.classList.remove('visible');
   });
 
   // ============ HELPER ============
