@@ -794,4 +794,62 @@
     }
   });
 
+  // ============ MOBILE: Swipe-to-dismiss agent panel ============
+  (function initSwipeDismiss() {
+    var startY = 0;
+    var currentY = 0;
+    var isDragging = false;
+    var threshold = 80; // px to dismiss
+
+    if (!agentPanel) return;
+
+    agentPanel.addEventListener('touchstart', function (e) {
+      // Only start drag from header area (top 60px)
+      var rect = agentPanel.getBoundingClientRect();
+      var touchY = e.touches[0].clientY - rect.top;
+      if (touchY > 60) return;
+      startY = e.touches[0].clientY;
+      isDragging = true;
+      agentPanel.style.transition = 'none';
+    }, { passive: true });
+
+    agentPanel.addEventListener('touchmove', function (e) {
+      if (!isDragging) return;
+      currentY = e.touches[0].clientY - startY;
+      if (currentY < 0) currentY = 0; // only drag down
+      agentPanel.style.transform = 'translateY(' + currentY + 'px)';
+    }, { passive: true });
+
+    agentPanel.addEventListener('touchend', function () {
+      if (!isDragging) return;
+      isDragging = false;
+      agentPanel.style.transition = '';
+      if (currentY > threshold) {
+        // Dismiss
+        stopVoiceMode();
+        agentPanel.classList.remove('open');
+        chatOpen = false;
+        agentBtn.classList.remove('active');
+      }
+      agentPanel.style.transform = '';
+      currentY = 0;
+    }, { passive: true });
+  })();
+
+  // ============ MOBILE: Close panel-drawer on backdrop tap ============
+  (function initMobileDrawerBackdrop() {
+    var canvasArea = document.getElementById('canvas-area');
+    if (!canvasArea) return;
+    canvasArea.addEventListener('click', function () {
+      if (window.innerWidth > 768) return;
+      var drawer = document.querySelector('.panel-drawer.open');
+      if (drawer) {
+        drawer.classList.remove('open');
+        // Deactivate rail button
+        var activeRailBtn = document.querySelector('.rail__btn.active');
+        if (activeRailBtn) activeRailBtn.classList.remove('active');
+      }
+    });
+  })();
+
 })();

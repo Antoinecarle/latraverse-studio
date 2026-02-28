@@ -3371,18 +3371,336 @@ input[type="range"]::-webkit-slider-thumb {
   background: rgba(139,92,246,0.08);
 }
 
-/* ---- RESPONSIVE ---- */
-@media (max-width: 900px) {
-  .workspace { flex-direction: column; }
-  .sidebar {
-    width: 100%;
-    max-height: 45vh;
-    overflow-y: auto;
+/* ============================================================
+   RESPONSIVE — Mobile-first vocal experience
+   ============================================================ */
+
+/* ---- TABLET (< 1024px) ---- */
+@media (max-width: 1024px) {
+  .topbar__zoom { display: none; }
+  .topbar__sep { display: none; }
+  .topbar { gap: 8px; padding: 0 12px; }
+  .panel-drawer.open { width: 280px; }
+  .panel-drawer__head { min-width: 280px; }
+  .panel-drawer__scroll { min-width: 280px; }
+}
+
+/* ---- MOBILE (< 768px) ---- */
+@media (max-width: 768px) {
+  body { overflow: hidden; }
+
+  /* -- Topbar: simplify -- */
+  .topbar {
+    height: 48px;
+    padding: 0 10px;
+    gap: 6px;
   }
-  .canvas-area { padding: 16px; }
   .topbar__center { display: none; }
+  .topbar__back span { display: none; }
+  .topbar__badge { display: none; }
+  .topbar__pub-selector { margin-left: 4px; padding-left: 8px; }
+  .pub-name-input { width: 100px; min-width: 60px; font-size: 11px; }
+  .save-indicator { display: none; }
+
+  /* Touch targets minimum 44px in topbar */
+  .topbar-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+  }
+
+  /* -- Workspace: stack vertical, room for bottom nav -- */
+  .workspace {
+    flex-direction: column;
+    padding-bottom: 60px; /* room for bottom rail */
+  }
+
+  /* -- Rail → bottom tab bar -- */
+  .rail {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 60px;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 4px 0;
+    gap: 0;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    z-index: 50;
+    background: var(--bg-sidebar);
+  }
+  .rail__btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+  .rail__btn.active::after {
+    /* indicator on top instead of right */
+    right: 12px;
+    left: 12px;
+    top: -1px;
+    bottom: auto;
+    width: auto;
+    height: 2px;
+  }
+
+  /* -- Panel-drawer → full-width overlay -- */
+  .panel-drawer {
+    position: fixed;
+    top: 48px;
+    left: 0;
+    right: 0;
+    bottom: 60px;
+    width: 0;
+    z-index: 40;
+    border-right: none;
+    transition: width 0s, opacity .25s;
+    opacity: 0;
+  }
+  .panel-drawer.open {
+    width: 100%;
+    opacity: 1;
+  }
+  .panel-drawer__head { min-width: 100%; }
+  .panel-drawer__scroll { min-width: 100%; }
+  .panel-drawer__close {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+  }
+
+  /* -- Canvas area -- */
+  .canvas-area {
+    padding: 12px;
+    flex: 1;
+    min-height: 0;
+  }
+  .canvas-info { display: none; }
+
+  /* -- Grids adapt -- */
+  .format-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .template-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .style-packs-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .typo-presets { grid-template-columns: repeat(3, 1fr); }
+
+  /* -- Touch: always show actions (no hover) -- */
+  .pub-item__actions { opacity: 1; }
+  .pub-item__delete,
+  .pub-item__dup {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+  }
+
+  /* -- Pub dropdown full width -- */
+  .pub-dropdown {
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    top: 48px;
+    border-radius: 12px;
+  }
+
+  /* ========================================
+     AGENT PANEL — Full-screen bottom drawer
+     (vocal-first on mobile)
+     ======================================== */
+  .agent-fab {
+    width: 64px;
+    height: 64px;
+    bottom: 76px; /* above bottom rail */
+    right: 16px;
+    z-index: 60;
+  }
+  .agent-fab svg { width: 28px; height: 28px; }
+
+  .agent-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    width: 100%;
+    max-height: 85vh;
+    border-radius: 20px 20px 0 0;
+    transform: translateY(100%);
+    opacity: 1;
+    z-index: 100;
+  }
+  .agent-panel.open {
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* Drag handle for bottom drawer */
+  .agent-panel__header::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.2);
+  }
+  .agent-panel__header {
+    position: relative;
+    padding: 20px 16px 12px;
+  }
+
+  /* Larger touch targets in agent panel */
+  .agent-panel__btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+  }
+  .agent-input__mic {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+  }
+  .agent-input__mic svg { width: 22px; height: 22px; }
+  .agent-input__send {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+  .agent-input__send svg { width: 20px; height: 20px; }
+  .agent-input__field {
+    height: 48px;
+    font-size: 16px; /* prevent iOS zoom on focus */
+    border-radius: 12px;
+    padding: 0 16px;
+  }
+  .agent-panel__input {
+    padding: 12px 16px;
+    gap: 10px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  .agent-panel__messages {
+    min-height: 180px;
+    max-height: 50vh;
+    padding: 16px;
+    gap: 14px;
+  }
+  .agent-msg__text {
+    font-size: 15px;
+    max-width: 85%;
+    padding: 12px 16px;
+  }
+
+  /* -- All interactive controls: touch-friendly -- */
+  .format-btn { padding: 10px 4px 8px; min-height: 44px; }
+  .style-pack-btn { min-height: 44px; }
+  .template-btn { min-height: 44px; }
+  .pattern-opt { width: 44px; height: 44px; }
+  .cta-style-btn { width: 44px; height: 36px; }
+  .hdeco-btn { width: 44px; height: 36px; }
+  .border-style-btn { width: 44px; height: 36px; }
+  .sline-btn { width: 44px; height: 36px; }
+  .valign-btn { width: 44px; height: 36px; }
+  .padding-preset { height: 36px; }
+  .bgsize-btn { height: 36px; }
+  .bgpos-btn { width: 28px; height: 24px; }
+
+  /* Range/slider inputs bigger for touch */
+  input[type="range"] {
+    height: 36px;
+    -webkit-appearance: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Color inputs bigger */
+  .color-input { width: 36px; height: 36px; }
+  .color-input--lg { width: 44px; height: 44px; }
+
+  /* Mini toggle bigger for touch */
+  .mini-toggle { width: 40px; height: 22px; }
+  .mini-toggle__dot::after { width: 16px; height: 16px; left: 3px; top: 3px; }
+  .mini-toggle input:checked + .mini-toggle__dot::after { left: 21px; }
+
+  /* Select inputs bigger */
+  select {
+    min-height: 40px;
+    font-size: 14px;
+  }
+
+  /* Export dropdown */
+  .export-dropdown {
+    position: fixed;
+    right: 8px;
+    left: auto;
+    width: 260px;
+  }
+
+  /* Layers panel */
+  .layers-panel {
+    position: fixed;
+    top: 48px;
+    right: 0;
+    bottom: 60px;
+    width: 280px;
+    max-height: none;
+  }
+
+  /* Template preview tooltip — hide on mobile (touch) */
+  .tmpl-preview { display: none !important; }
+}
+
+/* ---- SMALL PHONES (< 420px) ---- */
+@media (max-width: 420px) {
+  .topbar__title { font-size: 11px; }
+  .pub-name-input { width: 70px; min-width: 50px; }
+  .topbar__left { gap: 6px; }
+  .topbar__right { gap: 4px; }
+
   .format-grid { grid-template-columns: repeat(3, 1fr); }
-  .template-grid { grid-template-columns: repeat(3, 1fr); }
+  .style-packs-grid { grid-template-columns: repeat(3, 1fr); }
+
+  .agent-panel { max-height: 90vh; }
+  .agent-msg__text { max-width: 90%; font-size: 14px; }
+
+  .agent-fab {
+    width: 60px;
+    height: 60px;
+    bottom: 72px;
+    right: 12px;
+  }
+}
+
+/* ---- SAFE AREA (notch/home indicator) ---- */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .rail {
+      padding-bottom: env(safe-area-inset-bottom);
+      height: calc(60px + env(safe-area-inset-bottom));
+    }
+    .workspace {
+      padding-bottom: calc(60px + env(safe-area-inset-bottom));
+    }
+    .agent-fab {
+      bottom: calc(76px + env(safe-area-inset-bottom));
+    }
+    .agent-panel__input {
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    }
+  }
+}
+
+/* ---- LANDSCAPE MOBILE ---- */
+@media (max-height: 500px) and (max-width: 900px) {
+  .agent-panel { max-height: 80vh; }
+  .agent-panel__messages { max-height: 30vh; min-height: 100px; }
+  .rail { height: 48px; }
+  .rail__btn { width: 40px; height: 40px; }
 }
 
 /* ============================================================
