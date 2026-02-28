@@ -6079,6 +6079,50 @@
     autoSave();
   };
 
+  // Direct state updates for AI agent — bypasses fragile DOM events
+  window.__brandingSetColors = function (colors) {
+    if (colors.bgColor) { state.bgColor = colors.bgColor; document.getElementById('color-bg').value = colors.bgColor; }
+    if (colors.textColor) { state.textColor = colors.textColor; document.getElementById('color-text').value = colors.textColor; }
+    if (colors.accentColor) { state.accentColor = colors.accentColor; document.getElementById('color-accent').value = colors.accentColor; }
+    if (colors.accentColor2) { state.accentColor2 = colors.accentColor2; var a2 = document.getElementById('color-accent2'); if (a2) a2.value = colors.accentColor2; }
+    state.stylePack = null;
+    document.querySelectorAll('.style-pack-btn').forEach(b => b.classList.remove('active'));
+    applyColors();
+    pushHistory();
+  };
+
+  window.__brandingSetTypography = function (typo) {
+    var prefix = typo.target === 'body' ? 'typoBody' : 'typoHeadline';
+    if (typo.font) state[prefix].font = typo.font;
+    if (typo.size) state[prefix].size = typo.size;
+    if (typo.weight) state[prefix].weight = typo.weight;
+    if (typo.align && prefix === 'typoHeadline') state[prefix].align = typo.align;
+    if (typo.textCase) state.typoHeadline.case = typo.textCase;
+    applyTypography();
+    pushHistory();
+  };
+
+  window.__brandingSetBgImage = function (url) {
+    state.bgImage = url;
+    canvasBgImage.style.backgroundImage = 'url(' + url + ')';
+    canvasBgImage.classList.add('has-image');
+    if (bgClearBtn) bgClearBtn.style.display = '';
+    if (bgImageControls) bgImageControls.style.display = '';
+    applyBgImage();
+    pushHistory();
+  };
+
+  window.__brandingSetGradient = function (grad) {
+    if (grad.enabled !== undefined) state.gradient.enabled = grad.enabled;
+    if (grad.start) state.gradient.start = grad.start;
+    if (grad.end) state.gradient.end = grad.end;
+    if (grad.angle !== undefined) state.gradient.angle = grad.angle;
+    var optG = document.getElementById('opt-gradient');
+    if (optG) optG.checked = state.gradient.enabled;
+    applyColors();
+    pushHistory();
+  };
+
   window.__brandingNewPub = async function (name) {
     await autoSave();
     await createNewPub(name);

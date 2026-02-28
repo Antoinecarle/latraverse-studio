@@ -385,10 +385,15 @@
         break;
       }
       case 'setColors': {
-        if (args.bgColor) { triggerColor('color-bg', args.bgColor); }
-        if (args.textColor) { triggerColor('color-text', args.textColor); }
-        if (args.accentColor) { triggerColor('color-accent', args.accentColor); }
-        if (args.accentColor2) { triggerColor('color-accent2', args.accentColor2); }
+        // Direct state update — bypasses fragile DOM color input events
+        if (window.__brandingSetColors) {
+          window.__brandingSetColors(args);
+        } else {
+          if (args.bgColor) { triggerColor('color-bg', args.bgColor); }
+          if (args.textColor) { triggerColor('color-text', args.textColor); }
+          if (args.accentColor) { triggerColor('color-accent', args.accentColor); }
+          if (args.accentColor2) { triggerColor('color-accent2', args.accentColor2); }
+        }
         break;
       }
       case 'setText': {
@@ -413,10 +418,21 @@
           'Raleway': "'Raleway', sans-serif",
           'Space Mono': "'Space Mono', monospace",
         };
-        var prefix = args.target === 'body' ? 'typo-body' : 'typo-headline';
-        if (args.font) triggerSelect(prefix + '-font', fontMap[args.font] || args.font);
-        if (args.size) triggerRange(prefix + '-size', args.size);
-        if (args.weight) triggerSelect(prefix + '-weight', args.weight);
+        // Direct state update if available
+        if (window.__brandingSetTypography) {
+          var typoArgs = { target: args.target };
+          if (args.font) typoArgs.font = fontMap[args.font] || args.font;
+          if (args.size) typoArgs.size = args.size;
+          if (args.weight) typoArgs.weight = args.weight;
+          if (args.align) typoArgs.align = args.align;
+          if (args.textCase) typoArgs.textCase = args.textCase;
+          window.__brandingSetTypography(typoArgs);
+        } else {
+          var prefix = args.target === 'body' ? 'typo-body' : 'typo-headline';
+          if (args.font) triggerSelect(prefix + '-font', fontMap[args.font] || args.font);
+          if (args.size) triggerRange(prefix + '-size', args.size);
+          if (args.weight) triggerSelect(prefix + '-weight', args.weight);
+        }
         if (args.align) {
           var abtn = document.querySelector('.align-btn[data-target="headline"][data-align="' + args.align + '"]');
           if (abtn) abtn.click();
@@ -439,11 +455,15 @@
         break;
       }
       case 'setGradient': {
-        var optG = document.getElementById('opt-gradient');
-        if (optG && optG.checked !== args.enabled) { optG.checked = args.enabled; optG.dispatchEvent(new Event('change')); }
-        if (args.start) triggerColor('gradient-start', args.start);
-        if (args.end) triggerColor('gradient-end', args.end);
-        if (args.angle !== undefined) triggerRange('gradient-angle', args.angle);
+        if (window.__brandingSetGradient) {
+          window.__brandingSetGradient(args);
+        } else {
+          var optG = document.getElementById('opt-gradient');
+          if (optG && optG.checked !== args.enabled) { optG.checked = args.enabled; optG.dispatchEvent(new Event('change')); }
+          if (args.start) triggerColor('gradient-start', args.start);
+          if (args.end) triggerColor('gradient-end', args.end);
+          if (args.angle !== undefined) triggerRange('gradient-angle', args.angle);
+        }
         break;
       }
       case 'setFormat': {
@@ -453,9 +473,33 @@
         break;
       }
       case 'generateBackgroundImage': {
-        var p = document.getElementById('ai-prompt');
-        var b = document.getElementById('btn-generate-ai');
-        if (p && b) { p.value = args.prompt; b.click(); }
+        // Generate image AND auto-apply it as background
+        (async function () {
+          try {
+            var canvas = document.getElementById('canvas');
+            if (canvas) canvas.classList.add('agent-highlight');
+
+            var res = await fetch('/api/branding/generate-image', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ prompt: args.prompt }),
+            });
+            var data = await res.json();
+            if (data.success && data.url) {
+              // Auto-apply as background via direct state update
+              if (window.__brandingSetBgImage) {
+                window.__brandingSetBgImage(data.url);
+              }
+              // Also update the preview in the sidebar
+              var aiResultImg = document.getElementById('ai-result-img');
+              var aiResult = document.getElementById('ai-result');
+              if (aiResultImg) aiResultImg.src = data.url;
+              if (aiResult) aiResult.style.display = '';
+            }
+          } catch (e) {
+            console.error('[Agent] Background image generation failed:', e);
+          }
+        })();
         break;
       }
       case 'generateSticker': {
