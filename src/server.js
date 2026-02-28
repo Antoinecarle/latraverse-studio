@@ -1341,51 +1341,91 @@ app.post('/api/branding/upload-base64', (req, res) => {
 });
 
 // List all saved pubs
-app.get('/api/brandings', (req, res) => {
-  res.json({ brandings: brandingsDb.getAllBrandings() });
+app.get('/api/brandings', async (req, res) => {
+  try {
+    const brandings = await brandingsDb.getAllBrandings();
+    res.json({ brandings });
+  } catch (err) {
+    console.error('[API] GET /brandings error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
 
 // Get a single pub
-app.get('/api/brandings/:id', (req, res) => {
-  const pub = brandingsDb.getBrandingById(req.params.id);
-  if (!pub) return res.status(404).json({ error: 'Pub introuvable' });
-  res.json(pub);
+app.get('/api/brandings/:id', async (req, res) => {
+  try {
+    const pub = await brandingsDb.getBrandingById(req.params.id);
+    if (!pub) return res.status(404).json({ error: 'Pub introuvable' });
+    res.json(pub);
+  } catch (err) {
+    console.error('[API] GET /brandings/:id error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
 
 // Create a new pub
-app.post('/api/brandings', (req, res) => {
-  const pub = brandingsDb.createBranding(req.body);
-  res.json(pub);
+app.post('/api/brandings', async (req, res) => {
+  try {
+    const pub = await brandingsDb.createBranding(req.body);
+    res.json(pub);
+  } catch (err) {
+    console.error('[API] POST /brandings error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
 
 // Update (auto-save) — PUT and POST both accepted (POST for sendBeacon)
-app.put('/api/brandings/:id', (req, res) => {
-  const updated = brandingsDb.updateBranding(req.params.id, req.body);
-  if (!updated) return res.status(404).json({ error: 'Pub introuvable' });
-  res.json(updated);
+app.put('/api/brandings/:id', async (req, res) => {
+  try {
+    const updated = await brandingsDb.updateBranding(req.params.id, req.body);
+    if (!updated) return res.status(404).json({ error: 'Pub introuvable' });
+    res.json(updated);
+  } catch (err) {
+    console.error('[API] PUT /brandings/:id error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
-app.post('/api/brandings/:id', (req, res) => {
-  const updated = brandingsDb.updateBranding(req.params.id, req.body);
-  if (!updated) return res.status(404).json({ error: 'Pub introuvable' });
-  res.json(updated);
+app.post('/api/brandings/:id', async (req, res) => {
+  try {
+    const updated = await brandingsDb.updateBranding(req.params.id, req.body);
+    if (!updated) return res.status(404).json({ error: 'Pub introuvable' });
+    res.json(updated);
+  } catch (err) {
+    console.error('[API] POST /brandings/:id error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
 
 // Delete a pub
-app.delete('/api/brandings/:id', (req, res) => {
-  brandingsDb.deleteBranding(req.params.id);
-  conversationsDb.deleteConversation(req.params.id);
-  res.json({ success: true });
+app.delete('/api/brandings/:id', async (req, res) => {
+  try {
+    await brandingsDb.deleteBranding(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[API] DELETE /brandings/:id error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
 
 // ---- Conversation routes (per pub) ----
-app.get('/api/conversations/:pubId', (req, res) => {
-  const messages = conversationsDb.getConversation(req.params.pubId);
-  res.json({ messages });
+app.get('/api/conversations/:pubId', async (req, res) => {
+  try {
+    const messages = await conversationsDb.getConversation(req.params.pubId);
+    res.json({ messages });
+  } catch (err) {
+    console.error('[API] GET /conversations error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
 
-app.delete('/api/conversations/:pubId', (req, res) => {
-  conversationsDb.deleteConversation(req.params.pubId);
-  res.json({ success: true });
+app.delete('/api/conversations/:pubId', async (req, res) => {
+  try {
+    await conversationsDb.deleteConversation(req.params.pubId);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[API] DELETE /conversations error:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
 
 // ============================================================
@@ -1449,7 +1489,7 @@ const AGENT_TOOLS = [
   {
     type: 'function',
     name: 'setTypography',
-    description: 'Change la typographie du titre ou du corps. Polices disponibles: Playfair Display, DM Serif Display, Libre Baskerville, Inter, Instrument Sans, Bebas Neue, Poppins, Oswald, Lora, Montserrat, Raleway, Space Mono',
+    description: "Change la typographie du titre ou du corps. FONDERIE VELVETYNE (artiste/expérimental/avant-garde): Bluu Next (serif brutale, organique, très artistique — parfait pour titres éditoriaux dark), Bluu Next Titling (version titling plus épurée), Trickster (formes trompeuses, ludique, surréaliste), Lack (display contemporain, formes découpées), VG5000 (rétro-pixel artistique inspiré du Philips VG5000 de 1984, bitmap-to-bezier), Commune Nuit Debout (activiste, brut, politique — inspiré de Nuit Debout), Commune Nuit Debout Pochoir (version pochoir/stencil street art), Sporting Grotesque (grotesque décalé, personnalité forte). FONTSHARE (design d'auteur): Clash Display (géométrique bold, très tendance mode/tech), Zodiak (serif contraste élégant, éditorial raffiné), Boska (serif organique à gros contraste, Art Nouveau), Panchang (display géométrique indien, futuriste angulaire), Nippo (condensé japonisant, technique, net), Array (mono proportionnel, tech expérimental), Gambarino (serif excentrique, théâtral), Tanker (ultra-bold arrondi, fun, impact), Stardom (display décoratif, cinématique hollywoodien), Melodrama (serif display dramatique, contrasté), Sentient (serif humaniste warm, littéraire), Bonny (serif calligraphique, romantique), Plein (géométrique doux, friendly), Alpino (grotesk alpin, propre, suisse), Telma (serif transitionnel, académique chic), Switzer (neo-grotesk suisse, neutre premium), General Sans (versatile, moderne, clean). GOOGLE EXPERIMENTAL: Rubik Glitch (glitch art, cassé/distordu), Bungee Shade (3D shadow urbain, signalétique), Bungee Inline (inline urbain), Bungee Outline (contour urbain), Nabla (3D isométrique jeu vidéo, COLRv1), Pixelify Sans (pixel art moderne, jeux 8-bit), Silkscreen (bitmap pur, rétro-web), Press Start 2P (arcade 80s, jeux vidéo), Foldit (origami/papier plié, géométrique), Fascinate (art déco spirales), Fascinate Inline (art déco inline), Major Mono Display (monospace majuscules futuriste), Monoton (inline néon, Vegas), Megrim (géométrique ultra-fine, aérienne), Cinzel Decorative (romain majestueux, inscriptions), Poiret One (art déco géométrique fin). SERIF CLASSIQUE: Playfair Display, DM Serif Display, Libre Baskerville, Lora, Young Serif, Fraunces, EB Garamond, Alegreya, Newsreader, Erode, Supreme. SANS MODERNE: Inter, Poppins, Montserrat, Raleway, Satoshi, Cabinet Grotesk, Plus Jakarta Sans, DM Sans, Work Sans, Outfit, Space Grotesk, Chillax, Ranade. DISPLAY: Bebas Neue, Oswald, Syne, Unbounded, Orbitron, Bricolage Grotesque, League Spartan, Archivo Black. MONO: Space Mono. Choisis selon le style: artistique/dark→Bluu Next/Commune Nuit Debout, expérimental→Trickster/VG5000/Lack, glitch→Rubik Glitch, rétro-pixel→Pixelify Sans/Silkscreen/Press Start 2P, mode→Clash Display/Zodiak, cinéma→Stardom/Melodrama, street→Commune Nuit Debout Pochoir, luxe→Playfair/Fraunces, tech→Nippo/Orbitron/Array, brut/poster→Tanker/Archivo Black, néon→Monoton, art déco→Fascinate/Poiret One, 3D→Nabla/Bungee Shade.",
     parameters: {
       type: 'object',
       properties: {
@@ -1466,7 +1506,7 @@ const AGENT_TOOLS = [
   {
     type: 'function',
     name: 'toggleEffect',
-    description: 'Active ou désactive un effet visuel sur le design',
+    description: "Active ou désactive un effet visuel. Effets: grain (texture bruit film), vignette (assombrit les coins), border (bordure du canvas), logo (afficher/masquer le logo), outline (texte avec contour/stroke — le titre devient transparent avec un trait coloré autour, effet très stylé pour du design moderne), gradient (fond en dégradé). IMPORTANT: Quand l'utilisateur dit 'outline' ou 'contour' ou 'stroke' pour le texte, utilise effect='outline'.",
     parameters: {
       type: 'object',
       properties: {
@@ -1751,7 +1791,7 @@ function buildDesignStateDescription(ds) {
 - Gradient: ${ds.gradient?.enabled ? 'oui (' + ds.gradient.start + ' → ' + ds.gradient.end + ')' : 'non'}
 - Ombre texte: ${ds.fxShadow || 0}
 - Glow: ${ds.fxGlow || 0}
-- Outline: ${ds.fxOutline ? 'oui' : 'non'}
+- Outline (contour texte): ${ds.fxOutline ? 'oui' : 'non'}
 - Nombre de stickers: ${ds.stickers?.length || 0}
 - Style bordure: ${ds.borderStyle || 'classic'}
 - Couleur bordure: ${ds.borderColor || '(utilise accent)'}
@@ -1834,7 +1874,7 @@ app.post('/api/agent/chat', async (req, res) => {
   }
 
   // Load conversation history from storage (one conversation per pub)
-  const conversationHistory = pubId ? conversationsDb.getConversation(pubId) : [];
+  const conversationHistory = pubId ? await conversationsDb.getConversation(pubId) : [];
 
   // Build input messages for Responses API
   const input = [];
@@ -1909,11 +1949,11 @@ app.post('/api/agent/chat', async (req, res) => {
 
     // Persist messages to conversation (one per pub)
     if (pubId) {
-      conversationsDb.addMessage(pubId, 'user', message);
+      await conversationsDb.addMessage(pubId, 'user', message);
       const assistantContent = finalText + (actions.length > 0
         ? '\n[Actions: ' + actions.map(a => a.function).join(', ') + ']'
         : '');
-      conversationsDb.addMessage(pubId, 'assistant', assistantContent);
+      await conversationsDb.addMessage(pubId, 'assistant', assistantContent);
     }
 
     res.json({

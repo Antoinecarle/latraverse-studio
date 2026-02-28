@@ -1,55 +1,60 @@
-const fs = require('fs');
-const path = require('path');
+const pool = require('./pool');
 
-const DATA_FILE = path.join(__dirname, '..', '..', 'data', 'conversations.json');
-
-function readAll() {
-  if (!fs.existsSync(DATA_FILE)) return {};
-  try { return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); }
-  catch { return {}; }
+async function getConversation(pubId) {
+  const { rows } = await pool.query(
+    `SELECT role, content, created_at AS timestamp
+     FROM conversations
+     WHERE pub_id = $1
+     ORDER BY created_at ASC
+     LIMIT 50`,
+    [pubId]
+  );
+  return rows;
 }
 
-function writeAll(data) {
-  const dir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-}
-
-// Get conversation history for a pub
-function getConversation(pubId) {
-  const all = readAll();
-  return all[pubId] || [];
-}
-
-// Save conversation history for a pub
-function saveConversation(pubId, messages) {
-  const all = readAll();
-  all[pubId] = messages;
-  writeAll(all);
-}
-
-// Delete conversation when pub is deleted
-function deleteConversation(pubId) {
-  const all = readAll();
-  delete all[pubId];
-  writeAll(all);
-}
-
-// Add a message to a pub's conversation
-function addMessage(pubId, role, content) {
-  const all = readAll();
-  if (!all[pubId]) all[pubId] = [];
-  all[pubId].push({
-    role,
-    content,
-    timestamp: new Date().toISOString(),
-  });
-  // Keep last 50 messages per conversation
-  if (all[pubId].length > 50) {
-    all[pubId] = all[pubId].slice(-50);
+async function saveConversation(pubId, messages) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query(`DELETE FROM conversations WHERE pub_id = $1`, [pubId]);
+    for (const msg of messages) {
+      await client.query(
+        `INSERT INTO conversations (pub_id, role, content, created_at) VALUES ($1, $2, $3, $4)`,
+        [pubId, msg.role, msg.content, msg.timestamp || new Date()]
+      );
+    }
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
   }
-  writeAll(all);
-  return all[pubId];
+}
+
+async function deleteConversation(pubId) {
+  await pool.query(`DELETE FROM conversations WHERE pub_id = $1`, [pubId]);
+}
+
+async function addMessage(pubId, role, content) {
+  await pool.query(
+    `INSERT INTO conversations (pub_id, role, content) VALUES ($1, $2, $3)`,
+    [pubId, role, content]
+  );
+
+  // Keep last 50 messages — delete oldest if over limit
+  await pool.query(`
+    DELETE FROM conversations
+    WHERE pub_id = $1
+      AND id NOT IN (
+        SELECT id FROM conversations
+        WHERE pub_id = $1
+        ORDER BY created_at DESC
+        LIMIT 50
+      )
+  `, [pubId]);
+
+  return getConversation(pubId);
 }
 
 module.exports = { getConversation, saveConversation, deleteConversation, addMessage };

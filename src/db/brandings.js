@@ -1,64 +1,63 @@
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+const pool = require('./pool');
 
-const DATA_FILE = path.join(__dirname, '..', '..', 'data', 'brandings.json');
-
-function readAll() {
-  if (!fs.existsSync(DATA_FILE)) return [];
-  try { return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); }
-  catch { return []; }
+async function createBranding(data) {
+  const { rows } = await pool.query(
+    `INSERT INTO brandings (name, state) VALUES ($1, $2) RETURNING *`,
+    [data.name || 'Sans titre', JSON.stringify(data.state || {})]
+  );
+  return rows[0];
 }
 
-function writeAll(items) {
-  const dir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(DATA_FILE, JSON.stringify(items, null, 2));
-}
-
-function createBranding(data) {
-  const items = readAll();
-  const item = {
-    id: crypto.randomUUID(),
-    name: data.name || 'Sans titre',
-    state: data.state || {},
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-  items.unshift(item);
-  writeAll(items);
-  return item;
-}
-
-function getAllBrandings() {
-  return readAll().map(b => ({
-    id: b.id,
-    name: b.name,
-    template: b.state?.template || 'minimal',
-    format: b.state?.format?.label || 'Post',
-    created_at: b.created_at,
-    updated_at: b.updated_at,
+async function getAllBrandings() {
+  const { rows } = await pool.query(
+    `SELECT id, name,
+            state->>'template' AS template,
+            state->'format'->>'label' AS format,
+            created_at, updated_at
+     FROM brandings ORDER BY updated_at DESC`
+  );
+  return rows.map(r => ({
+    id: r.id,
+    name: r.name,
+    template: r.template || 'minimal',
+    format: r.format || 'Post',
+    created_at: r.created_at,
+    updated_at: r.updated_at,
   }));
 }
 
-function getBrandingById(id) {
-  return readAll().find(b => b.id === id) || null;
+async function getBrandingById(id) {
+  const { rows } = await pool.query(
+    `SELECT * FROM brandings WHERE id = $1`, [id]
+  );
+  return rows[0] || null;
 }
 
-function updateBranding(id, data) {
-  const items = readAll();
-  const idx = items.findIndex(b => b.id === id);
-  if (idx === -1) return null;
-  if (data.name !== undefined) items[idx].name = data.name;
-  if (data.state !== undefined) items[idx].state = data.state;
-  items[idx].updated_at = new Date().toISOString();
-  writeAll(items);
-  return { id: items[idx].id, name: items[idx].name, updated_at: items[idx].updated_at };
+async function updateBranding(id, data) {
+  const sets = [];
+  const vals = [];
+  let i = 1;
+
+  if (data.name !== undefined) {
+    sets.push(`name = $${i++}`);
+    vals.push(data.name);
+  }
+  if (data.state !== undefined) {
+    sets.push(`state = $${i++}`);
+    vals.push(JSON.stringify(data.state));
+  }
+  sets.push(`updated_at = NOW()`);
+  vals.push(id);
+
+  const { rows } = await pool.query(
+    `UPDATE brandings SET ${sets.join(', ')} WHERE id = $${i} RETURNING id, name, updated_at`,
+    vals
+  );
+  return rows[0] || null;
 }
 
-function deleteBranding(id) {
-  const items = readAll().filter(b => b.id !== id);
-  writeAll(items);
+async function deleteBranding(id) {
+  await pool.query(`DELETE FROM brandings WHERE id = $1`, [id]);
 }
 
 module.exports = { createBranding, getAllBrandings, getBrandingById, updateBranding, deleteBranding };
