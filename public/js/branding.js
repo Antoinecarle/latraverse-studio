@@ -6071,6 +6071,14 @@
     return currentPubId;
   };
 
+  window.__brandingScheduleSave = function () {
+    scheduleAutoSave();
+  };
+
+  window.__brandingForceSave = function () {
+    autoSave();
+  };
+
   window.__brandingNewPub = async function (name) {
     await autoSave();
     await createNewPub(name);

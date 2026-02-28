@@ -105,6 +105,8 @@
           try {
             var args = typeof call.arguments === 'string' ? JSON.parse(call.arguments) : call.arguments;
             executeAction({ function: call.name, arguments: args });
+            // Force save after AI modifies the design
+            if (window.__brandingScheduleSave) window.__brandingScheduleSave();
             // Send result back so the AI can continue
             realtimeClient.sendFunctionResult(call.callId, { success: true, action: call.name });
           } catch (e) {
@@ -183,6 +185,9 @@
     isSpeaking = false;
     agentBtn.classList.remove('voice-active', 'listening', 'speaking', 'thinking');
     agentMic.classList.remove('voice-active', 'listening');
+
+    // Force save all pending changes before disconnecting
+    if (window.__brandingForceSave) window.__brandingForceSave();
 
     if (realtimeClient) {
       realtimeClient.disconnect();
@@ -337,6 +342,8 @@
         for (var action of data.actions) {
           executeAction(action);
         }
+        // Force save after AI modifies the design
+        if (window.__brandingForceSave) window.__brandingForceSave();
       }
 
       // Show text response
