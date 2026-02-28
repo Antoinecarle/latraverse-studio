@@ -2326,12 +2326,31 @@
   function handleBgImageFile(file) {
     const reader = new FileReader();
     reader.onload = ev => {
+      // Show immediately from local data (fast UX)
       state.bgImage = ev.target.result;
       canvasBgImage.style.backgroundImage = 'url(' + state.bgImage + ')';
       canvasBgImage.classList.add('has-image');
       if (bgClearBtn) bgClearBtn.style.display = '';
       if (bgImageControls) bgImageControls.style.display = '';
       applyBgImage();
+      // Upload to server IMMEDIATELY (not debounced) so photo is persisted
+      // even if the user closes before the 3s autosave fires
+      (async () => {
+        try {
+          const formData = new FormData();
+          formData.append('image', file);
+          const res = await fetch('/api/branding/upload', { method: 'POST', body: formData });
+          const data = await res.json();
+          if (data.success && data.url) {
+            state.bgImage = data.url; // replace data:// with persistent server URL
+            canvasBgImage.style.backgroundImage = 'url(' + data.url + ')';
+            scheduleAutoSave(); // save the file URL to DB
+          }
+        } catch (e) {
+          console.warn('[Branding] Image upload failed, keeping local preview:', e);
+          scheduleAutoSave(); // still save (will store data:// as fallback)
+        }
+      })();
       pushHistory();
     };
     reader.readAsDataURL(file);
@@ -2516,6 +2535,63 @@
     state.zoom = 100;
     fitCanvasToViewport();
   });
+
+  // ── Mobile zoom buttons ──
+  var mBtnZoomIn  = document.getElementById('mobile-btn-zoom-in');
+  var mBtnZoomOut = document.getElementById('mobile-btn-zoom-out');
+  var mBtnZoomFit = document.getElementById('mobile-btn-zoom-fit');
+  if (mBtnZoomIn)  mBtnZoomIn.addEventListener('click',  () => { state.zoom = Math.min(200, state.zoom + 15); fitCanvasToViewport(); });
+  if (mBtnZoomOut) mBtnZoomOut.addEventListener('click', () => { state.zoom = Math.max(20,  state.zoom - 15); fitCanvasToViewport(); });
+  if (mBtnZoomFit) mBtnZoomFit.addEventListener('click', () => { state.zoom = 100; fitCanvasToViewport(); });
+
+  // ── Pinch-to-zoom (touch) ──
+  (function initPinchZoom() {
+    if (!canvasArea) return;
+    var lastDist = 0;
+    var pinching = false;
+    var zoomAtPinchStart = 100;
+
+    function getTouchDist(e) {
+      var dx = e.touches[0].clientX - e.touches[1].clientX;
+      var dy = e.touches[0].clientY - e.touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    canvasArea.addEventListener('touchstart', function(e) {
+      if (e.touches.length === 2) {
+        pinching = true;
+        lastDist = getTouchDist(e);
+        zoomAtPinchStart = state.zoom;
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    canvasArea.addEventListener('touchmove', function(e) {
+      if (!pinching || e.touches.length !== 2) return;
+      var dist = getTouchDist(e);
+      var ratio = dist / lastDist;
+      var newZoom = Math.round(zoomAtPinchStart * ratio);
+      state.zoom = Math.min(250, Math.max(15, newZoom));
+      fitCanvasToViewport();
+      e.preventDefault();
+    }, { passive: false });
+
+    canvasArea.addEventListener('touchend', function(e) {
+      if (e.touches.length < 2) pinching = false;
+    }, { passive: true });
+
+    // Double-tap → Fit
+    var lastTap = 0;
+    canvasArea.addEventListener('touchend', function(e) {
+      if (pinching) return;
+      var now = Date.now();
+      if (now - lastTap < 300 && e.target === canvasArea) {
+        state.zoom = 100;
+        fitCanvasToViewport();
+      }
+      lastTap = now;
+    }, { passive: true });
+  })();
 
   // Mouse wheel zoom
   if (canvasArea) canvasArea.addEventListener('wheel', (e) => {
@@ -2916,8 +2992,12 @@
     var totalScale = fitScale * (state.zoom / 100);
     canvasWrapper.style.transform = 'scale(' + totalScale + ')';
     canvasWrapper.style.transformOrigin = 'center center';
+    var label = state.zoom + '%';
     var zv = document.getElementById('zoom-val');
-    if (zv) zv.textContent = state.zoom + '%';
+    if (zv) zv.textContent = label;
+    // Sync mobile zoom display
+    var mzv = document.getElementById('mobile-zoom-val');
+    if (mzv) mzv.textContent = label;
   }
 
   function updateCanvas() {
@@ -3995,7 +4075,10 @@
       selectedStickerId = null;
     }
 
-    // BG image
+    // BG image — if still stored as base64 (interrupted session), re-upload now
+    if (state.bgImage && state.bgImage.startsWith('data:')) {
+      uploadBgIfDataUrl().then(() => scheduleAutoSave());
+    }
     if (state.bgImage) {
       if (bgClearBtn) bgClearBtn.style.display = '';
       if (bgImageControls) bgImageControls.style.display = '';

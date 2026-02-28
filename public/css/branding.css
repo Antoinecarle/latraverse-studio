@@ -4352,6 +4352,9 @@ input[type="range"]::-webkit-slider-thumb {
 /* ── Canvas Pattern Overlay ── */
 .canvas__pattern { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 
+/* ── Mobile zoom bar (hidden on desktop) ── */
+.mobile-zoom-bar { display: none; }
+
 /* ============================================================
    MOBILE OVERRIDES — Must be at end of file to beat base CSS
    ============================================================ */
@@ -4586,6 +4589,49 @@ input[type="range"]::-webkit-slider-thumb {
   .agent-panel__input { padding: 10px 14px 16px !important; gap: 8px !important; }
   .agent-panel__messages { min-height: 160px !important; max-height: 52vh !important; padding: 14px 16px !important; }
   .agent-msg__text { font-size: 15px !important; max-width: 82% !important; padding: 11px 14px !important; }
+
+  /* ── Mobile zoom bar: floats top-right of canvas area ── */
+  .mobile-zoom-bar {
+    display: flex !important;
+    align-items: center !important;
+    gap: 2px !important;
+    position: fixed !important;
+    top: 60px !important;
+    right: 10px !important;
+    z-index: 130 !important;
+    background: rgba(18,18,18,0.88) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 10px !important;
+    padding: 3px !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4) !important;
+  }
+  .mobile-zoom-btn {
+    width: 34px !important;
+    height: 34px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-dim) !important;
+    border-radius: 7px !important;
+    cursor: pointer !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    transition: background 0.15s !important;
+  }
+  .mobile-zoom-btn:active { background: rgba(255,255,255,0.12) !important; }
+  .mobile-zoom-btn--fit { font-size: 11px !important; color: var(--accent) !important; font-weight: 700 !important; padding: 0 6px !important; width: auto !important; }
+  .mobile-zoom-val {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: var(--text-dim) !important;
+    min-width: 34px !important;
+    text-align: center !important;
+    padding: 0 2px !important;
+  }
 
   /* ── Touch-friendly controls ── */
   .format-btn { min-height: 48px !important; }
