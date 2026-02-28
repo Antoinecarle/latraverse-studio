@@ -503,15 +503,103 @@
         break;
       }
       case 'generateSticker': {
-        var sp = document.getElementById('sticker-ai-prompt');
-        var sb = document.getElementById('btn-generate-sticker');
-        if (sp && sb) { sp.value = args.prompt; sb.click(); }
+        // Direct API call — bypasses fragile button clicks
+        (async function () {
+          try {
+            var res = await fetch('/api/branding/generate-sticker', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                prompt: args.prompt,
+                category: args.category || 'icon',
+                tone: args.tone || 'flat',
+              }),
+            });
+            var data = await res.json();
+            if (data.success && data.url && window.__brandingAddAiSticker) {
+              window.__brandingAddAiSticker(data.url, {
+                x: args.x || 50,
+                y: args.y || 50,
+                size: args.size || 90,
+              });
+            }
+          } catch (e) {
+            console.error('[Agent] Sticker generation failed:', e);
+          }
+        })();
         break;
       }
       case 'generateSvgAnimation': {
-        var svgp = document.getElementById('svg-anim-prompt');
-        var svgb = document.getElementById('btn-generate-svg-anim');
-        if (svgp && svgb) { svgp.value = args.prompt; svgb.click(); }
+        // Direct API call — bypasses fragile button clicks
+        (async function () {
+          try {
+            var res = await fetch('/api/branding/generate-svg-animation', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                prompt: args.prompt,
+                type: args.type || 'illustration',
+                style: args.style || 'organic',
+              }),
+            });
+            var data = await res.json();
+            if (data.success && data.svg && window.__brandingAddSvg) {
+              window.__brandingAddSvg(data.svg, {
+                x: args.x || 50,
+                y: args.y || 50,
+                size: args.size || 120,
+              });
+            }
+          } catch (e) {
+            console.error('[Agent] SVG animation generation failed:', e);
+          }
+        })();
+        break;
+      }
+      case 'addSticker': {
+        if (window.__brandingAddSticker) {
+          window.__brandingAddSticker(args.sticker, {
+            x: args.x,
+            y: args.y,
+            layer: args.layer,
+          });
+        }
+        break;
+      }
+      case 'clearStickers': {
+        if (window.__brandingClearStickers) window.__brandingClearStickers();
+        break;
+      }
+      case 'setBorderStyle': {
+        if (window.__brandingSetBorderStyle) window.__brandingSetBorderStyle(args);
+        break;
+      }
+      case 'setSublineStyle': {
+        if (window.__brandingSetSublineStyle) window.__brandingSetSublineStyle(args.style);
+        break;
+      }
+      case 'setCtaStyle': {
+        if (window.__brandingSetCtaStyle) window.__brandingSetCtaStyle(args);
+        break;
+      }
+      case 'setHeadlineDecoration': {
+        if (window.__brandingSetHeadlineDecoration) window.__brandingSetHeadlineDecoration(args.decoration);
+        break;
+      }
+      case 'setPattern': {
+        if (window.__brandingSetPattern) window.__brandingSetPattern(args);
+        break;
+      }
+      case 'setOverlay': {
+        if (window.__brandingSetOverlay) window.__brandingSetOverlay(args);
+        break;
+      }
+      case 'setContentAlign': {
+        if (window.__brandingSetContentAlign) window.__brandingSetContentAlign(args.align);
+        break;
+      }
+      case 'toggleElement': {
+        if (window.__brandingToggleElement) window.__brandingToggleElement(args.element, args.show);
         break;
       }
       case 'exportDesign': {

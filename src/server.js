@@ -1597,6 +1597,131 @@ const AGENT_TOOLS = [
         blur: { type: 'number', description: 'Flou en px (0-20)' }
       }
     }
+  },
+  {
+    type: 'function',
+    name: 'addSticker',
+    description: "Ajoute un élément décoratif prédéfini (badge, carte, forme, icône, cadre) sur le canvas. Éléments disponibles : BADGES: pill-gradient, pill-outline, tag-label, badge-circle, chip-duo | CARTES: glass-card-sm, glass-card-lg, stat-card | FORMES: blob-accent, blob-gradient, circle-outline, square-rotated, line-h, line-v, dots-grid | ICÔNES: app-icon, app-icon-glass, diamond, star-4 | CADRES: phone-frame, browser-frame, bracket-tl, rounded-grid. Ils utilisent automatiquement les couleurs accent du design.",
+    parameters: {
+      type: 'object',
+      properties: {
+        sticker: { type: 'string', description: "Clé du sticker (ex: pill-gradient, glass-card-sm, blob-accent, phone-frame, star-4)" },
+        x: { type: 'number', description: 'Position horizontale en % (0-90), 50 = centre' },
+        y: { type: 'number', description: 'Position verticale en % (0-90), 50 = centre' },
+        layer: { type: 'string', enum: ['above', 'below'], description: 'Calque: above (devant le texte) ou below (derrière)' }
+      },
+      required: ['sticker']
+    }
+  },
+  {
+    type: 'function',
+    name: 'clearStickers',
+    description: 'Supprime tous les stickers/éléments décoratifs du canvas',
+    parameters: { type: 'object', properties: {} }
+  },
+  {
+    type: 'function',
+    name: 'setBorderStyle',
+    description: "Change le style de la bordure du design. Styles: thin (1px), classic (2px), thick (4px), double, dashed, inset",
+    parameters: {
+      type: 'object',
+      properties: {
+        style: { type: 'string', enum: ['thin', 'classic', 'thick', 'double', 'dashed', 'inset'], description: 'Style de bordure' },
+        color: { type: 'string', description: 'Couleur de bordure (hex). Si vide, utilise la couleur accent' },
+        offset: { type: 'number', description: "Espacement de la bordure depuis le bord (0-50px, défaut 12)" },
+        show: { type: 'boolean', description: 'Afficher ou masquer la bordure' }
+      }
+    }
+  },
+  {
+    type: 'function',
+    name: 'setSublineStyle',
+    description: "Change le style du sous-titre. Styles: text (texte simple), badge (fond coloré rectangulaire), pill (fond coloré arrondi), separator (ligne sous le texte)",
+    parameters: {
+      type: 'object',
+      properties: {
+        style: { type: 'string', enum: ['text', 'badge', 'pill', 'separator'], description: 'Style du sous-titre' }
+      },
+      required: ['style']
+    }
+  },
+  {
+    type: 'function',
+    name: 'setCtaStyle',
+    description: "Change le style du call-to-action (CTA). Styles: text (lien simple), filled (bouton rempli), outline (bouton contour), pill (bouton arrondi)",
+    parameters: {
+      type: 'object',
+      properties: {
+        style: { type: 'string', enum: ['text', 'filled', 'outline', 'pill'], description: 'Style du CTA' },
+        bgColor: { type: 'string', description: 'Couleur de fond du bouton (hex)' },
+        textColor: { type: 'string', description: 'Couleur du texte du bouton (hex)' },
+        radius: { type: 'number', description: 'Rayon des coins en px (-1 = défaut)' }
+      }
+    }
+  },
+  {
+    type: 'function',
+    name: 'setHeadlineDecoration',
+    description: "Ajoute une décoration visuelle au titre. Décorations: none (aucune), underline (souligné accent), bar (barre sous le titre), double (double souligné), highlight (surlignage fond accent)",
+    parameters: {
+      type: 'object',
+      properties: {
+        decoration: { type: 'string', enum: ['none', 'underline', 'bar', 'double', 'highlight'], description: 'Type de décoration' }
+      },
+      required: ['decoration']
+    }
+  },
+  {
+    type: 'function',
+    name: 'setPattern',
+    description: "Ajoute un motif de fond (pattern) subtil au design. Motifs: none, dots, lines, cross, diagonal",
+    parameters: {
+      type: 'object',
+      properties: {
+        pattern: { type: 'string', enum: ['none', 'dots', 'lines', 'cross', 'diagonal'], description: 'Type de motif' },
+        opacity: { type: 'number', description: 'Opacité du motif (0-100, défaut 15)' },
+        scale: { type: 'number', description: 'Taille du motif en px (5-50, défaut 20)' }
+      },
+      required: ['pattern']
+    }
+  },
+  {
+    type: 'function',
+    name: 'setOverlay',
+    description: "Ajoute un overlay (voile) coloré sur l'image de fond. Modes: solid (uniforme), top (dégradé du haut), bottom (dégradé du bas), radial (vignette circulaire)",
+    parameters: {
+      type: 'object',
+      properties: {
+        color: { type: 'string', description: 'Couleur de overlay (hex)' },
+        opacity: { type: 'number', description: 'Opacité (0-100, 0 = désactivé)' },
+        mode: { type: 'string', enum: ['solid', 'top', 'bottom', 'radial'], description: 'Mode de overlay' }
+      }
+    }
+  },
+  {
+    type: 'function',
+    name: 'setContentAlign',
+    description: "Change l'alignement vertical du contenu sur le canvas",
+    parameters: {
+      type: 'object',
+      properties: {
+        align: { type: 'string', enum: ['start', 'center', 'end'], description: 'Alignement: start (haut), center (milieu), end (bas)' }
+      },
+      required: ['align']
+    }
+  },
+  {
+    type: 'function',
+    name: 'toggleElement',
+    description: "Affiche ou masque un élément du design (sous-titre, corps, CTA, logo)",
+    parameters: {
+      type: 'object',
+      properties: {
+        element: { type: 'string', enum: ['subline', 'body', 'cta', 'logo'], description: 'Élément à basculer' },
+        show: { type: 'boolean', description: 'Afficher (true) ou masquer (false)' }
+      },
+      required: ['element', 'show']
+    }
   }
 ];
 
@@ -1627,7 +1752,18 @@ function buildDesignStateDescription(ds) {
 - Ombre texte: ${ds.fxShadow || 0}
 - Glow: ${ds.fxGlow || 0}
 - Outline: ${ds.fxOutline ? 'oui' : 'non'}
-- Nombre de stickers: ${ds.stickers?.length || 0}`;
+- Nombre de stickers: ${ds.stickers?.length || 0}
+- Style bordure: ${ds.borderStyle || 'classic'}
+- Couleur bordure: ${ds.borderColor || '(utilise accent)'}
+- Style sous-titre: ${ds.sublineStyle || 'text'}
+- Style CTA: ${ds.ctaStyle || 'text'}
+- Décoration titre: ${ds.headlineDecoration || 'none'}
+- Motif de fond: ${ds.bgPattern || 'none'}
+- Overlay: ${ds.bgOverlayOpacity > 0 ? 'oui (' + ds.bgOverlayMode + ', ' + ds.bgOverlayOpacity + '%)' : 'non'}
+- Alignement contenu: ${ds.contentAlign || 'start'}
+- Sous-titre visible: ${ds.showSubline !== false ? 'oui' : 'non'}
+- Corps visible: ${ds.showBody !== false ? 'oui' : 'non'}
+- CTA visible: ${ds.showCta !== false ? 'oui' : 'non'}`;
 }
 
 function buildSystemPrompt(designState) {

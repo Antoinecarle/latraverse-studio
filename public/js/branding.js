@@ -6129,6 +6129,206 @@
     pushHistory();
   };
 
+  // ---- Add predefined sticker from library ----
+  window.__brandingAddSticker = function (defKey, opts) {
+    opts = opts || {};
+    var def = stickerDefs[defKey];
+    if (!def) return;
+    var cw = canvas.offsetWidth;
+    var ch = canvas.offsetHeight;
+    var sScale = cw / 540;
+    var sw = (opts.w || def.w) * sScale;
+    var sh = (opts.h || def.h) * sScale;
+    var x = opts.x != null ? opts.x : ((cw - sw) / 2 + (Math.random() - 0.5) * cw * 0.2) / cw * 100;
+    var y = opts.y != null ? opts.y : ((ch - sh) / 2 + (Math.random() - 0.5) * ch * 0.2) / ch * 100;
+    var sticker = {
+      id: 'stk-' + (++stickerIdCounter),
+      type: defKey,
+      x: Math.max(0, Math.min(90, x)),
+      y: Math.max(0, Math.min(90, y)),
+      w: sw, h: sh,
+      rotation: opts.rotation || 0,
+      opacity: opts.opacity != null ? opts.opacity : 1,
+      layer: opts.layer || 'above',
+    };
+    state.stickers.push(sticker);
+    renderStickers();
+    pushHistory();
+    scheduleAutoSave();
+    return sticker.id;
+  };
+
+  // ---- Add AI-generated image sticker ----
+  window.__brandingAddAiSticker = function (imageUrl, opts) {
+    opts = opts || {};
+    var cw = canvas.offsetWidth;
+    var sScale = cw / 540;
+    var sz = (opts.size || 90) * sScale;
+    var sticker = {
+      id: 'stk-' + (++stickerIdCounter),
+      type: 'ai-image',
+      imageUrl: imageUrl,
+      x: Math.max(0, Math.min(85, opts.x || 50)),
+      y: Math.max(0, Math.min(85, opts.y || 50)),
+      w: sz, h: sz,
+      rotation: opts.rotation || 0,
+      opacity: opts.opacity != null ? opts.opacity : 1,
+      layer: opts.layer || 'above',
+    };
+    state.stickers.push(sticker);
+    renderStickers();
+    pushHistory();
+    scheduleAutoSave();
+    return sticker.id;
+  };
+
+  // ---- Add SVG animation sticker ----
+  window.__brandingAddSvg = function (svgCode, opts) {
+    opts = opts || {};
+    var cw = canvas.offsetWidth;
+    var sScale = cw / 540;
+    var sz = (opts.size || 120) * sScale;
+    var sticker = {
+      id: 'stk-' + (++stickerIdCounter),
+      type: 'svg-animation',
+      svgCode: svgCode,
+      x: Math.max(0, Math.min(85, opts.x || 50)),
+      y: Math.max(0, Math.min(85, opts.y || 50)),
+      w: sz, h: sz,
+      rotation: 0,
+      opacity: opts.opacity != null ? opts.opacity : 1,
+      layer: opts.layer || 'above',
+    };
+    state.stickers.push(sticker);
+    renderStickers();
+    pushHistory();
+    scheduleAutoSave();
+    return sticker.id;
+  };
+
+  // ---- Remove all stickers ----
+  window.__brandingClearStickers = function () {
+    state.stickers = [];
+    renderStickers();
+    pushHistory();
+    scheduleAutoSave();
+  };
+
+  // ---- Set border style/color ----
+  window.__brandingSetBorderStyle = function (opts) {
+    if (opts.style) state.borderStyle = opts.style;
+    if (opts.color) state.borderColor = opts.color;
+    if (opts.offset != null) state.borderOffset = opts.offset;
+    if (opts.show !== undefined) {
+      state.showBorder = opts.show;
+      var optB = document.getElementById('opt-border');
+      if (optB) optB.checked = opts.show;
+      if (canvasBorder) canvasBorder.style.display = opts.show ? '' : 'none';
+    }
+    applyBorderStyle();
+    pushHistory();
+  };
+
+  // ---- Set subline style ----
+  window.__brandingSetSublineStyle = function (style) {
+    state.sublineStyle = style;
+    applySublineStyle();
+    pushHistory();
+  };
+
+  // ---- Set CTA style ----
+  window.__brandingSetCtaStyle = function (opts) {
+    if (opts.style) state.ctaStyle = opts.style;
+    if (opts.bgColor) state.ctaBgColor = opts.bgColor;
+    if (opts.textColor) state.ctaTextColor = opts.textColor;
+    if (opts.radius != null) state.ctaRadius = opts.radius;
+    applyCtaStyle();
+    pushHistory();
+  };
+
+  // ---- Set headline decoration ----
+  window.__brandingSetHeadlineDecoration = function (deco) {
+    state.headlineDecoration = deco;
+    applyHeadlineDecoration();
+    pushHistory();
+  };
+
+  // ---- Set background pattern ----
+  window.__brandingSetPattern = function (opts) {
+    if (opts.pattern) state.bgPattern = opts.pattern;
+    if (opts.opacity != null) state.bgPatternOpacity = opts.opacity;
+    if (opts.scale != null) state.bgPatternScale = opts.scale;
+    if (opts.color) state.bgPatternColor = opts.color;
+    applyPattern();
+    pushHistory();
+  };
+
+  // ---- Set overlay ----
+  window.__brandingSetOverlay = function (opts) {
+    if (opts.color) state.bgOverlayColor = opts.color;
+    if (opts.opacity != null) state.bgOverlayOpacity = opts.opacity;
+    if (opts.mode) state.bgOverlayMode = opts.mode;
+    var overlay = document.getElementById('canvas-bg-overlay');
+    if (overlay) {
+      if (state.bgOverlayOpacity > 0) {
+        var oc = state.bgOverlayColor || '#000000';
+        var oo = (state.bgOverlayOpacity || 0) / 100;
+        var mode = state.bgOverlayMode || 'solid';
+        if (mode === 'top') {
+          overlay.style.background = 'linear-gradient(to bottom, ' + oc + ', transparent)';
+        } else if (mode === 'bottom') {
+          overlay.style.background = 'linear-gradient(to top, ' + oc + ', transparent)';
+        } else if (mode === 'radial') {
+          overlay.style.background = 'radial-gradient(circle, transparent 30%, ' + oc + ')';
+        } else {
+          overlay.style.background = oc;
+        }
+        overlay.style.opacity = oo;
+      } else {
+        overlay.style.opacity = 0;
+      }
+    }
+    pushHistory();
+  };
+
+  // ---- Set content alignment ----
+  window.__brandingSetContentAlign = function (align) {
+    state.contentAlign = align;
+    applyContentAlign();
+    pushHistory();
+  };
+
+  // ---- Toggle visibility of elements ----
+  window.__brandingToggleElement = function (element, show) {
+    switch (element) {
+      case 'subline':
+        state.showSubline = show;
+        if (canvasSubline) canvasSubline.style.display = show ? '' : 'none';
+        var optSub = document.getElementById('opt-subline');
+        if (optSub) optSub.checked = show;
+        break;
+      case 'body':
+        state.showBody = show;
+        if (canvasBody) canvasBody.style.display = show ? '' : 'none';
+        var optBody = document.getElementById('opt-body');
+        if (optBody) optBody.checked = show;
+        break;
+      case 'cta':
+        state.showCta = show;
+        if (canvasCta) canvasCta.style.display = show ? '' : 'none';
+        var optCta = document.getElementById('opt-cta');
+        if (optCta) optCta.checked = show;
+        break;
+      case 'logo':
+        state.showLogo = show;
+        if (canvasLogo) canvasLogo.style.display = show ? '' : 'none';
+        var optLogo = document.getElementById('opt-logo');
+        if (optLogo) optLogo.checked = show;
+        break;
+    }
+    pushHistory();
+  };
+
   window.__brandingNewPub = async function (name) {
     await autoSave();
     await createNewPub(name);
