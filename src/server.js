@@ -1897,9 +1897,9 @@ wss.on('connection', (clientWs) => {
                 },
                 turn_detection: {
                   type: 'server_vad',
-                  threshold: 0.5,
-                  prefix_padding_ms: 300,
-                  silence_duration_ms: 700,
+                  threshold: 0.8,
+                  prefix_padding_ms: 500,
+                  silence_duration_ms: 1000,
                 },
               },
             };
