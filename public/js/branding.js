@@ -1407,6 +1407,9 @@
     document.querySelectorAll('.style-pack-btn').forEach(b => b.classList.remove('active'));
     clearPresetActive('accent');
     applyColors();
+    applyBorderStyle();
+    applyCtaStyle();
+    applyDecorations();
   });
   document.getElementById('color-accent').addEventListener('change', () => pushHistory());
 
@@ -6088,6 +6091,9 @@
     state.stylePack = null;
     document.querySelectorAll('.style-pack-btn').forEach(b => b.classList.remove('active'));
     applyColors();
+    applyBorderStyle();
+    applyCtaStyle();
+    applyDecorations();
     pushHistory();
   };
 
