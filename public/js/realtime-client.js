@@ -9,13 +9,16 @@ class RealtimeClient {
     this.workletNode = null;
     this.micStream = null;
 
-    // Playback state
+    // Playback state — uses a GainNode as kill switch
     this._playbackQueue = [];
     this._isPlaying = false;
     this._currentSource = null;
     this._nextPlaybackTime = 0;
+    this._gainNode = null;           // master gain — disconnect to kill ALL audio
+    this._allSources = [];           // track ALL scheduled sources for cleanup
     this._interrupted = false;       // true when user interrupted — ignore old audio deltas
-    this._currentResponseId = null;  // track which response is active
+    this._currentResponseId = null;  // track which response we accept audio from
+    this._playbackGeneration = 0;    // incremented on stop — orphaned onended callbacks bail out
 
     // Callbacks
     this.onSessionCreated = options.onSessionCreated || null;
@@ -96,6 +99,10 @@ class RealtimeClient {
     this.micStream = stream;
     this.audioContext = new AudioContext({ sampleRate: 24000 });
 
+    // Create master gain node for playback — disconnect this to kill ALL audio instantly
+    this._gainNode = this.audioContext.createGain();
+    this._gainNode.connect(this.audioContext.destination);
+
     // Load the AudioWorklet processor
     await this.audioContext.audioWorklet.addModule('/js/audio-processor.js');
 
@@ -118,7 +125,6 @@ class RealtimeClient {
 
     source.connect(this.workletNode);
     this.workletNode.connect(this.audioContext.destination);
-    // The worklet captures audio but doesn't output anything — connected to destination just to keep it alive
   }
 
   /**
@@ -128,12 +134,15 @@ class RealtimeClient {
     if (!this.audioContext) {
       this.audioContext = new AudioContext({ sampleRate: 24000 });
     }
+    if (!this._gainNode) {
+      this._gainNode = this.audioContext.createGain();
+      this._gainNode.connect(this.audioContext.destination);
+    }
 
     const bytes = this._base64ToArrayBuffer(base64Audio);
     const int16 = new Int16Array(bytes);
     const float32 = new Float32Array(int16.length);
 
-    // Convert Int16 to Float32
     for (let i = 0; i < int16.length; i++) {
       float32[i] = int16[i] / 32768;
     }
@@ -141,8 +150,11 @@ class RealtimeClient {
     const buffer = this.audioContext.createBuffer(1, float32.length, 24000);
     buffer.getChannelData(0).set(float32);
 
+    // Queue the buffer and kick the sequential player
     this._playbackQueue.push(buffer);
-    this._playNextChunk();
+    if (!this._isPlaying) {
+      this._playNextChunk();
+    }
   }
 
   _playNextChunk() {
@@ -152,18 +164,27 @@ class RealtimeClient {
     }
 
     this._isPlaying = true;
+    const gen = this._playbackGeneration; // capture current generation
     const buffer = this._playbackQueue.shift();
     const source = this.audioContext.createBufferSource();
     source.buffer = buffer;
-    source.connect(this.audioContext.destination);
+    source.connect(this._gainNode); // route through gain node, NOT directly to destination
 
     const now = this.audioContext.currentTime;
     const startTime = Math.max(now, this._nextPlaybackTime);
     source.start(startTime);
     this._nextPlaybackTime = startTime + buffer.duration;
     this._currentSource = source;
+    this._allSources.push(source);
 
     source.onended = () => {
+      // If generation changed (stopPlayback was called), do NOT continue the chain
+      if (gen !== this._playbackGeneration) return;
+
+      // Remove from tracked sources
+      const idx = this._allSources.indexOf(source);
+      if (idx !== -1) this._allSources.splice(idx, 1);
+
       if (this._playbackQueue.length > 0) {
         this._playNextChunk();
       } else {
@@ -174,22 +195,43 @@ class RealtimeClient {
   }
 
   /**
-   * Stop all audio playback immediately
+   * Stop ALL audio playback immediately — nuclear option
    */
   stopPlayback() {
+    // Increment generation so any pending onended callbacks bail out
+    this._playbackGeneration++;
+
+    // Clear queue
     this._playbackQueue = [];
     this._nextPlaybackTime = 0;
-    if (this._currentSource) {
-      try { this._currentSource.stop(); } catch (e) {}
-      this._currentSource = null;
-    }
     this._isPlaying = false;
+    this._currentSource = null;
+
+    // Stop ALL tracked sources (not just the last one)
+    for (const src of this._allSources) {
+      try { src.stop(); } catch (e) {}
+      try { src.disconnect(); } catch (e) {}
+    }
+    this._allSources = [];
+
+    // Disconnect and recreate gain node — kills any audio still in the Web Audio pipeline
+    if (this._gainNode) {
+      try { this._gainNode.disconnect(); } catch (e) {}
+      if (this.audioContext && this.audioContext.state !== 'closed') {
+        this._gainNode = this.audioContext.createGain();
+        this._gainNode.connect(this.audioContext.destination);
+      }
+    }
   }
 
   /**
    * Send function call result back to the API
    */
   sendFunctionResult(callId, result) {
+    // Stop current playback before triggering a new response
+    // This prevents old audio from overlapping with the new response
+    this.stopPlayback();
+
     this._send({
       type: 'conversation.item.create',
       item: {
@@ -225,6 +267,8 @@ class RealtimeClient {
       this.audioContext.close().catch(() => {});
       this.audioContext = null;
     }
+
+    this._gainNode = null;
 
     if (this.ws) {
       this.ws.close();
@@ -263,25 +307,35 @@ class RealtimeClient {
         this._sessionConfigured = true;
         break;
 
-      case 'response.created':
-        // New response started — accept audio from this response
-        this._currentResponseId = data.response ? data.response.id : null;
+      case 'response.created': {
+        // New response — flush any leftover audio from previous response
+        const newId = data.response ? data.response.id : null;
+        if (this._currentResponseId && this._currentResponseId !== newId) {
+          // Different response starting — kill old audio
+          this.stopPlayback();
+        }
+        this._currentResponseId = newId;
         this._interrupted = false;
         if (this.onResponseCreated) this.onResponseCreated(data);
         break;
+      }
 
       case 'response.audio.delta':
-        // Stream audio chunk for playback — but IGNORE if we're interrupted
-        // (old response audio still arriving after user started speaking)
+        // ONLY play audio if not interrupted AND it belongs to current response
         if (data.delta && !this._interrupted) {
-          this.playAudio(data.delta);
-          if (this.onAudioDelta) this.onAudioDelta(data);
+          if (!data.response_id || data.response_id === this._currentResponseId) {
+            this.playAudio(data.delta);
+            if (this.onAudioDelta) this.onAudioDelta(data);
+          }
         }
         break;
 
       case 'response.audio_transcript.delta':
-        // Ignore transcript deltas from cancelled/interrupted responses
-        if (this.onTranscriptDelta && !this._interrupted) this.onTranscriptDelta(data.delta);
+        if (this.onTranscriptDelta && !this._interrupted) {
+          if (!data.response_id || data.response_id === this._currentResponseId) {
+            this.onTranscriptDelta(data.delta);
+          }
+        }
         break;
 
       case 'conversation.item.input_audio_transcription.completed':
@@ -291,10 +345,9 @@ class RealtimeClient {
         break;
 
       case 'input_audio_buffer.speech_started':
-        // User started speaking — stop AI audio and cancel the ongoing response
+        // User started speaking — KILL everything
         this._interrupted = true;
         this.stopPlayback();
-        // Tell OpenAI to cancel the current response so it stops generating audio
         this._send({ type: 'response.cancel' });
         if (this.onSpeechStarted) this.onSpeechStarted();
         break;
@@ -331,7 +384,6 @@ class RealtimeClient {
       case 'response.output_item.done':
       case 'conversation.item.created':
       case 'input_audio_buffer.committed':
-        // Known events we don't need to handle
         break;
 
       default:
