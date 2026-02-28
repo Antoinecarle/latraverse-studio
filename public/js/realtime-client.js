@@ -371,6 +371,12 @@ class RealtimeClient {
         break;
 
       case 'error':
+        // Ignore "no active response" — happens when response.cancel is sent
+        // while no response is generating (user spoke when AI was silent)
+        if (data.error && data.error.message && data.error.message.includes('no active response')) {
+          console.log('[Realtime] response.cancel ignored (no active response)');
+          break;
+        }
         console.error('[Realtime] API error:', data.error);
         if (this.onError) this.onError(data.error);
         break;
