@@ -38,13 +38,17 @@
     if (voiceMode || voiceConnecting) return;
     voiceConnecting = true;
 
-    // Open panel if closed
-    if (!chatOpen) {
-      agentPanel.classList.add('open');
-      chatOpen = true;
-      agentBtn.classList.add('active');
-      loadConversation();
+    var isMobile = window.innerWidth < 768;
+    if (!isMobile) {
+      // Desktop: open chat panel as usual
+      if (!chatOpen) {
+        agentPanel.classList.add('open');
+        chatOpen = true;
+        agentBtn.classList.add('active');
+        loadConversation();
+      }
     }
+    // Mobile: vocal-first — no panel, voice status pill handles all feedback
 
     setStatus('Connexion...');
     agentBtn.classList.add('thinking');
@@ -166,11 +170,12 @@
       console.error('[Agent] Failed to start voice mode:', err);
       voiceConnecting = false;
       agentBtn.classList.remove('thinking');
+      var errIsMobile = window.innerWidth < 768;
       if (err.name === 'NotAllowedError') {
-        addMessage('assistant', 'Micro refuse. Autorise le micro dans ton navigateur.');
+        if (errIsMobile) { setVoicePill('Micro refusé', true); } else { addMessage('assistant', 'Micro refuse. Autorise le micro dans ton navigateur.'); }
         setStatus('Micro refuse');
       } else {
-        addMessage('assistant', 'Impossible de demarrer le mode vocal: ' + err.message);
+        if (errIsMobile) { setVoicePill('Erreur connexion', true); } else { addMessage('assistant', 'Impossible de demarrer le mode vocal: ' + err.message); }
         setStatus('Erreur');
       }
       if (realtimeClient) {
@@ -196,6 +201,9 @@
 
     finalizeStreamingMessage();
     setStatus('');
+    // Mobile: hide voice status pill
+    var pill = document.getElementById('agent-voice-status');
+    if (pill) pill.classList.remove('visible');
   }
 
   // ============ STREAMING MESSAGE HELPERS ============
@@ -228,8 +236,32 @@
   }
 
   // ============ UI HELPERS ============
+  function setVoicePill(text, autoHide) {
+    var pill = document.getElementById('agent-voice-status');
+    var pillText = document.getElementById('agent-voice-status-pill');
+    if (!pill || !pillText) return;
+    pillText.textContent = text;
+    pill.classList.add('visible');
+    if (autoHide) {
+      setTimeout(function () { pill.classList.remove('visible'); }, 3000);
+    }
+  }
+
   function setStatus(text) {
     if (agentStatus) agentStatus.textContent = text;
+    // Mobile: mirror status in the floating voice pill when voice is active
+    if (window.innerWidth < 768 && (voiceMode || voiceConnecting)) {
+      var pill = document.getElementById('agent-voice-status');
+      var pillText = document.getElementById('agent-voice-status-pill');
+      if (pill && pillText) {
+        if (text) {
+          pillText.textContent = text;
+          pill.classList.add('visible');
+        } else {
+          pill.classList.remove('visible');
+        }
+      }
+    }
   }
 
   function addMessage(role, content) {

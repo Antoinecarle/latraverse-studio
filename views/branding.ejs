@@ -1740,7 +1740,12 @@
 </div>
 
 <!-- CREATIVE AGENT -->
-<button id="agent-btn" class="agent-fab" title="Agent Créatif (vocal)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg><span class="agent-fab__pulse"></span></button>
+<!-- Mobile: floating voice status label above FAB -->
+<div id="agent-voice-status" class="agent-voice-status">
+  <span id="agent-voice-status-pill" class="agent-voice-status__pill"></span>
+</div>
+<!-- FAB — Whisper-style waveform icon -->
+<button id="agent-btn" class="agent-fab" title="Agent Créatif (vocal)"><svg width="22" height="20" viewBox="0 0 24 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="0"  y="9"  width="2.8" height="2"   rx="1.4" opacity="0.35"/><rect x="3.6" y="6"  width="2.8" height="8"   rx="1.4" opacity="0.55"/><rect x="7.2" y="2"  width="2.8" height="16"  rx="1.4" opacity="0.85"/><rect x="10.8" y="4" width="2.8" height="12"  rx="1.4"/><rect x="14.4" y="1" width="2.8" height="18"  rx="1.4"/><rect x="18" y="5"  width="2.8" height="10"  rx="1.4" opacity="0.65"/><rect x="21.6" y="8" width="2.8" height="4"   rx="1.4" opacity="0.4"/></svg><span class="agent-fab__pulse"></span></button>
 <div id="agent-panel" class="agent-panel">
   <div class="agent-panel__header">
     <div class="agent-panel__title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg> Agent Créatif</div>
