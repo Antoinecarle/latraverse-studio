@@ -410,8 +410,10 @@
 
   var heroDescriptor = document.querySelector('.hero__descriptor');
 
-  if (heroTitle) {
+  if (heroTitle && !window.__gsapHeroTitle) {
     setTimeout(function() {
+      /* Guard: GSAP may have taken over */
+      if (window.__gsapHeroTitle) return;
       animateValue(900, easeOutQuart, function(p) {
         heroTitle.style.opacity = p;
         heroTitle.style.transform = 'translateY(' + (40 * (1 - p)) + 'px)';
