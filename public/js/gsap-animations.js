@@ -118,7 +118,7 @@
   var methodeSteps     = document.querySelectorAll('.methode__step');
   var methodeTimeLine  = document.getElementById('methodeTimelineLine');
 
-  if (methodeSection && methodeSteps.length && window.innerWidth > 768) {
+  if (methodeSection && methodeSteps.length) {
 
     /* Retirer reveal-item pour éviter conflit avec IntersectionObserver */
     methodeSteps.forEach(function (step) {
@@ -126,46 +126,40 @@
     });
 
     /* État initial GSAP */
-    gsap.set(methodeSteps, { autoAlpha: 0, x: -50 });
+    gsap.set(methodeSteps, { autoAlpha: 0, x: -40 });
 
     /* Reset la ligne CSS → GSAP prend le contrôle via scaleY */
     if (methodeTimeLine) {
       methodeTimeLine.classList.remove('is-drawing');
-      /* Mettre height à 100% et animer via scaleY (GPU) */
       methodeTimeLine.style.height = '100%';
       methodeTimeLine.style.transition = 'none';
       gsap.set(methodeTimeLine, { scaleY: 0, transformOrigin: 'top center' });
-    }
 
-    /* Timeline GSAP pilotée par le scroll */
-    var tl = gsap.timeline({
-      scrollTrigger: {
+      /* Ligne se dessine via scrub — sans pin */
+      ScrollTrigger.create({
         trigger: methodeSection,
-        start: 'top 5%',
-        end: '+=' + (methodeSteps.length * 300),
-        scrub: 1.5,
-        pin: true,
-        anticipatePin: 1
-      }
-    });
-
-    /* Ligne qui se dessine en sync avec le scroll */
-    if (methodeTimeLine) {
-      tl.to(methodeTimeLine, {
-        scaleY: 1,
-        duration: methodeSteps.length,
-        ease: 'none'
-      }, 0);
+        start: 'top 70%',
+        end: 'bottom 30%',
+        scrub: 1,
+        onUpdate: function (self) {
+          gsap.set(methodeTimeLine, { scaleY: self.progress });
+        }
+      });
     }
 
-    /* Chaque étape apparaît l'une après l'autre */
-    methodeSteps.forEach(function (step, i) {
-      tl.to(step, {
+    /* Chaque étape reveal individuelle au scroll */
+    methodeSteps.forEach(function (step) {
+      gsap.to(step, {
         autoAlpha: 1,
         x: 0,
-        duration: 0.6,
-        ease: 'power2.out'
-      }, i * 1.0 + 0.15);
+        duration: 0.7,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: step,
+          start: 'top 85%',
+          once: true
+        }
+      });
     });
   }
 
