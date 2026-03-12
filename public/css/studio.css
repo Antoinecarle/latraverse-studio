@@ -616,9 +616,6 @@ body {
 .ob-parcours-card[data-parcours="ia"] .ob-parcours-meta {
   border-color: rgba(255,255,255,0.12);
 }
-.ob-parcours-price {
-  font-weight: 600;
-}
 .ob-parcours-duration {
   font-family: 'Space Mono', monospace;
   font-size: 10px;

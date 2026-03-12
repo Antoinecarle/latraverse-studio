@@ -26,8 +26,6 @@ async function createLead(data) {
     metier: data.metier || null,
     parcours: data.parcours,
     selections: data.selections || {},
-    estimated_min: data.estimated_min || 0,
-    estimated_max: data.estimated_max || 0,
     duration: data.duration || null,
     created_at: new Date().toISOString(),
   };

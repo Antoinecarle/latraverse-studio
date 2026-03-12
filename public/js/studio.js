@@ -63,8 +63,6 @@
           ]
         }
       ],
-      basePrice: 3000,
-      pricePerOption: 150,
       duration: '1-2 semaines',
       included: ['Design responsive mobile', 'Hebergement 1 an inclus', 'Formation a l\'autonomie', 'Support continu 6 mois']
     },
@@ -100,8 +98,6 @@
           ]
         }
       ],
-      basePrice: 8000,
-      pricePerOption: 400,
       duration: '4-6 semaines',
       included: ['iOS & Android natif', 'Design sur-mesure', 'Publication sur les stores', 'Formation equipe', 'Support continu 6 mois']
     },
@@ -137,8 +133,6 @@
           ]
         }
       ],
-      basePrice: 6000,
-      pricePerOption: 350,
       duration: '3-5 semaines',
       included: ['Hebergement cloud securise', 'Mises a jour continues', 'Formation equipe complete', 'Support continu 6 mois']
     },
@@ -180,8 +174,6 @@
           ]
         }
       ],
-      basePrice: 3000,
-      pricePerOption: 300,
       duration: '1-2 semaines',
       included: ['Configuration sur-mesure', 'Entrainement IA sur vos donnees', 'Formation equipe', 'Support continu 6 mois', 'Mises a jour du modele IA']
     }
@@ -423,12 +415,6 @@
   }
 
   function renderEstimation(parcours) {
-    var step1Count = configSelections.step1.size;
-    var step2Count = configSelections.step2.size;
-    var totalOptions = step1Count + step2Count;
-    var priceMin = parcours.basePrice + (totalOptions * parcours.pricePerOption);
-    var priceMax = Math.round(priceMin * 1.4);
-
     var metierLabel = selectedMetier ? metierNames[selectedMetier] : 'votre activite';
 
     var selectedStep1 = parcours.steps[0].options.filter(function(o) { return configSelections.step1.has(o.id); });
@@ -498,12 +484,12 @@
     if (form) {
       form.addEventListener('submit', function(e) {
         e.preventDefault();
-        submitLeadForm(parcours, priceMin, priceMax);
+        submitLeadForm(parcours);
       });
     }
   }
 
-  function submitLeadForm(parcours, priceMin, priceMax) {
+  function submitLeadForm(parcours) {
     var email = document.getElementById('leadEmail').value.trim();
     var name = document.getElementById('leadName').value.trim();
     var phone = document.getElementById('leadPhone').value.trim();
@@ -530,8 +516,6 @@
         step1: Array.from(configSelections.step1),
         step2: Array.from(configSelections.step2)
       },
-      estimated_min: priceMin,
-      estimated_max: priceMax,
       duration: parcours.duration
     };
 

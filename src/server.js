@@ -242,7 +242,7 @@ app.post('/admin/diagnostic/:id/delete', async (req, res) => {
 // ===== API — LEADS (parcours studio) =====
 
 app.post('/api/leads', async (req, res) => {
-  const { email, name, phone, metier, parcours, selections, estimated_min, estimated_max, duration } = req.body;
+  const { email, name, phone, metier, parcours, selections, duration } = req.body;
 
   if (!email || !parcours) {
     return res.status(400).json({ error: 'Email et parcours requis' });
@@ -252,7 +252,7 @@ app.post('/api/leads', async (req, res) => {
     // Sauvegarder en DB
     const lead = await leadsDb.createLead({
       email, name, phone, metier, parcours, selections,
-      estimated_min, estimated_max, duration,
+      duration,
     });
 
     // Envoyer l'email de notification via Resend
@@ -275,7 +275,6 @@ app.post('/api/leads', async (req, res) => {
             ${phone ? `<tr><td style="padding: 8px 0; color: #999;">Telephone</td><td style="padding: 8px 0;">${phone}</td></tr>` : ''}
             ${metier ? `<tr><td style="padding: 8px 0; color: #999;">Metier</td><td style="padding: 8px 0;">${metier}</td></tr>` : ''}
             <tr><td style="padding: 8px 0; color: #999;">Parcours</td><td style="padding: 8px 0; font-weight: 600; color: #c4622a;">${parcoursLabel}</td></tr>
-            <tr><td style="padding: 8px 0; color: #999;">Estimation</td><td style="padding: 8px 0;">${estimated_min || '?'} - ${estimated_max || '?'} EUR HT</td></tr>
             <tr><td style="padding: 8px 0; color: #999;">Delai</td><td style="padding: 8px 0;">${duration || '-'}</td></tr>
           </table>
           ${step1Items.length > 0 ? `<div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee;">
@@ -309,7 +308,7 @@ app.post('/api/leads', async (req, res) => {
       console.warn('[LEAD] Resend not configured — skipping email notification');
     }
 
-    console.log('[LEAD]', lead.created_at, '-', email, '-', parcours, '-', estimated_min + '-' + estimated_max + ' EUR');
+    console.log('[LEAD]', lead.created_at, '-', email, '-', parcours);
     res.json({ success: true, lead_id: lead.id });
   } catch (err) {
     console.error('Lead creation error:', err);
@@ -2177,5 +2176,7 @@ wss.on('connection', (clientWs) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`La Traverse running at http://0.0.0.0:${PORT}`);
+  let publicIp = '72.62.237.177';
+  try { publicIp = require('child_process').execSync('curl -s -4 ifconfig.me', { timeout: 3000 }).toString().trim(); } catch {}
+  console.log(`La Traverse running at http://${publicIp}:${PORT}`);
 });

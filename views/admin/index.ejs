@@ -142,7 +142,6 @@
   .lead-parcours-application { background: rgba(106,90,205,0.2); color: #9b8ee0; }
   .lead-parcours-outil { background: rgba(240,232,220,0.08); color: rgba(240,232,220,0.7); }
   .lead-parcours-ia { background: rgba(196,98,42,0.2); color: var(--copper-light); }
-  .lead-price { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--copper-light); }
   .lead-date { font-size: 11px; color: rgba(240,232,220,0.3); }
   .lead-metier { font-size: 12px; color: rgba(240,232,220,0.45); }
   .lead-selections { font-size: 11px; color: rgba(240,232,220,0.35); max-width: 280px; line-height: 1.5; }
@@ -277,7 +276,6 @@
             <th>Contact</th>
             <th>Metier</th>
             <th>Parcours</th>
-            <th>Estimation</th>
             <th>Selections</th>
             <th>Date</th>
             <th></th>
@@ -295,7 +293,6 @@
               </td>
               <td><span class="lead-metier"><%= lead.metier || '-' %></span></td>
               <td><span class="lead-parcours lead-parcours-<%= lead.parcours %>"><%= lead.parcours %></span></td>
-              <td><span class="lead-price"><%= lead.estimated_min || '?' %> - <%= lead.estimated_max || '?' %> &euro;</span></td>
               <td><span class="lead-selections"><%= allSel.length > 0 ? allSel.join(', ') : '-' %></span></td>
               <td><span class="lead-date"><%= new Date(lead.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) %></span></td>
               <td>
