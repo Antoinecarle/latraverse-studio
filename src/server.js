@@ -9,6 +9,7 @@ const leadsDb = require('./db/leads');
 const diagnosticsDb = require('./db/diagnostics');
 const brandingsDb = require('./db/brandings');
 const conversationsDb = require('./db/conversations');
+const contactsDb = require('./db/contacts');
 const sharp = require('sharp');
 
 let resend = null;
@@ -318,41 +319,20 @@ app.post('/api/leads', async (req, res) => {
 
 // ===== API — CONTACT FORM =====
 
-const CONTACTS_FILE = path.join(__dirname, '..', 'data', 'contacts.json');
-
-app.post('/api/contact', (req, res) => {
+app.post('/api/contact', async (req, res) => {
   const { name, email, metier, message } = req.body;
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'Champs requis manquants' });
   }
 
-  const entry = {
-    id: Date.now().toString(36),
-    name,
-    email,
-    metier: metier || '',
-    message,
-    date: new Date().toISOString()
-  };
-
-  // Stocker le message localement
   try {
-    const dir = path.dirname(CONTACTS_FILE);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-
-    let contacts = [];
-    if (fs.existsSync(CONTACTS_FILE)) {
-      contacts = JSON.parse(fs.readFileSync(CONTACTS_FILE, 'utf-8'));
-    }
-    contacts.push(entry);
-    fs.writeFileSync(CONTACTS_FILE, JSON.stringify(contacts, null, 2));
+    const contact = await contactsDb.createContact({ name, email, metier, message });
+    console.log('[CONTACT]', contact.created_at, '-', name, '<' + email + '>', '-', metier || '(pas de metier)', '-', message.substring(0, 80));
+    res.json({ success: true, message: 'Message bien recu' });
   } catch (err) {
     console.error('Erreur stockage contact:', err.message);
+    res.status(500).json({ error: 'Erreur lors de la sauvegarde' });
   }
-
-  console.log('[CONTACT]', entry.date, '-', name, '<' + email + '>', '-', metier || '(pas de metier)', '-', message.substring(0, 80));
-
-  res.json({ success: true, message: 'Message bien recu' });
 });
 
 // ===== API — AI AUTO-FILL =====

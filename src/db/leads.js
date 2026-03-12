@@ -1,50 +1,37 @@
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
-
-const DATA_FILE = path.join(__dirname, '..', '..', 'data', 'leads.json');
-
-function readAll() {
-  if (!fs.existsSync(DATA_FILE)) return [];
-  try { return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); }
-  catch { return []; }
-}
-
-function writeAll(leads) {
-  const dir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(DATA_FILE, JSON.stringify(leads, null, 2));
-}
+const pool = require('./pool');
 
 async function createLead(data) {
-  const leads = readAll();
-  const lead = {
-    id: crypto.randomUUID(),
-    email: data.email,
-    name: data.name || null,
-    phone: data.phone || null,
-    metier: data.metier || null,
-    parcours: data.parcours,
-    selections: data.selections || {},
-    duration: data.duration || null,
-    created_at: new Date().toISOString(),
-  };
-  leads.unshift(lead);
-  writeAll(leads);
-  return lead;
+  const { rows } = await pool.query(
+    `INSERT INTO leads (email, name, phone, metier, parcours, selections, estimated_min, estimated_max, duration)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     RETURNING *`,
+    [
+      data.email,
+      data.name || null,
+      data.phone || null,
+      data.metier || null,
+      data.parcours || null,
+      JSON.stringify(data.selections || {}),
+      data.estimated_min || null,
+      data.estimated_max || null,
+      data.duration || null,
+    ]
+  );
+  return rows[0];
 }
 
 async function getAllLeads() {
-  return readAll();
+  const { rows } = await pool.query('SELECT * FROM leads ORDER BY created_at DESC');
+  return rows;
 }
 
 async function getLeadById(id) {
-  return readAll().find(l => l.id === id) || null;
+  const { rows } = await pool.query('SELECT * FROM leads WHERE id = $1', [id]);
+  return rows[0] || null;
 }
 
 async function deleteLead(id) {
-  const leads = readAll().filter(l => l.id !== id);
-  writeAll(leads);
+  await pool.query('DELETE FROM leads WHERE id = $1', [id]);
 }
 
 module.exports = { createLead, getAllLeads, getLeadById, deleteLead };

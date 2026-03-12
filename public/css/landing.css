@@ -4394,7 +4394,7 @@ button {
 
 .expertise-section .section__header {
   text-align: center;
-  margin-bottom: var(--space-block);
+  margin: 0 auto var(--space-block);
 }
 
 .expertise-section .section__title {
@@ -4558,7 +4558,7 @@ button {
 
 .ia-souveraine .section__header {
   text-align: center;
-  margin-bottom: var(--space-block);
+  margin: 0 auto var(--space-block);
 }
 
 .ia-souveraine .section__title {
