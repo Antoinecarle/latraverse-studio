@@ -12,27 +12,30 @@
 }
 
 :root {
-  /* Color tokens */
+  /* Color tokens — Professional / Technical */
   --color-bg: #fafaf8;
   --color-bg-alt: #f2f0ec;
   --color-bg-cream: #f5f0e8;
-  --color-bg-dark: #1a1a1a;
+  --color-bg-dark: #0f1117;
+  --color-bg-dark-alt: #181b24;
   --color-surface: #ffffff;
   --color-text: #1a1a1a;
-  --color-text-secondary: #6b6560;
-  --color-text-tertiary: #9c9690;
-  --color-text-inverse: #fafaf8;
+  --color-text-secondary: #55586a;
+  --color-text-tertiary: #8b8ea0;
+  --color-text-inverse: #f0f0f2;
   --color-accent: #c4622a;
   --color-accent-hover: #a84e33;
-  --color-border: rgba(26, 26, 26, 0.12);
-  --color-border-dark: rgba(26, 26, 26, 0.25);
+  --color-accent-blue: #3b6cf5;
+  --color-accent-green: #2d8a6e;
+  --color-border: rgba(26, 26, 26, 0.10);
+  --color-border-dark: rgba(26, 26, 26, 0.20);
 
-  /* Typography */
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-serif: 'DM Serif Display', Georgia, serif;
-  --font-serif-body: 'Libre Baskerville', Georgia, serif;
-  --font-sans: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: 'Space Mono', 'Courier New', monospace;
+  /* Typography — Fontshare */
+  --font-display: 'Clash Display', 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Zodiak', Georgia, serif;
+  --font-serif-body: 'Zodiak', Georgia, serif;
+  --font-sans: 'Satoshi', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
 
   /* Spacing */
   --space-section: clamp(80px, 12vw, 160px);
@@ -4360,4 +4363,568 @@ button {
   .methode__progress {
     max-width: 100%;
   }
+}
+
+/* ============================================================
+   EXPERTISE SaaS SHOWCASE — Phase 2
+   ============================================================ */
+.expertise-section {
+  background: var(--color-bg-dark);
+  color: var(--color-text-inverse);
+  padding: var(--space-section) 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.expertise-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(196,98,42,0.3), transparent);
+}
+
+.expertise-section .section__container {
+  max-width: var(--full-max);
+  margin: 0 auto;
+  padding: 0 var(--container-pad);
+}
+
+.expertise-section .section__header {
+  text-align: center;
+  margin-bottom: var(--space-block);
+}
+
+.expertise-section .section__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--color-text-inverse);
+  margin-bottom: 16px;
+}
+
+.expertise-section .section__subtitle {
+  font-family: var(--font-sans);
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  color: rgba(240,240,242,0.6);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.expertise__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.expertise__card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 36px 28px;
+  transition: all 0.35s ease;
+  position: relative;
+}
+
+.expertise__card:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(196,98,42,0.3);
+  transform: translateY(-4px);
+}
+
+.expertise__card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(196,98,42,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: var(--color-accent);
+}
+
+.expertise__card-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--color-text-inverse);
+}
+
+.expertise__card-desc {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: rgba(240,240,242,0.55);
+  line-height: 1.65;
+  margin-bottom: 20px;
+}
+
+.expertise__card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.expertise__card-tag {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.06);
+  color: rgba(240,240,242,0.5);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.expertise__architecture {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+}
+
+.expertise__arch-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: rgba(240,240,242,0.7);
+  margin-bottom: 28px;
+  letter-spacing: 0.02em;
+}
+
+.expertise__arch-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.expertise__arch-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: rgba(59,108,245,0.1);
+  border: 1px solid rgba(59,108,245,0.2);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(240,240,242,0.8);
+}
+
+.expertise__arch-arrow {
+  color: rgba(240,240,242,0.2);
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .expertise__grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .expertise__arch-flow {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .expertise__arch-arrow {
+    transform: rotate(90deg);
+  }
+}
+
+/* ============================================================
+   IA SOUVERAINE & CONFORMITE — Phase 3
+   ============================================================ */
+.ia-souveraine {
+  background: var(--color-bg-alt);
+  padding: var(--space-section) 0;
+  position: relative;
+}
+
+.ia-souveraine .section__container {
+  max-width: var(--full-max);
+  margin: 0 auto;
+  padding: 0 var(--container-pad);
+}
+
+.ia-souveraine .section__header {
+  text-align: center;
+  margin-bottom: var(--space-block);
+}
+
+.ia-souveraine .section__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 600;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.ia-souveraine .section__subtitle {
+  font-family: var(--font-sans);
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  color: var(--color-text-secondary);
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.ia__pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.ia__pillar {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 36px 28px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.ia__pillar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-accent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ia__pillar:hover::before {
+  opacity: 1;
+}
+
+.ia__pillar:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+  transform: translateY(-2px);
+}
+
+.ia__pillar-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.ia__pillar-icon--shield { background: rgba(45,138,110,0.1); color: #2d8a6e; }
+.ia__pillar-icon--eu { background: rgba(59,108,245,0.1); color: #3b6cf5; }
+.ia__pillar-icon--lock { background: rgba(196,98,42,0.1); color: #c4622a; }
+
+.ia__pillar-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.ia__pillar-desc {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+  margin-bottom: 16px;
+}
+
+.ia__pillar-list {
+  list-style: none;
+  padding: 0;
+}
+
+.ia__pillar-list li {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  padding: 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ia__pillar-list li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.ia__certifications {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  padding-top: 16px;
+}
+
+.ia__cert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.ia__cert-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-accent-green);
+}
+
+@media (max-width: 768px) {
+  .ia__pillars {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .ia__certifications {
+    gap: 12px;
+  }
+  .ia__cert {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ============================================================
+   EQUIPE HYBRIDE — Phase 4 (updated)
+   ============================================================ */
+.equipe-hybrid__model {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 48px;
+}
+
+.equipe-hybrid__block {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.equipe-hybrid__block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--color-accent);
+}
+
+.equipe-hybrid__block--network::before {
+  background: var(--color-accent-blue);
+}
+
+.equipe-hybrid__block-overline {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 16px;
+}
+
+.equipe-hybrid__block--network .equipe-hybrid__block-overline {
+  color: var(--color-accent-blue);
+}
+
+.equipe-hybrid__block-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.equipe-hybrid__block-desc {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+}
+
+.equipe-hybrid__experts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.equipe-hybrid__expert-tag {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(59,108,245,0.08);
+  color: var(--color-accent-blue);
+  border: 1px solid rgba(59,108,245,0.15);
+}
+
+@media (max-width: 768px) {
+  .equipe-hybrid__model {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* ============================================================
+   MANIFESTE "BATISSEURS" — Phase 5
+   ============================================================ */
+.manifesto-section {
+  background: var(--color-bg-dark);
+  color: var(--color-text-inverse);
+  padding: clamp(60px, 10vw, 120px) 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.manifesto-section::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(196,98,42,0.3), transparent);
+}
+
+.manifesto__inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 var(--container-pad);
+}
+
+.manifesto__overline {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 24px;
+}
+
+.manifesto__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+
+.manifesto__title em {
+  font-style: normal;
+  color: var(--color-accent);
+}
+
+.manifesto__text {
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  line-height: 1.8;
+  color: rgba(240,240,242,0.65);
+  margin-bottom: 12px;
+}
+
+.manifesto__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 32px;
+  padding: 14px 28px;
+  border-radius: 6px;
+  background: var(--color-accent);
+  color: white;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.manifesto__cta:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   TECH STACK STRIP — Phase 2 addition
+   ============================================================ */
+.tech-strip {
+  background: var(--color-bg);
+  padding: clamp(40px, 6vw, 64px) 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tech-strip__inner {
+  max-width: var(--full-max);
+  margin: 0 auto;
+  padding: 0 var(--container-pad);
+  text-align: center;
+}
+
+.tech-strip__label {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin-bottom: 24px;
+}
+
+.tech-strip__logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.tech-strip__item {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+}
+
+.tech-strip__item:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }

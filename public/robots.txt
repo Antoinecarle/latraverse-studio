@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /branding/
+Disallow: /diagnostic/
+Disallow: /api/
 
 Sitemap: https://latraverse.studio/sitemap.xml
