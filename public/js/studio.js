@@ -1,23 +1,23 @@
-// Studio onboarding — step navigation + parcours configuration
+// Studio onboarding — 4-step flow: Projet → Metier → Config → Go
 (function() {
   let currentStep = 1;
-  const totalSteps = 5;
+  var totalSteps = 4;
   let selectedMetier = null;
   let selectedParcours = null;
   let configSubStep = 1;
-  const configSelections = { step1: new Set(), step2: new Set() };
+  var configSelections = { step1: new Set(), step2: new Set() };
   let isTransitioning = false;
 
-  const steps = document.querySelectorAll('.ob-step');
-  const dots = document.querySelectorAll('.ob-j-dot');
-  const lines = document.querySelectorAll('.ob-j-line');
-  const labels = document.querySelectorAll('.ob-j-labels span');
-  const stepNum = document.getElementById('stepNum');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const configContent = document.getElementById('configContent');
+  var steps = document.querySelectorAll('.ob-step');
+  var dots = document.querySelectorAll('.ob-j-dot');
+  var lines = document.querySelectorAll('.ob-j-line');
+  var labels = document.querySelectorAll('.ob-j-labels span');
+  var stepNum = document.getElementById('stepNum');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var configContent = document.getElementById('configContent');
 
-  const metierNames = {
+  var metierNames = {
     commerce: 'Commerce & Retail',
     artisan: 'Artisanat & BTP',
     sante: 'Sante & Bien-etre',
@@ -27,9 +27,9 @@
   };
 
   // =============================
-  // PARCOURS DATA — complete
+  // PARCOURS DATA
   // =============================
-  const parcoursData = {
+  var parcoursData = {
     vitrine: {
       name: 'Parcours Vitrine',
       stepLabels: ['Pages', 'Fonctionnalites', 'Estimation'],
@@ -208,8 +208,8 @@
 
     currentStep = n;
 
-    // Reset config when entering step 4
-    if (n === 4) {
+    // Reset config when entering step 3 (config)
+    if (n === 3) {
       configSubStep = 1;
       configSelections.step1.clear();
       configSelections.step2.clear();
@@ -242,13 +242,15 @@
     var isFirstStep = (currentStep === 1);
     var isLastStep = (currentStep === totalSteps);
 
+    // Retour: hidden on step 1, visible otherwise
     prevBtn.style.visibility = isFirstStep ? 'hidden' : 'visible';
-    nextBtn.style.display = isLastStep ? 'none' : '';
 
-    // Hide next button on estimation step (form handles progression)
-    if (currentStep === 4 && configSubStep === 3) {
+    // Suivant: hidden on steps 1 & 2 (auto-advance via card click),
+    // hidden on last step, hidden on estimation sub-step
+    if (isFirstStep || currentStep === 2 || isLastStep || (currentStep === 3 && configSubStep === 3)) {
       nextBtn.style.display = 'none';
     } else {
+      nextBtn.style.display = '';
       nextBtn.innerHTML = 'Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
     }
   }
@@ -257,7 +259,7 @@
   // BUTTON HANDLERS
   // =============================
   nextBtn.addEventListener('click', function() {
-    if (currentStep === 4 && configSubStep < 3) {
+    if (currentStep === 3 && configSubStep < 3) {
       goToConfigSubStep(configSubStep + 1);
     } else {
       goToStep(currentStep + 1);
@@ -265,17 +267,34 @@
   });
 
   prevBtn.addEventListener('click', function() {
-    if (currentStep === 4 && configSubStep > 1) {
+    if (currentStep === 3 && configSubStep > 1) {
       goToConfigSubStep(configSubStep - 1);
     } else {
       goToStep(currentStep - 1);
     }
   });
 
-  // Dot click navigation (main)
+  // Dot click navigation
   dots.forEach(function(d) {
     d.addEventListener('click', function() {
       goToStep(parseInt(d.dataset.dot));
+    });
+  });
+
+  // =============================
+  // PARCOURS SELECTION (Step 1)
+  // =============================
+  document.querySelectorAll('.ob-parcours-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      var wasSelected = card.classList.contains('selected');
+      document.querySelectorAll('.ob-parcours-card').forEach(function(c) { c.classList.remove('selected'); });
+      card.classList.add('selected');
+      selectedParcours = card.dataset.parcours;
+
+      // Auto-advance to step 2 after brief visual feedback (even if re-clicking same card)
+      setTimeout(function() {
+        goToStep(2);
+      }, wasSelected ? 200 : 400);
     });
   });
 
@@ -284,25 +303,20 @@
   // =============================
   document.querySelectorAll('.ob-metier-card').forEach(function(card) {
     card.addEventListener('click', function() {
+      var wasSelected = card.classList.contains('selected');
       document.querySelectorAll('.ob-metier-card').forEach(function(c) { c.classList.remove('selected'); });
       card.classList.add('selected');
       selectedMetier = card.dataset.metier;
+
+      // Auto-advance to step 3 (config) after brief visual feedback (even if re-clicking same card)
+      setTimeout(function() {
+        goToStep(3);
+      }, wasSelected ? 200 : 400);
     });
   });
 
   // =============================
-  // PARCOURS SELECTION (Step 3)
-  // =============================
-  document.querySelectorAll('.ob-parcours-card').forEach(function(card) {
-    card.addEventListener('click', function() {
-      document.querySelectorAll('.ob-parcours-card').forEach(function(c) { c.classList.remove('selected'); });
-      card.classList.add('selected');
-      selectedParcours = card.dataset.parcours;
-    });
-  });
-
-  // =============================
-  // CONFIG SUB-STEPS (Step 4)
+  // CONFIG SUB-STEPS (Step 3)
   // =============================
   function initConfigStep() {
     if (!selectedParcours || !parcoursData[selectedParcours]) {
@@ -311,7 +325,6 @@
     }
     var parcours = parcoursData[selectedParcours];
 
-    // Set sub-step labels
     var label1 = document.getElementById('configLabel1');
     var label2 = document.getElementById('configLabel2');
     var label3 = document.getElementById('configLabel3');
@@ -319,7 +332,6 @@
     if (label2) label2.textContent = parcours.stepLabels[1];
     if (label3) label3.textContent = parcours.stepLabels[2];
 
-    // Pre-select default included options
     if (parcours.steps[0]) {
       parcours.steps[0].options.forEach(function(opt) {
         if (opt.included) configSelections.step1.add(opt.id);
@@ -337,6 +349,9 @@
     updateConfigStepper();
     renderConfigContent();
     updateButtons();
+    // Scroll step 3 content back to top
+    var step3El = document.querySelector('.ob-step[data-step="3"]');
+    if (step3El) step3El.scrollTop = 0;
   }
 
   function updateConfigStepper() {
@@ -399,7 +414,6 @@
     html += '</div>';
     configContent.innerHTML = html;
 
-    // Attach click handlers
     configContent.querySelectorAll('.ob-config-option:not(.included)').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var optionId = btn.dataset.option;
@@ -457,7 +471,6 @@
     html += '</div>';
     html += '</div>';
 
-    // Email capture form
     html += '<div class="ob-lead-form">';
     html += '<div class="ob-lead-form-title">Recevez votre estimation detaillee</div>';
     html += '<div class="ob-lead-form-desc">On vous recontacte pour un premier echange gratuit et sans engagement.</div>';
@@ -479,7 +492,6 @@
 
     configContent.innerHTML = html;
 
-    // Attach form submission handler
     var form = document.getElementById('leadForm');
     if (form) {
       form.addEventListener('submit', function(e) {
@@ -502,7 +514,6 @@
       return;
     }
 
-    // Disable button
     submitBtn.disabled = true;
     submitBtn.querySelector('.ob-lead-submit-text').textContent = 'Envoi en cours...';
 
@@ -529,9 +540,8 @@
       if (data.success) {
         msgEl.textContent = 'Merci ! On vous recontacte tres vite.';
         msgEl.className = 'ob-lead-msg ob-lead-msg-success';
-        // Auto-advance to step 5 after a short delay
         setTimeout(function() {
-          goToStep(5);
+          goToStep(4);
         }, 1500);
       } else {
         msgEl.textContent = data.error || 'Une erreur est survenue.';
@@ -558,15 +568,55 @@
     });
   });
 
-  // Watch step 4 activation
+  // Init button state on page load
+  updateButtons();
+
+  // Watch step 3 activation (config step)
   var observer = new MutationObserver(function() {
-    var step4 = document.querySelector('.ob-step[data-step="4"]');
-    if (step4 && step4.classList.contains('active')) {
+    var step3 = document.querySelector('.ob-step[data-step="3"]');
+    if (step3 && step3.classList.contains('active')) {
       initConfigStep();
     }
   });
   steps.forEach(function(s) {
     observer.observe(s, { attributes: true, attributeFilter: ['class'] });
   });
+
+  // =============================
+  // SWIPE GESTURES (mobile)
+  // =============================
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var mainEl = document.querySelector('.ob-main');
+
+  if (mainEl) {
+    mainEl.addEventListener('touchstart', function(e) {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    mainEl.addEventListener('touchend', function(e) {
+      var dx = e.changedTouches[0].screenX - touchStartX;
+      var dy = e.changedTouches[0].screenY - touchStartY;
+      // Only trigger if horizontal swipe is dominant and > 60px
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        if (dx < 0) {
+          // Swipe left → next
+          if (currentStep === 3 && configSubStep < 3) {
+            goToConfigSubStep(configSubStep + 1);
+          } else if (currentStep < totalSteps) {
+            goToStep(currentStep + 1);
+          }
+        } else {
+          // Swipe right → prev
+          if (currentStep === 3 && configSubStep > 1) {
+            goToConfigSubStep(configSubStep - 1);
+          } else if (currentStep > 1) {
+            goToStep(currentStep - 1);
+          }
+        }
+      }
+    }, { passive: true });
+  }
 
 })();
